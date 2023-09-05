@@ -15,6 +15,7 @@ import { SidebarTagsSection } from '../containers/profile/sidebar/SidebarTagsSec
 import { SidebarDomainSection } from '../containers/profile/sidebar/Domain/SidebarDomainSection';
 import UpstreamHealth from './UpstreamHealth/UpstreamHealth';
 import NonExistentEntityPage from '../entity/NonExistentEntityPage';
+import DataProductSection from '../containers/profile/sidebar/DataProduct/DataProductSection';
 
 const LoadingWrapper = styled.div`
     display: flex;
@@ -25,7 +26,7 @@ const LoadingWrapper = styled.div`
 `;
 
 const StyledDivider = styled(Divider)`
-    margin: 16px 0;
+    margin: 12px 0;
 `;
 
 interface Props<T> {
@@ -88,7 +89,11 @@ export default function EmbeddedProfile<T>({ urn, entityType, getOverridePropert
                     <StyledDivider />
                     <SidebarDomainSection readOnly />
                     <StyledDivider />
+<<<<<<< HEAD
                     <SidebarAccessRequestSection readOnly />
+=======
+                    <DataProductSection readOnly />
+>>>>>>> upstream/master
                 </>
             )}
         </EntityContext.Provider>

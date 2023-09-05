@@ -12,9 +12,15 @@ import { DocumentationTab } from '../shared/tabs/Documentation/DocumentationTab'
 import { SidebarTagsSection } from '../shared/containers/profile/sidebar/SidebarTagsSection';
 import { SidebarAboutSection } from '../shared/containers/profile/sidebar/AboutSection/SidebarAboutSection';
 import { SidebarDomainSection } from '../shared/containers/profile/sidebar/Domain/SidebarDomainSection';
+<<<<<<< HEAD
 import { SidebarAccessRequestSection } from '../shared/containers/profile/sidebar/AccessRequest/SidebarAccessRequestSection';
 import { SidebarOwnerSection } from '../shared/containers/profile/sidebar/Ownership/SidebarOwnerSection';
+=======
+import { SidebarOwnerSection } from '../shared/containers/profile/sidebar/Ownership/sidebar/SidebarOwnerSection';
+>>>>>>> upstream/master
 import { LineageTab } from '../shared/tabs/Lineage/LineageTab';
+import DataProductSection from '../shared/containers/profile/sidebar/DataProduct/DataProductSection';
+import { getDataProduct } from '../shared/utils';
 
 /**
  * Definition of the DataHub MLPrimaryKey entity.
@@ -88,6 +94,12 @@ export class MLPrimaryKeyEntity implements Entity<MlPrimaryKey> {
                     component: SidebarAboutSection,
                 },
                 {
+                    component: SidebarOwnerSection,
+                    properties: {
+                        defaultOwnerType: OwnershipType.TechnicalOwner,
+                    },
+                },
+                {
                     component: SidebarTagsSection,
                     properties: {
                         hasTags: true,
@@ -95,22 +107,21 @@ export class MLPrimaryKeyEntity implements Entity<MlPrimaryKey> {
                     },
                 },
                 {
-                    component: SidebarOwnerSection,
-                    properties: {
-                        defaultOwnerType: OwnershipType.TechnicalOwner,
-                    },
-                },
-                {
                     component: SidebarDomainSection,
                 },
                 {
+<<<<<<< HEAD
                     component: SidebarAccessRequestSection,
+=======
+                    component: DataProductSection,
+>>>>>>> upstream/master
                 },
             ]}
         />
     );
 
     renderPreview = (_: PreviewType, data: MlPrimaryKey) => {
+        const genericProperties = this.getGenericEntityProperties(data);
         // eslint-disable-next-line
         const platform = data?.['featureTables']?.relationships?.[0]?.entity?.platform;
         return (
@@ -121,12 +132,14 @@ export class MLPrimaryKeyEntity implements Entity<MlPrimaryKey> {
                 description={data.description}
                 owners={data.ownership?.owners}
                 platform={platform}
+                dataProduct={getDataProduct(genericProperties?.dataProduct)}
             />
         );
     };
 
     renderSearch = (result: SearchResult) => {
         const data = result.entity as MlPrimaryKey;
+        const genericProperties = this.getGenericEntityProperties(data);
         // eslint-disable-next-line
         const platform = data?.['featureTables']?.relationships?.[0]?.entity?.platform;
         return (
@@ -138,6 +151,9 @@ export class MLPrimaryKeyEntity implements Entity<MlPrimaryKey> {
                 owners={data.ownership?.owners}
                 platform={platform}
                 platformInstanceId={data.dataPlatformInstance?.instanceId}
+                dataProduct={getDataProduct(genericProperties?.dataProduct)}
+                degree={(result as any).degree}
+                paths={(result as any).paths}
             />
         );
     };
@@ -174,6 +190,7 @@ export class MLPrimaryKeyEntity implements Entity<MlPrimaryKey> {
             EntityCapabilityType.DOMAINS,
             EntityCapabilityType.DEPRECATION,
             EntityCapabilityType.SOFT_DELETE,
+            EntityCapabilityType.DATA_PRODUCTS,
         ]);
     };
 }
