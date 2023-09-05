@@ -1,7 +1,6 @@
 package com.linkedin.datahub.graphql.types.chart.mappers;
 
 import com.linkedin.chart.EditableChartProperties;
-import com.linkedin.common.BrowsePathsV2;
 import com.linkedin.common.DataPlatformInstance;
 import com.linkedin.common.Deprecation;
 import com.linkedin.common.Embed;
@@ -26,7 +25,6 @@ import com.linkedin.datahub.graphql.generated.DataPlatform;
 import com.linkedin.datahub.graphql.generated.Dataset;
 import com.linkedin.datahub.graphql.generated.EntityType;
 import com.linkedin.datahub.graphql.types.common.mappers.AuditStampMapper;
-import com.linkedin.datahub.graphql.types.common.mappers.BrowsePathsV2Mapper;
 import com.linkedin.datahub.graphql.types.common.mappers.DataPlatformInstanceAspectMapper;
 import com.linkedin.datahub.graphql.types.common.mappers.DeprecationMapper;
 import com.linkedin.datahub.graphql.types.common.mappers.EmbedMapper;
@@ -82,7 +80,7 @@ public class ChartMapper implements ModelMapper<EntityResponse, Chart> {
             chart.setStatus(StatusMapper.map(new Status(dataMap))));
         mappingHelper.mapToResult(GLOBAL_TAGS_ASPECT_NAME, (dataset, dataMap) -> this.mapGlobalTags(dataset, dataMap, entityUrn));
         mappingHelper.mapToResult(INSTITUTIONAL_MEMORY_ASPECT_NAME, (chart, dataMap) ->
-            chart.setInstitutionalMemory(InstitutionalMemoryMapper.map(new InstitutionalMemory(dataMap), entityUrn)));
+            chart.setInstitutionalMemory(InstitutionalMemoryMapper.map(new InstitutionalMemory(dataMap))));
         mappingHelper.mapToResult(GLOSSARY_TERMS_ASPECT_NAME, (chart, dataMap) ->
             chart.setGlossaryTerms(GlossaryTermsMapper.map(new GlossaryTerms(dataMap), entityUrn)));
         mappingHelper.mapToResult(CONTAINER_ASPECT_NAME, this::mapContainers);
@@ -95,8 +93,6 @@ public class ChartMapper implements ModelMapper<EntityResponse, Chart> {
             chart.setInputFields(InputFieldsMapper.map(new InputFields(dataMap), entityUrn)));
         mappingHelper.mapToResult(EMBED_ASPECT_NAME, (chart, dataMap) ->
             chart.setEmbed(EmbedMapper.map(new Embed(dataMap))));
-        mappingHelper.mapToResult(BROWSE_PATHS_V2_ASPECT_NAME, (chart, dataMap) ->
-            chart.setBrowsePathV2(BrowsePathsV2Mapper.map(new BrowsePathsV2(dataMap))));
         return mappingHelper.getResult();
     }
 

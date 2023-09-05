@@ -34,6 +34,7 @@ from datahub.ingestion.source.powerbi_report_server.constants import (
 from datahub.ingestion.source.powerbi_report_server.report_server_domain import (
     CorpUser,
     LinkedReport,
+    MobileReport,
     Owner,
     OwnershipData,
     PowerBiReport,
@@ -114,29 +115,6 @@ class PowerBiReportServerDashboardSourceConfig(PowerBiReportServerAPIConfig):
     chart_pattern: AllowDenyPattern = AllowDenyPattern.allow_all()
 
 
-def log_http_error(e: BaseException, message: str) -> Any:
-    LOGGER.warning(message)
-
-    if isinstance(e, requests.exceptions.HTTPError):
-        LOGGER.warning(f"HTTP status-code = {e.response.status_code}")
-
-    LOGGER.debug(msg=message, exc_info=e)
-
-    return e
-
-
-def get_response_dict(response: requests.Response, error_message: str) -> dict:
-
-    result_dict: dict = {}
-    try:
-        response.raise_for_status()
-        result_dict = response.json()
-    except BaseException as e:
-        log_http_error(e=e, message=error_message)
-
-    return result_dict
-
-
 class PowerBiReportServerAPI:
     # API endpoints of PowerBI Report Server to fetch reports, datasets
 
@@ -165,15 +143,14 @@ class PowerBiReportServerAPI:
                 url=url_http,
                 auth=self.get_auth_credentials,
             )
+        # Check if we got response from PowerBi Report Server
+        if response.status_code != 200:
+            message: str = "Failed to fetch Report from powerbi-report-server for"
+            LOGGER.warning(message)
+            LOGGER.warning("{}={}".format(Constant.ReportId, content_type))
+            raise ValueError(message)
 
-        error_message: str = (
-            f"Failed to fetch {content_type} Report from powerbi-report-server"
-        )
-
-        return get_response_dict(
-            response=response,
-            error_message=error_message,
-        )
+        return response.json()
 
     def get_all_reports(self) -> List[Any]:
         """
@@ -181,6 +158,7 @@ class PowerBiReportServerAPI:
         """
         report_types_mapping: Dict[str, Any] = {
             Constant.REPORTS: Report,
+            Constant.MOBILE_REPORTS: MobileReport,
             Constant.LINKED_REPORTS: LinkedReport,
             Constant.POWERBI_REPORTS: PowerBiReport,
         }
@@ -195,17 +173,15 @@ class PowerBiReportServerAPI:
             report_get_endpoint_https = report_get_endpoint.format(
                 PBIRS_BASE_URL=self.__config.get_base_api_https_url,
             )
-
             response_dict = self.requests_get(
                 url_http=report_get_endpoint_http,
                 url_https=report_get_endpoint_https,
                 content_type=report_type,
-            )
-
-            if response_dict.get("value"):
+            )["value"]
+            if response_dict:
                 reports.extend(
                     report_types_mapping[report_type].parse_obj(report)
-                    for report in response_dict.get("value")
+                    for report in response_dict
                 )
 
         return reports
@@ -510,6 +486,7 @@ class PowerBiReportServerDashboardSource(Source):
     Next types of report can be ingested:
        - PowerBI report(.pbix)
        - Paginated report(.rdl)
+       - Mobile report
        - Linked report
     """
 
@@ -532,7 +509,7 @@ class PowerBiReportServerDashboardSource(Source):
         config = PowerBiReportServerDashboardSourceConfig.parse_obj(config_dict)
         return cls(config, ctx)
 
-    def get_workunits_internal(self) -> Iterable[MetadataWorkUnit]:
+    def get_workunits(self) -> Iterable[MetadataWorkUnit]:
         """
         Datahub Ingestion framework invoke this method
         """
@@ -555,7 +532,12 @@ class PowerBiReportServerDashboardSource(Source):
                 self.report.report_scanned(count=1)
             # Convert PowerBi Report Server Dashboard and child entities
             # to Datahub work unit to ingest into Datahub
-            yield from self.mapper.to_datahub_work_units(report)
+            workunits = self.mapper.to_datahub_work_units(report)
+            for workunit in workunits:
+                # Add workunit to report
+                self.report.report_workunit(workunit)
+                # Return workunit to Datahub Ingestion framework
+                yield workunit
 
     def get_user_info(self, report: Any) -> OwnershipData:
         existing_ownership: List[OwnerClass] = []

@@ -10,7 +10,6 @@
                 "platform": "databricks",
                 "metastore": "acryl metastore"
             },
-            "externalUrl": "https://dummy.cloud.databricks.com/explore/data",
             "name": "acryl metastore"
         }
     },
@@ -68,45 +67,6 @@
 },
 {
     "entityType": "container",
-    "entityUrn": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb",
-    "changeType": "UPSERT",
-    "aspectName": "ownership",
-    "aspect": {
-        "json": {
-            "owners": [
-                {
-                    "owner": "urn:li:corpuser:abc@acryl.io",
-                    "type": "DATAOWNER"
-                }
-            ],
-            "lastModified": {
-                "time": 0,
-                "actor": "urn:li:corpuser:unknown"
-            }
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "container",
-    "entityUrn": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": []
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "container",
     "entityUrn": "urn:li:container:83d98e62e36bddc3596c2b738e23b596",
     "changeType": "UPSERT",
     "aspectName": "containerProperties",
@@ -117,7 +77,6 @@
                 "metastore": "acryl metastore",
                 "catalog": "main"
             },
-            "externalUrl": "https://dummy.cloud.databricks.com/explore/data/main",
             "name": "main",
             "description": "Main catalog (auto-created)"
         }
@@ -178,54 +137,10 @@
     "entityType": "container",
     "entityUrn": "urn:li:container:83d98e62e36bddc3596c2b738e23b596",
     "changeType": "UPSERT",
-    "aspectName": "ownership",
-    "aspect": {
-        "json": {
-            "owners": [
-                {
-                    "owner": "urn:li:corpuser:account users",
-                    "type": "DATAOWNER"
-                }
-            ],
-            "lastModified": {
-                "time": 0,
-                "actor": "urn:li:corpuser:unknown"
-            }
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "container",
-    "entityUrn": "urn:li:container:83d98e62e36bddc3596c2b738e23b596",
-    "changeType": "UPSERT",
     "aspectName": "container",
     "aspect": {
         "json": {
             "container": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb"
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "container",
-    "entityUrn": "urn:li:container:83d98e62e36bddc3596c2b738e23b596",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": [
-                {
-                    "id": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb",
-                    "urn": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb"
-                }
-            ]
         }
     },
     "systemMetadata": {
@@ -246,7 +161,6 @@
                 "catalog": "main",
                 "unity_schema": "default"
             },
-            "externalUrl": "https://dummy.cloud.databricks.com/explore/data/main/default",
             "name": "default",
             "description": "Default schema (auto-created)"
         }
@@ -307,58 +221,10 @@
     "entityType": "container",
     "entityUrn": "urn:li:container:5ada0a9773235325e506410c512feabb",
     "changeType": "UPSERT",
-    "aspectName": "ownership",
-    "aspect": {
-        "json": {
-            "owners": [
-                {
-                    "owner": "urn:li:corpuser:abc@acryl.io",
-                    "type": "DATAOWNER"
-                }
-            ],
-            "lastModified": {
-                "time": 0,
-                "actor": "urn:li:corpuser:unknown"
-            }
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "container",
-    "entityUrn": "urn:li:container:5ada0a9773235325e506410c512feabb",
-    "changeType": "UPSERT",
     "aspectName": "container",
     "aspect": {
         "json": {
             "container": "urn:li:container:83d98e62e36bddc3596c2b738e23b596"
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "container",
-    "entityUrn": "urn:li:container:5ada0a9773235325e506410c512feabb",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": [
-                {
-                    "id": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb",
-                    "urn": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb"
-                },
-                {
-                    "id": "urn:li:container:83d98e62e36bddc3596c2b738e23b596",
-                    "urn": "urn:li:container:83d98e62e36bddc3596c2b738e23b596"
-                }
-            ]
         }
     },
     "systemMetadata": {
@@ -394,27 +260,14 @@
                 "generation": "2",
                 "table_type": "MANAGED",
                 "created_by": "abc@acryl.io",
-                "created_at": "2022-10-19 13:21:38.688000+00:00",
-                "delta.lastCommitTimestamp": "1666185711000",
-                "delta.lastUpdateVersion": "1",
-                "delta.minReaderVersion": "1",
-                "delta.minWriterVersion": "2",
+                "created_at": "2022-10-19 13:21:38.688000",
+                "properties": "{'delta.lastCommitTimestamp': '1666185711000', 'delta.lastUpdateVersion': '1', 'delta.minReaderVersion': '1', 'delta.minWriterVersion': '2'}",
                 "table_id": "cff27aa1-1c6a-4d78-b713-562c660c2896",
                 "owner": "account users",
                 "updated_by": "abc@acryl.io",
-                "updated_at": "2022-10-19 13:27:29.633000+00:00"
+                "updated_at": "2022-10-19 13:27:29.633000"
             },
-            "externalUrl": "https://dummy.cloud.databricks.com/explore/data/main/default/quickstart_table",
             "name": "quickstart_table",
-            "qualifiedName": "main.default.quickstart_table",
-            "created": {
-                "time": 1666185698688,
-                "actor": "urn:li:corpuser:abc@acryl.io"
-            },
-            "lastModified": {
-                "time": 1666186049633,
-                "actor": "urn:li:corpuser:abc@acryl.io"
-            },
             "tags": []
         }
     },
@@ -501,28 +354,6 @@
     "entityType": "dataset",
     "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.main.default.quickstart_table,PROD)",
     "changeType": "UPSERT",
-    "aspectName": "operation",
-    "aspect": {
-        "json": {
-            "timestampMillis": 1638860400000,
-            "partitionSpec": {
-                "type": "FULL_TABLE",
-                "partition": "FULL_TABLE_SNAPSHOT"
-            },
-            "actor": "urn:li:corpuser:abc@acryl.io",
-            "operationType": "UPDATE",
-            "lastUpdatedTimestamp": 1666186049633
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "dataset",
-    "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.main.default.quickstart_table,PROD)",
-    "changeType": "UPSERT",
     "aspectName": "ownership",
     "aspect": {
         "json": {
@@ -544,34 +375,6 @@
     }
 },
 {
-    "entityType": "dataset",
-    "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.main.default.quickstart_table,PROD)",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": [
-                {
-                    "id": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb",
-                    "urn": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb"
-                },
-                {
-                    "id": "urn:li:container:83d98e62e36bddc3596c2b738e23b596",
-                    "urn": "urn:li:container:83d98e62e36bddc3596c2b738e23b596"
-                },
-                {
-                    "id": "urn:li:container:5ada0a9773235325e506410c512feabb",
-                    "urn": "urn:li:container:5ada0a9773235325e506410c512feabb"
-                }
-            ]
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
     "entityType": "container",
     "entityUrn": "urn:li:container:0e09e6ec299ef004941e25221d3ef6b6",
     "changeType": "UPSERT",
@@ -584,7 +387,6 @@
                 "catalog": "main",
                 "unity_schema": "information_schema"
             },
-            "externalUrl": "https://dummy.cloud.databricks.com/explore/data/main/information_schema",
             "name": "information_schema",
             "description": "Information schema (auto-created)"
         }
@@ -645,58 +447,10 @@
     "entityType": "container",
     "entityUrn": "urn:li:container:0e09e6ec299ef004941e25221d3ef6b6",
     "changeType": "UPSERT",
-    "aspectName": "ownership",
-    "aspect": {
-        "json": {
-            "owners": [
-                {
-                    "owner": "urn:li:corpuser:Service Principal 1",
-                    "type": "DATAOWNER"
-                }
-            ],
-            "lastModified": {
-                "time": 0,
-                "actor": "urn:li:corpuser:unknown"
-            }
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "container",
-    "entityUrn": "urn:li:container:0e09e6ec299ef004941e25221d3ef6b6",
-    "changeType": "UPSERT",
     "aspectName": "container",
     "aspect": {
         "json": {
             "container": "urn:li:container:83d98e62e36bddc3596c2b738e23b596"
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "container",
-    "entityUrn": "urn:li:container:0e09e6ec299ef004941e25221d3ef6b6",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": [
-                {
-                    "id": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb",
-                    "urn": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb"
-                },
-                {
-                    "id": "urn:li:container:83d98e62e36bddc3596c2b738e23b596",
-                    "urn": "urn:li:container:83d98e62e36bddc3596c2b738e23b596"
-                }
-            ]
         }
     },
     "systemMetadata": {
@@ -732,27 +486,14 @@
                 "generation": "2",
                 "table_type": "MANAGED",
                 "created_by": "abc@acryl.io",
-                "created_at": "2022-10-19 13:21:38.688000+00:00",
-                "delta.lastCommitTimestamp": "1666185711000",
-                "delta.lastUpdateVersion": "1",
-                "delta.minReaderVersion": "1",
-                "delta.minWriterVersion": "2",
+                "created_at": "2022-10-19 13:21:38.688000",
+                "properties": "{'delta.lastCommitTimestamp': '1666185711000', 'delta.lastUpdateVersion': '1', 'delta.minReaderVersion': '1', 'delta.minWriterVersion': '2'}",
                 "table_id": "cff27aa1-1c6a-4d78-b713-562c660c2896",
                 "owner": "account users",
                 "updated_by": "abc@acryl.io",
-                "updated_at": "2022-10-19 13:27:29.633000+00:00"
+                "updated_at": "2022-10-19 13:27:29.633000"
             },
-            "externalUrl": "https://dummy.cloud.databricks.com/explore/data/main/information_schema/quickstart_table",
             "name": "quickstart_table",
-            "qualifiedName": "main.information_schema.quickstart_table",
-            "created": {
-                "time": 1666185698688,
-                "actor": "urn:li:corpuser:abc@acryl.io"
-            },
-            "lastModified": {
-                "time": 1666186049633,
-                "actor": "urn:li:corpuser:abc@acryl.io"
-            },
             "tags": []
         }
     },
@@ -839,28 +580,6 @@
     "entityType": "dataset",
     "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.main.information_schema.quickstart_table,PROD)",
     "changeType": "UPSERT",
-    "aspectName": "operation",
-    "aspect": {
-        "json": {
-            "timestampMillis": 1638860400000,
-            "partitionSpec": {
-                "type": "FULL_TABLE",
-                "partition": "FULL_TABLE_SNAPSHOT"
-            },
-            "actor": "urn:li:corpuser:abc@acryl.io",
-            "operationType": "UPDATE",
-            "lastUpdatedTimestamp": 1666186049633
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "dataset",
-    "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.main.information_schema.quickstart_table,PROD)",
-    "changeType": "UPSERT",
     "aspectName": "ownership",
     "aspect": {
         "json": {
@@ -882,34 +601,6 @@
     }
 },
 {
-    "entityType": "dataset",
-    "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.main.information_schema.quickstart_table,PROD)",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": [
-                {
-                    "id": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb",
-                    "urn": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb"
-                },
-                {
-                    "id": "urn:li:container:83d98e62e36bddc3596c2b738e23b596",
-                    "urn": "urn:li:container:83d98e62e36bddc3596c2b738e23b596"
-                },
-                {
-                    "id": "urn:li:container:0e09e6ec299ef004941e25221d3ef6b6",
-                    "urn": "urn:li:container:0e09e6ec299ef004941e25221d3ef6b6"
-                }
-            ]
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
     "entityType": "container",
     "entityUrn": "urn:li:container:481380c5a355638fc626eca8380cdda9",
     "changeType": "UPSERT",
@@ -922,7 +613,6 @@
                 "catalog": "main",
                 "unity_schema": "quickstart_schema"
             },
-            "externalUrl": "https://dummy.cloud.databricks.com/explore/data/main/quickstart_schema",
             "name": "quickstart_schema",
             "description": "A new Unity Catalog schema called quickstart_schema"
         }
@@ -983,58 +673,10 @@
     "entityType": "container",
     "entityUrn": "urn:li:container:481380c5a355638fc626eca8380cdda9",
     "changeType": "UPSERT",
-    "aspectName": "ownership",
-    "aspect": {
-        "json": {
-            "owners": [
-                {
-                    "owner": "urn:li:corpuser:account users",
-                    "type": "DATAOWNER"
-                }
-            ],
-            "lastModified": {
-                "time": 0,
-                "actor": "urn:li:corpuser:unknown"
-            }
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "container",
-    "entityUrn": "urn:li:container:481380c5a355638fc626eca8380cdda9",
-    "changeType": "UPSERT",
     "aspectName": "container",
     "aspect": {
         "json": {
             "container": "urn:li:container:83d98e62e36bddc3596c2b738e23b596"
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "container",
-    "entityUrn": "urn:li:container:481380c5a355638fc626eca8380cdda9",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": [
-                {
-                    "id": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb",
-                    "urn": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb"
-                },
-                {
-                    "id": "urn:li:container:83d98e62e36bddc3596c2b738e23b596",
-                    "urn": "urn:li:container:83d98e62e36bddc3596c2b738e23b596"
-                }
-            ]
         }
     },
     "systemMetadata": {
@@ -1070,27 +712,14 @@
                 "generation": "2",
                 "table_type": "MANAGED",
                 "created_by": "abc@acryl.io",
-                "created_at": "2022-10-19 13:21:38.688000+00:00",
-                "delta.lastCommitTimestamp": "1666185711000",
-                "delta.lastUpdateVersion": "1",
-                "delta.minReaderVersion": "1",
-                "delta.minWriterVersion": "2",
+                "created_at": "2022-10-19 13:21:38.688000",
+                "properties": "{'delta.lastCommitTimestamp': '1666185711000', 'delta.lastUpdateVersion': '1', 'delta.minReaderVersion': '1', 'delta.minWriterVersion': '2'}",
                 "table_id": "cff27aa1-1c6a-4d78-b713-562c660c2896",
                 "owner": "account users",
                 "updated_by": "abc@acryl.io",
-                "updated_at": "2022-10-19 13:27:29.633000+00:00"
+                "updated_at": "2022-10-19 13:27:29.633000"
             },
-            "externalUrl": "https://dummy.cloud.databricks.com/explore/data/main/quickstart_schema/quickstart_table",
             "name": "quickstart_table",
-            "qualifiedName": "main.quickstart_schema.quickstart_table",
-            "created": {
-                "time": 1666185698688,
-                "actor": "urn:li:corpuser:abc@acryl.io"
-            },
-            "lastModified": {
-                "time": 1666186049633,
-                "actor": "urn:li:corpuser:abc@acryl.io"
-            },
             "tags": []
         }
     },
@@ -1177,28 +806,6 @@
     "entityType": "dataset",
     "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.main.quickstart_schema.quickstart_table,PROD)",
     "changeType": "UPSERT",
-    "aspectName": "operation",
-    "aspect": {
-        "json": {
-            "timestampMillis": 1638860400000,
-            "partitionSpec": {
-                "type": "FULL_TABLE",
-                "partition": "FULL_TABLE_SNAPSHOT"
-            },
-            "actor": "urn:li:corpuser:abc@acryl.io",
-            "operationType": "UPDATE",
-            "lastUpdatedTimestamp": 1666186049633
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "dataset",
-    "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.main.quickstart_schema.quickstart_table,PROD)",
-    "changeType": "UPSERT",
     "aspectName": "ownership",
     "aspect": {
         "json": {
@@ -1220,34 +827,6 @@
     }
 },
 {
-    "entityType": "dataset",
-    "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.main.quickstart_schema.quickstart_table,PROD)",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": [
-                {
-                    "id": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb",
-                    "urn": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb"
-                },
-                {
-                    "id": "urn:li:container:83d98e62e36bddc3596c2b738e23b596",
-                    "urn": "urn:li:container:83d98e62e36bddc3596c2b738e23b596"
-                },
-                {
-                    "id": "urn:li:container:481380c5a355638fc626eca8380cdda9",
-                    "urn": "urn:li:container:481380c5a355638fc626eca8380cdda9"
-                }
-            ]
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
     "entityType": "container",
     "entityUrn": "urn:li:container:079ede9d4f0640985a8ccf8eb180e965",
     "changeType": "UPSERT",
@@ -1259,7 +838,6 @@
                 "metastore": "acryl metastore",
                 "catalog": "quickstart_catalog"
             },
-            "externalUrl": "https://dummy.cloud.databricks.com/explore/data/quickstart_catalog",
             "name": "quickstart_catalog",
             "description": ""
         }
@@ -1320,54 +898,10 @@
     "entityType": "container",
     "entityUrn": "urn:li:container:079ede9d4f0640985a8ccf8eb180e965",
     "changeType": "UPSERT",
-    "aspectName": "ownership",
-    "aspect": {
-        "json": {
-            "owners": [
-                {
-                    "owner": "urn:li:corpuser:account users",
-                    "type": "DATAOWNER"
-                }
-            ],
-            "lastModified": {
-                "time": 0,
-                "actor": "urn:li:corpuser:unknown"
-            }
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "container",
-    "entityUrn": "urn:li:container:079ede9d4f0640985a8ccf8eb180e965",
-    "changeType": "UPSERT",
     "aspectName": "container",
     "aspect": {
         "json": {
             "container": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb"
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "container",
-    "entityUrn": "urn:li:container:079ede9d4f0640985a8ccf8eb180e965",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": [
-                {
-                    "id": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb",
-                    "urn": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb"
-                }
-            ]
         }
     },
     "systemMetadata": {
@@ -1388,7 +922,6 @@
                 "catalog": "quickstart_catalog",
                 "unity_schema": "default"
             },
-            "externalUrl": "https://dummy.cloud.databricks.com/explore/data/quickstart_catalog/default",
             "name": "default",
             "description": "Default schema (auto-created)"
         }
@@ -1449,58 +982,10 @@
     "entityType": "container",
     "entityUrn": "urn:li:container:ce568b660cba2e1a4e811b010ac27f90",
     "changeType": "UPSERT",
-    "aspectName": "ownership",
-    "aspect": {
-        "json": {
-            "owners": [
-                {
-                    "owner": "urn:li:corpuser:abc@acryl.io",
-                    "type": "DATAOWNER"
-                }
-            ],
-            "lastModified": {
-                "time": 0,
-                "actor": "urn:li:corpuser:unknown"
-            }
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "container",
-    "entityUrn": "urn:li:container:ce568b660cba2e1a4e811b010ac27f90",
-    "changeType": "UPSERT",
     "aspectName": "container",
     "aspect": {
         "json": {
             "container": "urn:li:container:079ede9d4f0640985a8ccf8eb180e965"
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "container",
-    "entityUrn": "urn:li:container:ce568b660cba2e1a4e811b010ac27f90",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": [
-                {
-                    "id": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb",
-                    "urn": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb"
-                },
-                {
-                    "id": "urn:li:container:079ede9d4f0640985a8ccf8eb180e965",
-                    "urn": "urn:li:container:079ede9d4f0640985a8ccf8eb180e965"
-                }
-            ]
         }
     },
     "systemMetadata": {
@@ -1536,27 +1021,14 @@
                 "generation": "2",
                 "table_type": "MANAGED",
                 "created_by": "abc@acryl.io",
-                "created_at": "2022-10-19 13:21:38.688000+00:00",
-                "delta.lastCommitTimestamp": "1666185711000",
-                "delta.lastUpdateVersion": "1",
-                "delta.minReaderVersion": "1",
-                "delta.minWriterVersion": "2",
+                "created_at": "2022-10-19 13:21:38.688000",
+                "properties": "{'delta.lastCommitTimestamp': '1666185711000', 'delta.lastUpdateVersion': '1', 'delta.minReaderVersion': '1', 'delta.minWriterVersion': '2'}",
                 "table_id": "cff27aa1-1c6a-4d78-b713-562c660c2896",
                 "owner": "account users",
                 "updated_by": "abc@acryl.io",
-                "updated_at": "2022-10-19 13:27:29.633000+00:00"
+                "updated_at": "2022-10-19 13:27:29.633000"
             },
-            "externalUrl": "https://dummy.cloud.databricks.com/explore/data/quickstart_catalog/default/quickstart_table",
             "name": "quickstart_table",
-            "qualifiedName": "quickstart_catalog.default.quickstart_table",
-            "created": {
-                "time": 1666185698688,
-                "actor": "urn:li:corpuser:abc@acryl.io"
-            },
-            "lastModified": {
-                "time": 1666186049633,
-                "actor": "urn:li:corpuser:abc@acryl.io"
-            },
             "tags": []
         }
     },
@@ -1643,28 +1115,6 @@
     "entityType": "dataset",
     "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.quickstart_catalog.default.quickstart_table,PROD)",
     "changeType": "UPSERT",
-    "aspectName": "operation",
-    "aspect": {
-        "json": {
-            "timestampMillis": 1638860400000,
-            "partitionSpec": {
-                "type": "FULL_TABLE",
-                "partition": "FULL_TABLE_SNAPSHOT"
-            },
-            "actor": "urn:li:corpuser:abc@acryl.io",
-            "operationType": "UPDATE",
-            "lastUpdatedTimestamp": 1666186049633
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "dataset",
-    "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.quickstart_catalog.default.quickstart_table,PROD)",
-    "changeType": "UPSERT",
     "aspectName": "ownership",
     "aspect": {
         "json": {
@@ -1686,34 +1136,6 @@
     }
 },
 {
-    "entityType": "dataset",
-    "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.quickstart_catalog.default.quickstart_table,PROD)",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": [
-                {
-                    "id": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb",
-                    "urn": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb"
-                },
-                {
-                    "id": "urn:li:container:079ede9d4f0640985a8ccf8eb180e965",
-                    "urn": "urn:li:container:079ede9d4f0640985a8ccf8eb180e965"
-                },
-                {
-                    "id": "urn:li:container:ce568b660cba2e1a4e811b010ac27f90",
-                    "urn": "urn:li:container:ce568b660cba2e1a4e811b010ac27f90"
-                }
-            ]
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
     "entityType": "container",
     "entityUrn": "urn:li:container:29f99476d533719be0cebc374d5265dc",
     "changeType": "UPSERT",
@@ -1726,7 +1148,6 @@
                 "catalog": "quickstart_catalog",
                 "unity_schema": "information_schema"
             },
-            "externalUrl": "https://dummy.cloud.databricks.com/explore/data/quickstart_catalog/information_schema",
             "name": "information_schema",
             "description": "Information schema (auto-created)"
         }
@@ -1787,58 +1208,10 @@
     "entityType": "container",
     "entityUrn": "urn:li:container:29f99476d533719be0cebc374d5265dc",
     "changeType": "UPSERT",
-    "aspectName": "ownership",
-    "aspect": {
-        "json": {
-            "owners": [
-                {
-                    "owner": "urn:li:corpuser:Service Principal 1",
-                    "type": "DATAOWNER"
-                }
-            ],
-            "lastModified": {
-                "time": 0,
-                "actor": "urn:li:corpuser:unknown"
-            }
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "container",
-    "entityUrn": "urn:li:container:29f99476d533719be0cebc374d5265dc",
-    "changeType": "UPSERT",
     "aspectName": "container",
     "aspect": {
         "json": {
             "container": "urn:li:container:079ede9d4f0640985a8ccf8eb180e965"
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "container",
-    "entityUrn": "urn:li:container:29f99476d533719be0cebc374d5265dc",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": [
-                {
-                    "id": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb",
-                    "urn": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb"
-                },
-                {
-                    "id": "urn:li:container:079ede9d4f0640985a8ccf8eb180e965",
-                    "urn": "urn:li:container:079ede9d4f0640985a8ccf8eb180e965"
-                }
-            ]
         }
     },
     "systemMetadata": {
@@ -1874,27 +1247,14 @@
                 "generation": "2",
                 "table_type": "MANAGED",
                 "created_by": "abc@acryl.io",
-                "created_at": "2022-10-19 13:21:38.688000+00:00",
-                "delta.lastCommitTimestamp": "1666185711000",
-                "delta.lastUpdateVersion": "1",
-                "delta.minReaderVersion": "1",
-                "delta.minWriterVersion": "2",
+                "created_at": "2022-10-19 13:21:38.688000",
+                "properties": "{'delta.lastCommitTimestamp': '1666185711000', 'delta.lastUpdateVersion': '1', 'delta.minReaderVersion': '1', 'delta.minWriterVersion': '2'}",
                 "table_id": "cff27aa1-1c6a-4d78-b713-562c660c2896",
                 "owner": "account users",
                 "updated_by": "abc@acryl.io",
-                "updated_at": "2022-10-19 13:27:29.633000+00:00"
+                "updated_at": "2022-10-19 13:27:29.633000"
             },
-            "externalUrl": "https://dummy.cloud.databricks.com/explore/data/quickstart_catalog/information_schema/quickstart_table",
             "name": "quickstart_table",
-            "qualifiedName": "quickstart_catalog.information_schema.quickstart_table",
-            "created": {
-                "time": 1666185698688,
-                "actor": "urn:li:corpuser:abc@acryl.io"
-            },
-            "lastModified": {
-                "time": 1666186049633,
-                "actor": "urn:li:corpuser:abc@acryl.io"
-            },
             "tags": []
         }
     },
@@ -1981,28 +1341,6 @@
     "entityType": "dataset",
     "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.quickstart_catalog.information_schema.quickstart_table,PROD)",
     "changeType": "UPSERT",
-    "aspectName": "operation",
-    "aspect": {
-        "json": {
-            "timestampMillis": 1638860400000,
-            "partitionSpec": {
-                "type": "FULL_TABLE",
-                "partition": "FULL_TABLE_SNAPSHOT"
-            },
-            "actor": "urn:li:corpuser:abc@acryl.io",
-            "operationType": "UPDATE",
-            "lastUpdatedTimestamp": 1666186049633
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "dataset",
-    "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.quickstart_catalog.information_schema.quickstart_table,PROD)",
-    "changeType": "UPSERT",
     "aspectName": "ownership",
     "aspect": {
         "json": {
@@ -2024,34 +1362,6 @@
     }
 },
 {
-    "entityType": "dataset",
-    "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.quickstart_catalog.information_schema.quickstart_table,PROD)",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": [
-                {
-                    "id": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb",
-                    "urn": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb"
-                },
-                {
-                    "id": "urn:li:container:079ede9d4f0640985a8ccf8eb180e965",
-                    "urn": "urn:li:container:079ede9d4f0640985a8ccf8eb180e965"
-                },
-                {
-                    "id": "urn:li:container:29f99476d533719be0cebc374d5265dc",
-                    "urn": "urn:li:container:29f99476d533719be0cebc374d5265dc"
-                }
-            ]
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
     "entityType": "container",
     "entityUrn": "urn:li:container:47a033e31b92a120f08f297c05d286f1",
     "changeType": "UPSERT",
@@ -2064,7 +1374,6 @@
                 "catalog": "quickstart_catalog",
                 "unity_schema": "quickstart_schema"
             },
-            "externalUrl": "https://dummy.cloud.databricks.com/explore/data/quickstart_catalog/quickstart_schema",
             "name": "quickstart_schema",
             "description": "A new Unity Catalog schema called quickstart_schema"
         }
@@ -2125,58 +1434,10 @@
     "entityType": "container",
     "entityUrn": "urn:li:container:47a033e31b92a120f08f297c05d286f1",
     "changeType": "UPSERT",
-    "aspectName": "ownership",
-    "aspect": {
-        "json": {
-            "owners": [
-                {
-                    "owner": "urn:li:corpuser:account users",
-                    "type": "DATAOWNER"
-                }
-            ],
-            "lastModified": {
-                "time": 0,
-                "actor": "urn:li:corpuser:unknown"
-            }
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "container",
-    "entityUrn": "urn:li:container:47a033e31b92a120f08f297c05d286f1",
-    "changeType": "UPSERT",
     "aspectName": "container",
     "aspect": {
         "json": {
             "container": "urn:li:container:079ede9d4f0640985a8ccf8eb180e965"
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "container",
-    "entityUrn": "urn:li:container:47a033e31b92a120f08f297c05d286f1",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": [
-                {
-                    "id": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb",
-                    "urn": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb"
-                },
-                {
-                    "id": "urn:li:container:079ede9d4f0640985a8ccf8eb180e965",
-                    "urn": "urn:li:container:079ede9d4f0640985a8ccf8eb180e965"
-                }
-            ]
         }
     },
     "systemMetadata": {
@@ -2212,27 +1473,14 @@
                 "generation": "2",
                 "table_type": "MANAGED",
                 "created_by": "abc@acryl.io",
-                "created_at": "2022-10-19 13:21:38.688000+00:00",
-                "delta.lastCommitTimestamp": "1666185711000",
-                "delta.lastUpdateVersion": "1",
-                "delta.minReaderVersion": "1",
-                "delta.minWriterVersion": "2",
+                "created_at": "2022-10-19 13:21:38.688000",
+                "properties": "{'delta.lastCommitTimestamp': '1666185711000', 'delta.lastUpdateVersion': '1', 'delta.minReaderVersion': '1', 'delta.minWriterVersion': '2'}",
                 "table_id": "cff27aa1-1c6a-4d78-b713-562c660c2896",
                 "owner": "account users",
                 "updated_by": "abc@acryl.io",
-                "updated_at": "2022-10-19 13:27:29.633000+00:00"
+                "updated_at": "2022-10-19 13:27:29.633000"
             },
-            "externalUrl": "https://dummy.cloud.databricks.com/explore/data/quickstart_catalog/quickstart_schema/quickstart_table",
             "name": "quickstart_table",
-            "qualifiedName": "quickstart_catalog.quickstart_schema.quickstart_table",
-            "created": {
-                "time": 1666185698688,
-                "actor": "urn:li:corpuser:abc@acryl.io"
-            },
-            "lastModified": {
-                "time": 1666186049633,
-                "actor": "urn:li:corpuser:abc@acryl.io"
-            },
             "tags": []
         }
     },
@@ -2319,28 +1567,6 @@
     "entityType": "dataset",
     "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.quickstart_catalog.quickstart_schema.quickstart_table,PROD)",
     "changeType": "UPSERT",
-    "aspectName": "operation",
-    "aspect": {
-        "json": {
-            "timestampMillis": 1638860400000,
-            "partitionSpec": {
-                "type": "FULL_TABLE",
-                "partition": "FULL_TABLE_SNAPSHOT"
-            },
-            "actor": "urn:li:corpuser:abc@acryl.io",
-            "operationType": "UPDATE",
-            "lastUpdatedTimestamp": 1666186049633
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "dataset",
-    "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.quickstart_catalog.quickstart_schema.quickstart_table,PROD)",
-    "changeType": "UPSERT",
     "aspectName": "ownership",
     "aspect": {
         "json": {
@@ -2362,34 +1588,6 @@
     }
 },
 {
-    "entityType": "dataset",
-    "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.quickstart_catalog.quickstart_schema.quickstart_table,PROD)",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": [
-                {
-                    "id": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb",
-                    "urn": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb"
-                },
-                {
-                    "id": "urn:li:container:079ede9d4f0640985a8ccf8eb180e965",
-                    "urn": "urn:li:container:079ede9d4f0640985a8ccf8eb180e965"
-                },
-                {
-                    "id": "urn:li:container:47a033e31b92a120f08f297c05d286f1",
-                    "urn": "urn:li:container:47a033e31b92a120f08f297c05d286f1"
-                }
-            ]
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
     "entityType": "container",
     "entityUrn": "urn:li:container:5f7e6ee26826ba56e6d1d0b94f291fa9",
     "changeType": "UPSERT",
@@ -2401,7 +1599,6 @@
                 "metastore": "acryl metastore",
                 "catalog": "system"
             },
-            "externalUrl": "https://dummy.cloud.databricks.com/explore/data/system",
             "name": "system",
             "description": "System catalog (auto-created)"
         }
@@ -2462,54 +1659,10 @@
     "entityType": "container",
     "entityUrn": "urn:li:container:5f7e6ee26826ba56e6d1d0b94f291fa9",
     "changeType": "UPSERT",
-    "aspectName": "ownership",
-    "aspect": {
-        "json": {
-            "owners": [
-                {
-                    "owner": "urn:li:corpuser:Service Principal 2",
-                    "type": "DATAOWNER"
-                }
-            ],
-            "lastModified": {
-                "time": 0,
-                "actor": "urn:li:corpuser:unknown"
-            }
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "container",
-    "entityUrn": "urn:li:container:5f7e6ee26826ba56e6d1d0b94f291fa9",
-    "changeType": "UPSERT",
     "aspectName": "container",
     "aspect": {
         "json": {
             "container": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb"
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "container",
-    "entityUrn": "urn:li:container:5f7e6ee26826ba56e6d1d0b94f291fa9",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": [
-                {
-                    "id": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb",
-                    "urn": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb"
-                }
-            ]
         }
     },
     "systemMetadata": {
@@ -2530,7 +1683,6 @@
                 "catalog": "system",
                 "unity_schema": "default"
             },
-            "externalUrl": "https://dummy.cloud.databricks.com/explore/data/system/default",
             "name": "default",
             "description": "Default schema (auto-created)"
         }
@@ -2591,58 +1743,10 @@
     "entityType": "container",
     "entityUrn": "urn:li:container:b330768923270ff5450695bee1c94247",
     "changeType": "UPSERT",
-    "aspectName": "ownership",
-    "aspect": {
-        "json": {
-            "owners": [
-                {
-                    "owner": "urn:li:corpuser:abc@acryl.io",
-                    "type": "DATAOWNER"
-                }
-            ],
-            "lastModified": {
-                "time": 0,
-                "actor": "urn:li:corpuser:unknown"
-            }
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "container",
-    "entityUrn": "urn:li:container:b330768923270ff5450695bee1c94247",
-    "changeType": "UPSERT",
     "aspectName": "container",
     "aspect": {
         "json": {
             "container": "urn:li:container:5f7e6ee26826ba56e6d1d0b94f291fa9"
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "container",
-    "entityUrn": "urn:li:container:b330768923270ff5450695bee1c94247",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": [
-                {
-                    "id": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb",
-                    "urn": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb"
-                },
-                {
-                    "id": "urn:li:container:5f7e6ee26826ba56e6d1d0b94f291fa9",
-                    "urn": "urn:li:container:5f7e6ee26826ba56e6d1d0b94f291fa9"
-                }
-            ]
         }
     },
     "systemMetadata": {
@@ -2678,27 +1782,14 @@
                 "generation": "2",
                 "table_type": "MANAGED",
                 "created_by": "abc@acryl.io",
-                "created_at": "2022-10-19 13:21:38.688000+00:00",
-                "delta.lastCommitTimestamp": "1666185711000",
-                "delta.lastUpdateVersion": "1",
-                "delta.minReaderVersion": "1",
-                "delta.minWriterVersion": "2",
+                "created_at": "2022-10-19 13:21:38.688000",
+                "properties": "{'delta.lastCommitTimestamp': '1666185711000', 'delta.lastUpdateVersion': '1', 'delta.minReaderVersion': '1', 'delta.minWriterVersion': '2'}",
                 "table_id": "cff27aa1-1c6a-4d78-b713-562c660c2896",
                 "owner": "account users",
                 "updated_by": "abc@acryl.io",
-                "updated_at": "2022-10-19 13:27:29.633000+00:00"
+                "updated_at": "2022-10-19 13:27:29.633000"
             },
-            "externalUrl": "https://dummy.cloud.databricks.com/explore/data/system/default/quickstart_table",
             "name": "quickstart_table",
-            "qualifiedName": "system.default.quickstart_table",
-            "created": {
-                "time": 1666185698688,
-                "actor": "urn:li:corpuser:abc@acryl.io"
-            },
-            "lastModified": {
-                "time": 1666186049633,
-                "actor": "urn:li:corpuser:abc@acryl.io"
-            },
             "tags": []
         }
     },
@@ -2785,28 +1876,6 @@
     "entityType": "dataset",
     "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.system.default.quickstart_table,PROD)",
     "changeType": "UPSERT",
-    "aspectName": "operation",
-    "aspect": {
-        "json": {
-            "timestampMillis": 1638860400000,
-            "partitionSpec": {
-                "type": "FULL_TABLE",
-                "partition": "FULL_TABLE_SNAPSHOT"
-            },
-            "actor": "urn:li:corpuser:abc@acryl.io",
-            "operationType": "UPDATE",
-            "lastUpdatedTimestamp": 1666186049633
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "dataset",
-    "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.system.default.quickstart_table,PROD)",
-    "changeType": "UPSERT",
     "aspectName": "ownership",
     "aspect": {
         "json": {
@@ -2828,34 +1897,6 @@
     }
 },
 {
-    "entityType": "dataset",
-    "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.system.default.quickstart_table,PROD)",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": [
-                {
-                    "id": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb",
-                    "urn": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb"
-                },
-                {
-                    "id": "urn:li:container:5f7e6ee26826ba56e6d1d0b94f291fa9",
-                    "urn": "urn:li:container:5f7e6ee26826ba56e6d1d0b94f291fa9"
-                },
-                {
-                    "id": "urn:li:container:b330768923270ff5450695bee1c94247",
-                    "urn": "urn:li:container:b330768923270ff5450695bee1c94247"
-                }
-            ]
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
     "entityType": "container",
     "entityUrn": "urn:li:container:cb26af5fb7ba2e1c6f2cd804101a5a59",
     "changeType": "UPSERT",
@@ -2868,7 +1909,6 @@
                 "catalog": "system",
                 "unity_schema": "information_schema"
             },
-            "externalUrl": "https://dummy.cloud.databricks.com/explore/data/system/information_schema",
             "name": "information_schema",
             "description": "Information schema (auto-created)"
         }
@@ -2929,58 +1969,10 @@
     "entityType": "container",
     "entityUrn": "urn:li:container:cb26af5fb7ba2e1c6f2cd804101a5a59",
     "changeType": "UPSERT",
-    "aspectName": "ownership",
-    "aspect": {
-        "json": {
-            "owners": [
-                {
-                    "owner": "urn:li:corpuser:Service Principal 1",
-                    "type": "DATAOWNER"
-                }
-            ],
-            "lastModified": {
-                "time": 0,
-                "actor": "urn:li:corpuser:unknown"
-            }
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "container",
-    "entityUrn": "urn:li:container:cb26af5fb7ba2e1c6f2cd804101a5a59",
-    "changeType": "UPSERT",
     "aspectName": "container",
     "aspect": {
         "json": {
             "container": "urn:li:container:5f7e6ee26826ba56e6d1d0b94f291fa9"
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "container",
-    "entityUrn": "urn:li:container:cb26af5fb7ba2e1c6f2cd804101a5a59",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": [
-                {
-                    "id": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb",
-                    "urn": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb"
-                },
-                {
-                    "id": "urn:li:container:5f7e6ee26826ba56e6d1d0b94f291fa9",
-                    "urn": "urn:li:container:5f7e6ee26826ba56e6d1d0b94f291fa9"
-                }
-            ]
         }
     },
     "systemMetadata": {
@@ -3016,27 +2008,14 @@
                 "generation": "2",
                 "table_type": "MANAGED",
                 "created_by": "abc@acryl.io",
-                "created_at": "2022-10-19 13:21:38.688000+00:00",
-                "delta.lastCommitTimestamp": "1666185711000",
-                "delta.lastUpdateVersion": "1",
-                "delta.minReaderVersion": "1",
-                "delta.minWriterVersion": "2",
+                "created_at": "2022-10-19 13:21:38.688000",
+                "properties": "{'delta.lastCommitTimestamp': '1666185711000', 'delta.lastUpdateVersion': '1', 'delta.minReaderVersion': '1', 'delta.minWriterVersion': '2'}",
                 "table_id": "cff27aa1-1c6a-4d78-b713-562c660c2896",
                 "owner": "account users",
                 "updated_by": "abc@acryl.io",
-                "updated_at": "2022-10-19 13:27:29.633000+00:00"
+                "updated_at": "2022-10-19 13:27:29.633000"
             },
-            "externalUrl": "https://dummy.cloud.databricks.com/explore/data/system/information_schema/quickstart_table",
             "name": "quickstart_table",
-            "qualifiedName": "system.information_schema.quickstart_table",
-            "created": {
-                "time": 1666185698688,
-                "actor": "urn:li:corpuser:abc@acryl.io"
-            },
-            "lastModified": {
-                "time": 1666186049633,
-                "actor": "urn:li:corpuser:abc@acryl.io"
-            },
             "tags": []
         }
     },
@@ -3123,28 +2102,6 @@
     "entityType": "dataset",
     "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.system.information_schema.quickstart_table,PROD)",
     "changeType": "UPSERT",
-    "aspectName": "operation",
-    "aspect": {
-        "json": {
-            "timestampMillis": 1638860400000,
-            "partitionSpec": {
-                "type": "FULL_TABLE",
-                "partition": "FULL_TABLE_SNAPSHOT"
-            },
-            "actor": "urn:li:corpuser:abc@acryl.io",
-            "operationType": "UPDATE",
-            "lastUpdatedTimestamp": 1666186049633
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "dataset",
-    "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.system.information_schema.quickstart_table,PROD)",
-    "changeType": "UPSERT",
     "aspectName": "ownership",
     "aspect": {
         "json": {
@@ -3166,34 +2123,6 @@
     }
 },
 {
-    "entityType": "dataset",
-    "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.system.information_schema.quickstart_table,PROD)",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": [
-                {
-                    "id": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb",
-                    "urn": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb"
-                },
-                {
-                    "id": "urn:li:container:5f7e6ee26826ba56e6d1d0b94f291fa9",
-                    "urn": "urn:li:container:5f7e6ee26826ba56e6d1d0b94f291fa9"
-                },
-                {
-                    "id": "urn:li:container:cb26af5fb7ba2e1c6f2cd804101a5a59",
-                    "urn": "urn:li:container:cb26af5fb7ba2e1c6f2cd804101a5a59"
-                }
-            ]
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
     "entityType": "container",
     "entityUrn": "urn:li:container:bd1cfbc8ea4c94a6f8c9b1ddba52a8c1",
     "changeType": "UPSERT",
@@ -3206,7 +2135,6 @@
                 "catalog": "system",
                 "unity_schema": "quickstart_schema"
             },
-            "externalUrl": "https://dummy.cloud.databricks.com/explore/data/system/quickstart_schema",
             "name": "quickstart_schema",
             "description": "A new Unity Catalog schema called quickstart_schema"
         }
@@ -3267,58 +2195,10 @@
     "entityType": "container",
     "entityUrn": "urn:li:container:bd1cfbc8ea4c94a6f8c9b1ddba52a8c1",
     "changeType": "UPSERT",
-    "aspectName": "ownership",
-    "aspect": {
-        "json": {
-            "owners": [
-                {
-                    "owner": "urn:li:corpuser:account users",
-                    "type": "DATAOWNER"
-                }
-            ],
-            "lastModified": {
-                "time": 0,
-                "actor": "urn:li:corpuser:unknown"
-            }
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "container",
-    "entityUrn": "urn:li:container:bd1cfbc8ea4c94a6f8c9b1ddba52a8c1",
-    "changeType": "UPSERT",
     "aspectName": "container",
     "aspect": {
         "json": {
             "container": "urn:li:container:5f7e6ee26826ba56e6d1d0b94f291fa9"
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "container",
-    "entityUrn": "urn:li:container:bd1cfbc8ea4c94a6f8c9b1ddba52a8c1",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": [
-                {
-                    "id": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb",
-                    "urn": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb"
-                },
-                {
-                    "id": "urn:li:container:5f7e6ee26826ba56e6d1d0b94f291fa9",
-                    "urn": "urn:li:container:5f7e6ee26826ba56e6d1d0b94f291fa9"
-                }
-            ]
         }
     },
     "systemMetadata": {
@@ -3354,27 +2234,14 @@
                 "generation": "2",
                 "table_type": "MANAGED",
                 "created_by": "abc@acryl.io",
-                "created_at": "2022-10-19 13:21:38.688000+00:00",
-                "delta.lastCommitTimestamp": "1666185711000",
-                "delta.lastUpdateVersion": "1",
-                "delta.minReaderVersion": "1",
-                "delta.minWriterVersion": "2",
+                "created_at": "2022-10-19 13:21:38.688000",
+                "properties": "{'delta.lastCommitTimestamp': '1666185711000', 'delta.lastUpdateVersion': '1', 'delta.minReaderVersion': '1', 'delta.minWriterVersion': '2'}",
                 "table_id": "cff27aa1-1c6a-4d78-b713-562c660c2896",
                 "owner": "account users",
                 "updated_by": "abc@acryl.io",
-                "updated_at": "2022-10-19 13:27:29.633000+00:00"
+                "updated_at": "2022-10-19 13:27:29.633000"
             },
-            "externalUrl": "https://dummy.cloud.databricks.com/explore/data/system/quickstart_schema/quickstart_table",
             "name": "quickstart_table",
-            "qualifiedName": "system.quickstart_schema.quickstart_table",
-            "created": {
-                "time": 1666185698688,
-                "actor": "urn:li:corpuser:abc@acryl.io"
-            },
-            "lastModified": {
-                "time": 1666186049633,
-                "actor": "urn:li:corpuser:abc@acryl.io"
-            },
             "tags": []
         }
     },
@@ -3461,28 +2328,6 @@
     "entityType": "dataset",
     "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.system.quickstart_schema.quickstart_table,PROD)",
     "changeType": "UPSERT",
-    "aspectName": "operation",
-    "aspect": {
-        "json": {
-            "timestampMillis": 1638860400000,
-            "partitionSpec": {
-                "type": "FULL_TABLE",
-                "partition": "FULL_TABLE_SNAPSHOT"
-            },
-            "actor": "urn:li:corpuser:abc@acryl.io",
-            "operationType": "UPDATE",
-            "lastUpdatedTimestamp": 1666186049633
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "dataset",
-    "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.system.quickstart_schema.quickstart_table,PROD)",
-    "changeType": "UPSERT",
     "aspectName": "ownership",
     "aspect": {
         "json": {
@@ -3496,34 +2341,6 @@
                 "time": 0,
                 "actor": "urn:li:corpuser:unknown"
             }
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1638860400000,
-        "runId": "unity-catalog-test"
-    }
-},
-{
-    "entityType": "dataset",
-    "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:databricks,dummy.acryl_metastore.system.quickstart_schema.quickstart_table,PROD)",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": [
-                {
-                    "id": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb",
-                    "urn": "urn:li:container:22ec33be0e53ba3e61bb6c4ad58f6ffb"
-                },
-                {
-                    "id": "urn:li:container:5f7e6ee26826ba56e6d1d0b94f291fa9",
-                    "urn": "urn:li:container:5f7e6ee26826ba56e6d1d0b94f291fa9"
-                },
-                {
-                    "id": "urn:li:container:bd1cfbc8ea4c94a6f8c9b1ddba52a8c1",
-                    "urn": "urn:li:container:bd1cfbc8ea4c94a6f8c9b1ddba52a8c1"
-                }
-            ]
         }
     },
     "systemMetadata": {

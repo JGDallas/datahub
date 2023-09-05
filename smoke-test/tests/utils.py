@@ -1,23 +1,17 @@
-import functools
 import json
 import os
-from datetime import datetime, timedelta, timezone
-import subprocess
-import time
+from datetime import datetime, timedelta
 from typing import Any, Dict, List, Tuple
 from time import sleep
 from joblib import Parallel, delayed
 
 import requests_wrapper as requests
-import logging
+
 from datahub.cli import cli_utils
 from datahub.cli.cli_utils import get_system_auth
-from datahub.ingestion.graph.client import DataHubGraph, DatahubClientConfig
 from datahub.ingestion.run.pipeline import Pipeline
-from tests.consistency_utils import wait_for_writes_to_sync
 
 TIME: int = 1581407189000
-logger = logging.getLogger(__name__)
 
 
 def get_frontend_session():
@@ -68,7 +62,6 @@ def get_kafka_broker_url():
 
 
 def get_kafka_schema_registry():
-    #  internal registry "http://localhost:8080/schema-registry/api/"
     return os.getenv("DATAHUB_KAFKA_SCHEMA_REGISTRY_URL") or "http://localhost:8081"
 
 
@@ -126,17 +119,19 @@ def ingest_file_via_rest(filename: str) -> Pipeline:
     )
     pipeline.run()
     pipeline.raise_from_status()
-    wait_for_writes_to_sync()
+    sleep(requests.ELASTICSEARCH_REFRESH_INTERVAL_SECONDS)
+
     return pipeline
 
 
-@functools.lru_cache(maxsize=1)
-def get_datahub_graph() -> DataHubGraph:
-    return DataHubGraph(DatahubClientConfig(server=get_gms_url()))
-
-
 def delete_urn(urn: str) -> None:
-    get_datahub_graph().hard_delete_entity(urn)
+    payload_obj = {"urn": urn}
+
+    cli_utils.post_delete_endpoint_with_session_and_url(
+        requests.Session(),
+        get_gms_url() + "/entities?action=delete",
+        payload_obj,
+    )
 
 
 def delete_urns(urns: List[str]) -> None:
@@ -172,11 +167,15 @@ def delete_urns_from_file(filename: str, shared_data: bool = False) -> None:
         d = json.load(f)
         Parallel(n_jobs=10)(delayed(delete)(entry) for entry in d)
 
-    wait_for_writes_to_sync()
+    # Deletes require 60 seconds when run between tests operating on common data, otherwise standard sync wait
+    if shared_data:
+        sleep(60)
+    else:
+        sleep(requests.ELASTICSEARCH_REFRESH_INTERVAL_SECONDS)
+
 
 # Fixed now value
 NOW: datetime = datetime.now()
-
 
 def get_timestampmillis_at_start_of_day(relative_day_num: int) -> int:
     """
@@ -198,7 +197,7 @@ def get_timestampmillis_at_start_of_day(relative_day_num: int) -> int:
 
 
 def get_strftime_from_timestamp_millis(ts_millis: int) -> str:
-    return datetime.fromtimestamp(ts_millis / 1000, tz=timezone.utc).isoformat()
+    return datetime.fromtimestamp(ts_millis / 1000).strftime("%Y-%m-%d %H:%M:%S")
 
 
 def create_datahub_step_state_aspect(
@@ -232,6 +231,3 @@ def create_datahub_step_state_aspects(
     ]
     with open(onboarding_filename, "w") as f:
         json.dump(aspects_dict, f, indent=2)
-
-
-

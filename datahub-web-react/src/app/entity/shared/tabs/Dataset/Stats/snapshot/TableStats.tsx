@@ -4,9 +4,8 @@ import styled from 'styled-components';
 import { CorpUser, Maybe, UserUsageCounts } from '../../../../../../../types.generated';
 import { InfoItem } from '../../../../components/styled/InfoItem';
 import { ANTD_GRAY } from '../../../../constants';
-import { countFormatter } from '../../../../../../../utils/formatter/index';
+import { countFormatter, countSeparator } from '../../../../../../../utils/formatter/index';
 import { ExpandedActorGroup } from '../../../../components/styled/ExpandedActorGroup';
-import { formatNumberWithoutAbbreviation } from '../../../../../../shared/formatNumber';
 
 type Props = {
     rowCount?: number;
@@ -58,7 +57,7 @@ export default function TableStats({
             <StatContainer justifyContent={justifyContent}>
                 {rowCount && (
                     <InfoItem title="Rows">
-                        <Tooltip title={formatNumberWithoutAbbreviation(rowCount)} placement="right">
+                        <Tooltip title={countSeparator(rowCount)} placement="right">
                             <Typography.Text strong style={{ fontSize: 24 }} data-testid="table-stats-rowcount">
                                 {countFormatter(rowCount)}
                             </Typography.Text>

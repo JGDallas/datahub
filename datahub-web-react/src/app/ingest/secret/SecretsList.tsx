@@ -63,7 +63,7 @@ export const SecretsList = () => {
     const totalSecrets = data?.listSecrets?.total || 0;
     const secrets = data?.listSecrets?.secrets || [];
 
-    const deleteSecret = (urn: string) => {
+    const deleteSecret = async (urn: string) => {
         deleteSecretMutation({
             variables: { urn },
         })

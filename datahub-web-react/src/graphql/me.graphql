@@ -45,8 +45,6 @@ query getMe {
             createDomains
             createTags
             manageGlobalViews
-            manageOwnershipTypes
-            manageGlobalAnnouncements
         }
     }
 }

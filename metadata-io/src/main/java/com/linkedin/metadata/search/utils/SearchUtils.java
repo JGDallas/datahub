@@ -12,8 +12,11 @@ import com.linkedin.metadata.query.filter.CriterionArray;
 import com.linkedin.metadata.query.filter.Filter;
 import com.linkedin.metadata.search.AggregationMetadata;
 import com.linkedin.metadata.search.FilterValueArray;
+import com.linkedin.metadata.search.ScrollResult;
 import com.linkedin.metadata.search.SearchEntity;
+import com.linkedin.metadata.search.SearchEntityArray;
 import com.linkedin.metadata.search.SearchResult;
+import com.linkedin.metadata.search.SearchResultMetadata;
 import com.linkedin.metadata.utils.SearchUtil;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +38,19 @@ import org.apache.commons.io.IOUtils;
 
 @Slf4j
 public class SearchUtils {
+
+  public static final SearchResult EMPTY_SEARCH_RESULT =
+      new SearchResult().setEntities(new SearchEntityArray(Collections.emptyList()))
+          .setMetadata(new SearchResultMetadata())
+          .setFrom(0)
+          .setPageSize(0)
+          .setNumEntities(0);
+
+  public static final ScrollResult EMPTY_SCROLL_RESULT =
+      new ScrollResult().setEntities(new SearchEntityArray(Collections.emptyList()))
+          .setMetadata(new SearchResultMetadata())
+          .setPageSize(0)
+          .setNumEntities(0);
 
   private SearchUtils() {
 
@@ -78,7 +94,7 @@ public class SearchUtils {
     return criterionArray.stream().collect(Collectors.toMap(Criterion::getField, Criterion::getValue));
   }
 
-  public static boolean isUrn(@Nonnull String value) {
+  static boolean isUrn(@Nonnull String value) {
     // TODO(https://github.com/datahub-project/datahub-gma/issues/51): This method is a bit of a hack to support searching for
     // URNs that have commas in them, while also using commas a delimiter for search. We should stop supporting commas
     // as delimiter, and then we can stop using this hack.
@@ -104,8 +120,9 @@ public class SearchUtils {
     }
   }
 
-  public static Filter removeCriteria(@Nullable Filter originalFilter, Predicate<Criterion> shouldRemove) {
-    if (originalFilter != null && originalFilter.getOr() != null) {
+  @Nonnull
+  public static Filter removeCriteria(@Nonnull Filter originalFilter, Predicate<Criterion> shouldRemove) {
+    if (originalFilter.getOr() != null) {
       return new Filter().setOr(new ConjunctiveCriterionArray(originalFilter.getOr()
           .stream()
           .map(criteria -> removeCriteria(criteria, shouldRemove))

@@ -50,8 +50,7 @@ public class KafkaEmitterTest {
     kafkaContainer = new KafkaContainer(zookeeperContainer.getInternalUrl())
             .withNetwork(network)
             .dependsOn(zookeeperContainer);
-    schemaRegistryContainer = new SchemaRegistryContainer(zookeeperContainer.getInternalUrl(),
-            kafkaContainer.getInternalBootstrapServers())
+    schemaRegistryContainer = new SchemaRegistryContainer(zookeeperContainer.getInternalUrl())
             .withNetwork(network)
             .dependsOn(zookeeperContainer, kafkaContainer);
     schemaRegistryContainer.start();

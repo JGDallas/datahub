@@ -64,7 +64,7 @@ public class RecommendationServiceFactory {
   @Qualifier("recentlySearchedCandidateSource")
   private RecentlySearchedSource recentlySearchedCandidateSource;
 
-  @Bean(name = "recommendationsService")
+  @Bean
   @Nonnull
   protected RecommendationsService getInstance() {
     // TODO: Make this class-name pluggable to minimize merge conflict potential.

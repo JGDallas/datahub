@@ -4,10 +4,12 @@ import com.datahub.authentication.Authentication;
 import com.linkedin.common.urn.GlossaryNodeUrn;
 import com.linkedin.datahub.graphql.QueryContext;
 import com.linkedin.datahub.graphql.generated.CreateGlossaryEntityInput;
-import com.linkedin.datahub.graphql.resolvers.mutate.MutationUtils;
 import com.linkedin.entity.client.EntityClient;
+import com.linkedin.events.metadata.ChangeType;
 import com.linkedin.glossary.GlossaryNodeInfo;
+import com.linkedin.metadata.Constants;
 import com.linkedin.metadata.key.GlossaryNodeKey;
+import com.linkedin.metadata.utils.GenericRecordUtils;
 import com.linkedin.metadata.entity.EntityService;
 import com.linkedin.mxe.MetadataChangeProposal;
 import graphql.schema.DataFetchingEnvironment;
@@ -15,9 +17,6 @@ import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
 import static com.linkedin.datahub.graphql.TestUtils.getMockAllowContext;
-import static com.linkedin.datahub.graphql.TestUtils.getMockEntityService;
-import static com.linkedin.metadata.Constants.*;
-
 
 public class CreateGlossaryNodeResolverTest {
 
@@ -56,6 +55,9 @@ public class CreateGlossaryNodeResolverTest {
 
     final GlossaryNodeKey key = new GlossaryNodeKey();
     key.setName("test-id");
+    final MetadataChangeProposal proposal = new MetadataChangeProposal();
+    proposal.setEntityKeyAspect(GenericRecordUtils.serializeAspect(key));
+    proposal.setEntityType(Constants.GLOSSARY_NODE_ENTITY_NAME);
     GlossaryNodeInfo props = new GlossaryNodeInfo();
     props.setDefinition(description);
     props.setName("test-name");
@@ -63,14 +65,17 @@ public class CreateGlossaryNodeResolverTest {
       final GlossaryNodeUrn parent = GlossaryNodeUrn.createFromString(parentNode);
       props.setParentNode(parent);
     }
-    return MutationUtils.buildMetadataChangeProposalWithKey(key, GLOSSARY_NODE_ENTITY_NAME,
-        GLOSSARY_NODE_INFO_ASPECT_NAME, props);
+    proposal.setAspectName(Constants.GLOSSARY_NODE_INFO_ASPECT_NAME);
+    proposal.setAspect(GenericRecordUtils.serializeAspect(props));
+    proposal.setChangeType(ChangeType.UPSERT);
+
+    return proposal;
   }
 
   @Test
   public void testGetSuccess() throws Exception {
     EntityClient mockClient = Mockito.mock(EntityClient.class);
-    EntityService mockService = getMockEntityService();
+    EntityService mockService = Mockito.mock(EntityService.class);
     DataFetchingEnvironment mockEnv = Mockito.mock(DataFetchingEnvironment.class);
     final MetadataChangeProposal proposal = setupTest(mockEnv, TEST_INPUT, "test-description", parentNodeUrn);
 
@@ -79,15 +84,14 @@ public class CreateGlossaryNodeResolverTest {
 
     Mockito.verify(mockClient, Mockito.times(1)).ingestProposal(
         Mockito.eq(proposal),
-        Mockito.any(Authentication.class),
-        Mockito.eq(false)
+        Mockito.any(Authentication.class)
     );
   }
 
   @Test
   public void testGetSuccessNoDescription() throws Exception {
     EntityClient mockClient = Mockito.mock(EntityClient.class);
-    EntityService mockService = getMockEntityService();
+    EntityService mockService = Mockito.mock(EntityService.class);
     DataFetchingEnvironment mockEnv = Mockito.mock(DataFetchingEnvironment.class);
     final MetadataChangeProposal proposal = setupTest(mockEnv, TEST_INPUT_NO_DESCRIPTION, "", parentNodeUrn);
 
@@ -96,15 +100,14 @@ public class CreateGlossaryNodeResolverTest {
 
     Mockito.verify(mockClient, Mockito.times(1)).ingestProposal(
         Mockito.eq(proposal),
-        Mockito.any(Authentication.class),
-        Mockito.eq(false)
+        Mockito.any(Authentication.class)
     );
   }
 
   @Test
   public void testGetSuccessNoParentNode() throws Exception {
     EntityClient mockClient = Mockito.mock(EntityClient.class);
-    EntityService mockService = getMockEntityService();
+    EntityService mockService = Mockito.mock(EntityService.class);
     DataFetchingEnvironment mockEnv = Mockito.mock(DataFetchingEnvironment.class);
     final MetadataChangeProposal proposal = setupTest(mockEnv, TEST_INPUT_NO_PARENT_NODE, "test-description", null);
 
@@ -113,8 +116,7 @@ public class CreateGlossaryNodeResolverTest {
 
     Mockito.verify(mockClient, Mockito.times(1)).ingestProposal(
         Mockito.eq(proposal),
-        Mockito.any(Authentication.class),
-        Mockito.eq(false)
+        Mockito.any(Authentication.class)
     );
   }
 }

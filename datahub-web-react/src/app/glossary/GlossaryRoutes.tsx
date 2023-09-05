@@ -13,7 +13,6 @@ import { useEntityRegistry } from '../useEntityRegistry';
 const ContentWrapper = styled.div`
     display: flex;
     flex: 1;
-    overflow: hidden;
 `;
 
 export default function GlossaryRoutes() {

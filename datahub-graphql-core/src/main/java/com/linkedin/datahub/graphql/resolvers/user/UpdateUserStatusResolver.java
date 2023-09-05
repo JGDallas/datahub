@@ -2,7 +2,6 @@ package com.linkedin.datahub.graphql.resolvers.user;
 
 import com.linkedin.common.AuditStamp;
 import com.linkedin.common.urn.Urn;
-import com.linkedin.common.urn.UrnUtils;
 import com.linkedin.datahub.graphql.QueryContext;
 import com.linkedin.datahub.graphql.authorization.AuthorizationUtils;
 import com.linkedin.datahub.graphql.exception.AuthorizationException;
@@ -12,9 +11,6 @@ import com.linkedin.mxe.MetadataChangeProposal;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.concurrent.CompletableFuture;
-
-import static com.linkedin.datahub.graphql.resolvers.mutate.MutationUtils.*;
-import static com.linkedin.metadata.Constants.*;
 
 
 /**
@@ -43,9 +39,9 @@ public class UpdateUserStatusResolver implements DataFetcher<CompletableFuture<S
 
       return CompletableFuture.supplyAsync(() -> {
         try {
-          final MetadataChangeProposal proposal = buildMetadataChangeProposalWithUrn(UrnUtils.getUrn(userUrn),
-              CORP_USER_STATUS_ASPECT_NAME, statusAspect);
-          return _entityClient.ingestProposal(proposal, context.getAuthentication(), false);
+          final MetadataChangeProposal proposal = new MetadataChangeProposal();
+          proposal.setEntityUrn(Urn.createFromString(userUrn));
+          return _entityClient.ingestProposal(proposal, context.getAuthentication());
         } catch (Exception e) {
           throw new RuntimeException(String.format("Failed to update user status for urn", userUrn), e);
         }

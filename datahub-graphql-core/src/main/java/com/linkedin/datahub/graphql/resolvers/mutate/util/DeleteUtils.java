@@ -12,7 +12,6 @@ import com.datahub.authorization.DisjunctivePrivilegeGroup;
 import com.linkedin.metadata.Constants;
 import com.linkedin.metadata.authorization.PoliciesConfig;
 import com.linkedin.metadata.entity.EntityService;
-import com.linkedin.metadata.entity.EntityUtils;
 import com.linkedin.mxe.MetadataChangeProposal;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +53,7 @@ public class DeleteUtils {
     for (String urnStr : urnStrs) {
       changes.add(buildSoftDeleteProposal(removed, urnStr, actor, entityService));
     }
-    EntityUtils.ingestChangeProposals(changes, entityService, actor, false);
+    ingestChangeProposals(changes, entityService, actor);
   }
 
   private static MetadataChangeProposal buildSoftDeleteProposal(
@@ -63,12 +62,19 @@ public class DeleteUtils {
       Urn actor,
       EntityService entityService
   ) {
-    Status status = (Status) EntityUtils.getAspectFromEntity(
+    Status status = (Status) getAspectFromEntity(
         urnStr,
         Constants.STATUS_ASPECT_NAME,
         entityService,
         new Status());
     status.setRemoved(removed);
-    return buildMetadataChangeProposalWithUrn(UrnUtils.getUrn(urnStr), Constants.STATUS_ASPECT_NAME, status);
+    return buildMetadataChangeProposal(UrnUtils.getUrn(urnStr), Constants.STATUS_ASPECT_NAME, status, actor, entityService);
+  }
+
+  private static void ingestChangeProposals(List<MetadataChangeProposal> changes, EntityService entityService, Urn actor) {
+    // TODO: Replace this with a batch ingest proposals endpoint.
+    for (MetadataChangeProposal change : changes) {
+      entityService.ingestProposal(change, getAuditStamp(actor), false);
+    }
   }
 }

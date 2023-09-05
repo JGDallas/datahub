@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { useDataNotCombinedWithSiblings, useEntityData } from '../../../EntityContext';
 import { SidebarHeader } from './SidebarHeader';
 import { CompactEntityNameList } from '../../../../../recommendations/renderer/component/CompactEntityNameList';
-import { Dataset, Entity } from '../../../../../../types.generated';
+import { Entity } from '../../../../../../types.generated';
 import { SEPARATE_SIBLINGS_URL_PARAM, stripSiblingsFromEntity, useIsSeparateSiblingsMode } from '../../../siblingUtils';
 import { GetDatasetQuery } from '../../../../../../graphql/dataset.generated';
 
@@ -36,22 +36,14 @@ export const SidebarSiblingsSection = () => {
     const siblingEntities = entityData?.siblings?.siblings || [];
     const entityDataWithoutSiblings = stripSiblingsFromEntity(dataNotCombinedWithSiblings.dataset);
 
-    const allSiblingsInGroup = [...siblingEntities, entityDataWithoutSiblings] as Dataset[];
-
-    const allSiblingsInGroupThatExist = allSiblingsInGroup.filter((sibling) => sibling.exists);
-
-    // you are always going to be in the sibling group, so if the sibling group is just you do not render.
-    // The less than case is likely not neccessary but just there as a safety case for unexpected scenarios
-    if (allSiblingsInGroupThatExist.length <= 1) {
-        return <></>;
-    }
+    const allSiblingsInGroup = [...siblingEntities, entityDataWithoutSiblings] as Entity[];
 
     return (
         <div>
             <SidebarHeader title="Composed Of" />
             <EntityListContainer>
                 <CompactEntityNameList
-                    entities={allSiblingsInGroupThatExist}
+                    entities={allSiblingsInGroup}
                     linkUrlParams={{ [SEPARATE_SIBLINGS_URL_PARAM]: true }}
                     showTooltips
                 />

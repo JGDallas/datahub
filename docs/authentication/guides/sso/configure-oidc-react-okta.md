@@ -69,16 +69,8 @@ for example, `https://dev-33231928.okta.com/.well-known/openid-configuration`.
 
 At this point, you should be looking at a screen like the following:
 
-
-<p align="center">
-  <img width="70%"  src="https://raw.githubusercontent.com/datahub-project/static-assets/main/imgs/sso/okta-setup-1.png"/>
-</p>
-
-
-<p align="center">
-  <img width="70%"  src="https://raw.githubusercontent.com/datahub-project/static-assets/main/imgs/sso/okta-setup-2.png"/>
-</p>
-
+![okta-setup-1](img/okta-setup-1.png)
+![okta-setup-2](img/okta-setup-2.png)
 
 Success!
 
@@ -104,11 +96,7 @@ Replacing the placeholders above with the client id & client secret received fro
 > 
 > By default, we assume that the groups will appear in a claim named "groups". This can be customized using the `AUTH_OIDC_GROUPS_CLAIM` container configuration. 
 > 
-> 
-<p align="center">
-  <img width="70%"  src="https://raw.githubusercontent.com/datahub-project/static-assets/main/imgs/sso/okta-setup-groups-claim.png"/>
-</p>
-
+> ![okta-setup-2](img/okta-setup-groups-claim.png)
 
 ### 5. Restart `datahub-frontend-react` docker container
 

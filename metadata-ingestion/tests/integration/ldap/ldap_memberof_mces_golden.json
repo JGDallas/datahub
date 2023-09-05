@@ -69,9 +69,8 @@
     "changeType": "UPSERT",
     "aspectName": "status",
     "aspect": {
-        "json": {
-            "removed": false
-        }
+        "value": "{\"removed\": false}",
+        "contentType": "application/json"
     },
     "systemMetadata": {
         "lastObserved": 1615443388097,
@@ -84,9 +83,8 @@
     "changeType": "UPSERT",
     "aspectName": "status",
     "aspect": {
-        "json": {
-            "removed": false
-        }
+        "value": "{\"removed\": false}",
+        "contentType": "application/json"
     },
     "systemMetadata": {
         "lastObserved": 1615443388097,

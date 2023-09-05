@@ -13,7 +13,7 @@ record DataProcessKey {
   * Process name i.e. an ETL job name
   */
   @Searchable = {
-    "fieldType": "WORD_GRAM",
+    "fieldType": "TEXT_PARTIAL",
     "enableAutocomplete": true,
     "boostScore": 4.0
   }

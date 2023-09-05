@@ -34,7 +34,6 @@ public class SchemaFieldMapper {
             result.setGlossaryTerms(GlossaryTermsMapper.map(input.getGlossaryTerms(), entityUrn));
         }
         result.setIsPartOfKey(input.isIsPartOfKey());
-        result.setIsPartitioningKey(input.isIsPartitioningKey());
         return result;
     }
 

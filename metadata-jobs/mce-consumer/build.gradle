@@ -11,24 +11,25 @@ configurations {
 dependencies {
     avro project(path: ':metadata-models', configuration: 'avroSchema')
 
-    implementation project(':li-utils')
-    implementation(project(':metadata-service:factories')) {
+    compile project(':li-utils')
+    compile (project(':metadata-service:factories')) {
         exclude group: 'org.neo4j.test'
     }
-    implementation project(':metadata-utils')
-    implementation project(':metadata-events:mxe-schemas')
-    implementation project(':metadata-events:mxe-avro-1.7')
-    implementation project(':metadata-events:mxe-registration')
-    implementation project(':metadata-events:mxe-utils-avro-1.7')
-    implementation project(':metadata-io')
-    implementation project(':metadata-service:restli-client')
-    implementation spec.product.pegasus.restliClient
-    implementation spec.product.pegasus.restliCommon
-    implementation externalDependency.elasticSearchRest
+    compile project(':metadata-utils')
+    compile project(':metadata-events:mxe-schemas')
+    compile project(':metadata-events:mxe-avro-1.7')
+    compile project(':metadata-events:mxe-registration')
+    compile project(':metadata-events:mxe-utils-avro-1.7')
+    compile project(':metadata-io')
+    compile project(':metadata-service:restli-client')
+    compile spec.product.pegasus.restliClient
+    compile spec.product.pegasus.restliCommon
+    compile externalDependency.elasticSearchRest
+    compile externalDependency.kafkaAvroSerde
     implementation externalDependency.protobuf
 
-    implementation externalDependency.springKafka
-    implementation externalDependency.springActuator
+    compile externalDependency.springKafka
+    compile externalDependency.springActuator
 
     implementation externalDependency.slf4jApi
     compileOnly externalDependency.lombok

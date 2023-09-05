@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class UpgradeStep implements BootstrapStep {
+  private static final Integer SLEEP_SECONDS = 120;
 
   protected final EntityService _entityService;
   private final String _version;
@@ -36,11 +37,18 @@ public abstract class UpgradeStep implements BootstrapStep {
 
   @Override
   public void execute() throws Exception {
+    String upgradeStepName = name();
+
+    log.info(String.format("Attempting to run %s Upgrade Step..", upgradeStepName));
+    log.info(String.format("Waiting %s seconds..", SLEEP_SECONDS));
 
     if (hasUpgradeRan()) {
       log.info(String.format("%s has run before for version %s. Skipping..", _upgradeId, _version));
       return;
     }
+
+    // Sleep to ensure deployment process finishes.
+    Thread.sleep(SLEEP_SECONDS * 1000);
 
     try {
       ingestUpgradeRequestAspect();

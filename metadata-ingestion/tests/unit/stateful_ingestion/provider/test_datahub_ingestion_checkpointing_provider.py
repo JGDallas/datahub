@@ -15,9 +15,7 @@ from datahub.ingestion.source.state.checkpoint import Checkpoint
 from datahub.ingestion.source.state.sql_common_state import (
     BaseSQLAlchemyCheckpointState,
 )
-from datahub.ingestion.source.state.usage_common_state import (
-    BaseTimeWindowCheckpointState,
-)
+from datahub.ingestion.source.state.usage_common_state import BaseUsageCheckpointState
 from datahub.ingestion.source.state_provider.datahub_ingestion_checkpointing_provider import (
     DatahubIngestionCheckpointingProvider,
 )
@@ -115,8 +113,8 @@ class TestDatahubIngestionCheckpointProvider(unittest.TestCase):
             run_id=self.run_id,
             state=job1_state_obj,
         )
-        # Job2 - Checkpoint with a BaseTimeWindowCheckpointState state
-        job2_state_obj = BaseTimeWindowCheckpointState(
+        # Job2 - Checkpoint with a BaseUsageCheckpointState state
+        job2_state_obj = BaseUsageCheckpointState(
             begin_timestamp_millis=10, end_timestamp_millis=100
         )
         job2_checkpoint = Checkpoint(

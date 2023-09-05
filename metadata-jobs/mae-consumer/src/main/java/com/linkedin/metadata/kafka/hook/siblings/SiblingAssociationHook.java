@@ -65,12 +65,7 @@ public class SiblingAssociationHook implements MetadataChangeLogHook {
 
   public static final String SIBLING_ASSOCIATION_SYSTEM_ACTOR = "urn:li:corpuser:__datahub_system_sibling_hook";
   public static final String DBT_PLATFORM_NAME = "dbt";
-
-  // Older dbt sources produced lowercase subtypes, whereas we now
-  // produce titlecase subtypes. We need to handle both cases to
-  // maintain backwards compatibility.
-  public static final String SOURCE_SUBTYPE_V1 = "source";
-  public static final String SOURCE_SUBTYPE_V2 = "Source";
+  public static final String SOURCE_SUBTYPE = "source";
 
   private final EntityRegistry _entityRegistry;
   private final RestliEntityClient _entityClient;
@@ -141,7 +136,7 @@ public class SiblingAssociationHook implements MetadataChangeLogHook {
   private void handleEntityKeyEvent(DatasetUrn datasetUrn) {
     Filter entitiesWithYouAsSiblingFilter = createFilterForEntitiesWithYouAsSibling(datasetUrn);
     final SearchResult searchResult = _searchService.search(
-        List.of(DATASET_ENTITY_NAME),
+        "dataset",
         "*",
         entitiesWithYouAsSiblingFilter,
         null,
@@ -182,8 +177,7 @@ public class SiblingAssociationHook implements MetadataChangeLogHook {
             && subTypesAspectOfEntity != null
             && upstreamLineage.hasUpstreams()
             && subTypesAspectOfEntity.hasTypeNames()
-            && (subTypesAspectOfEntity.getTypeNames().contains(SOURCE_SUBTYPE_V1)
-            || subTypesAspectOfEntity.getTypeNames().contains(SOURCE_SUBTYPE_V2))
+            && subTypesAspectOfEntity.getTypeNames().contains(SOURCE_SUBTYPE)
     ) {
       UpstreamArray upstreams = upstreamLineage.getUpstreams();
       if (

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import DOMPurify from 'dompurify';
 import { EditableSchemaMetadata, SchemaField, SubResourceType } from '../../../../../../../types.generated';
 import DescriptionField from '../../../../../dataset/profile/schema/components/SchemaDescriptionField';
@@ -12,14 +12,13 @@ export default function useDescriptionRenderer(editableSchemaMetadata: EditableS
     const refetch = useRefetch();
     const schemaRefetch = useSchemaRefetch();
     const [updateDescription] = useUpdateDescriptionMutation();
-    const [expandedRows, setExpandedRows] = useState({});
 
     const refresh: any = () => {
         refetch?.();
         schemaRefetch?.();
     };
 
-    return (description: string, record: SchemaField, index: number): JSX.Element => {
+    return (description: string, record: SchemaField): JSX.Element => {
         const relevantEditableFieldInfo = editableSchemaMetadata?.editableSchemaFieldInfo.find(
             (candidateEditableFieldInfo) => pathMatchesNewPath(candidateEditableFieldInfo.fieldPath, record.fieldPath),
         );
@@ -27,12 +26,8 @@ export default function useDescriptionRenderer(editableSchemaMetadata: EditableS
         const sanitizedDescription = DOMPurify.sanitize(displayedDescription);
         const original = record.description ? DOMPurify.sanitize(record.description) : undefined;
 
-        const handleExpandedRows = (expanded) => setExpandedRows((prev) => ({ ...prev, [index]: expanded }));
-
         return (
             <DescriptionField
-                onExpanded={handleExpandedRows}
-                expanded={!!expandedRows[index]}
                 description={sanitizedDescription}
                 original={original}
                 isEdited={!!relevantEditableFieldInfo?.description}
@@ -52,4 +47,3 @@ export default function useDescriptionRenderer(editableSchemaMetadata: EditableS
         );
     };
 }
-//

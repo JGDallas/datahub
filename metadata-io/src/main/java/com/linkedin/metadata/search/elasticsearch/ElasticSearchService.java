@@ -2,7 +2,6 @@ package com.linkedin.metadata.search.elasticsearch;
 
 import com.linkedin.common.urn.Urn;
 import com.linkedin.metadata.browse.BrowseResult;
-import com.linkedin.metadata.browse.BrowseResultV2;
 import com.linkedin.metadata.query.AutoCompleteResult;
 import com.linkedin.metadata.query.SearchFlags;
 import com.linkedin.metadata.query.filter.Filter;
@@ -106,18 +105,12 @@ public class ElasticSearchService implements EntitySearchService, ElasticSearchI
 
   @Nonnull
   @Override
-  public SearchResult search(@Nonnull List<String> entityNames, @Nonnull String input, @Nullable Filter postFilters,
-                             @Nullable SortCriterion sortCriterion, int from, int size, @Nullable SearchFlags searchFlags) {
-    return search(entityNames, input, postFilters, sortCriterion, from, size, searchFlags, null);
-  }
-
-  @Nonnull
-  public SearchResult search(@Nonnull List<String> entityNames, @Nonnull String input, @Nullable Filter postFilters,
-      @Nullable SortCriterion sortCriterion, int from, int size, @Nullable SearchFlags searchFlags, @Nullable List<String> facets) {
+  public SearchResult search(@Nonnull String entityName, @Nonnull String input, @Nullable Filter postFilters,
+      @Nullable SortCriterion sortCriterion, int from, int size, @Nullable SearchFlags searchFlags) {
     log.debug(String.format(
         "Searching FullText Search documents entityName: %s, input: %s, postFilters: %s, sortCriterion: %s, from: %s, size: %s",
-        entityNames, input, postFilters, sortCriterion, from, size));
-    return esSearchDAO.search(entityNames, input, postFilters, sortCriterion, from, size, searchFlags, facets);
+        entityName, input, postFilters, sortCriterion, from, size));
+    return esSearchDAO.search(entityName, input, postFilters, sortCriterion, from, size, searchFlags);
   }
 
   @Nonnull
@@ -156,12 +149,6 @@ public class ElasticSearchService implements EntitySearchService, ElasticSearchI
         String.format("Browsing entities entityName: %s, path: %s, filters: %s, from: %s, size: %s", entityName,
             path, filters, from, size));
     return esBrowseDAO.browse(entityName, path, filters, from, size);
-  }
-
-  @Nonnull
-  @Override
-  public BrowseResultV2 browseV2(@Nonnull String entityName, @Nonnull String path, @Nullable Filter filter, @Nonnull String input, int start, int count) {
-    return esBrowseDAO.browseV2(entityName, path, filter, input, start, count);
   }
 
   @Nonnull

@@ -23,12 +23,8 @@ import com.linkedin.upgrade.DataHubUpgradeResult;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -130,7 +126,6 @@ public class RestoreDbtSiblingsIndices implements BootstrapStep {
     }
 
     //  Loop over datasets and produce changelog
-    List<Future<?>> futures = new LinkedList<>();
     for (Urn datasetUrn : datasetUrns) {
       EntityResponse response = upstreamLineageResponse.get(datasetUrn);
       if (response == null) {
@@ -142,7 +137,7 @@ public class RestoreDbtSiblingsIndices implements BootstrapStep {
         continue;
       }
 
-      futures.add(_entityService.alwaysProduceMCLAsync(
+      _entityService.produceMetadataChangeLog(
           datasetUrn,
           DATASET_ENTITY_NAME,
           UPSTREAM_LINEAGE_ASPECT_NAME,
@@ -152,16 +147,8 @@ public class RestoreDbtSiblingsIndices implements BootstrapStep {
           null,
           null,
           auditStamp,
-          ChangeType.RESTATE).getFirst());
+          ChangeType.RESTATE);
     }
-
-    futures.stream().filter(Objects::nonNull).forEach(f -> {
-      try {
-        f.get();
-      } catch (InterruptedException | ExecutionException e) {
-        throw new RuntimeException(e);
-      }
-    });
   }
 
   private UpstreamLineage getUpstreamLineage(EntityResponse entityResponse) {

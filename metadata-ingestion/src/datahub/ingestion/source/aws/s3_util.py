@@ -1,6 +1,5 @@
 import logging
 import os
-from typing import Optional
 
 S3_PREFIXES = ["s3://", "s3n://", "s3a://"]
 
@@ -12,22 +11,16 @@ def is_s3_uri(uri: str) -> bool:
     return any(uri.startswith(prefix) for prefix in S3_PREFIXES)
 
 
-def get_s3_prefix(s3_uri: str) -> Optional[str]:
-    for s3_prefix in S3_PREFIXES:
-        if s3_uri.startswith(s3_prefix):
-            return s3_prefix
-    return None
-
-
 def strip_s3_prefix(s3_uri: str) -> str:
     # remove S3 prefix (s3://)
-    s3_prefix = get_s3_prefix(s3_uri)
-    if not s3_prefix:
-        raise ValueError(
-            f"Not an S3 URI. Must start with one of the following prefixes: {str(S3_PREFIXES)}"
-        )
+    for s3_prefix in S3_PREFIXES:
+        if s3_uri.startswith(s3_prefix):
+            plain_base_path = s3_uri[len(s3_prefix) :]
+            return plain_base_path
 
-    return s3_uri[len(s3_prefix) :]
+    raise ValueError(
+        f"Not an S3 URI. Must start with one of the following prefixes: {str(S3_PREFIXES)}"
+    )
 
 
 def get_bucket_relative_path(s3_uri: str) -> str:

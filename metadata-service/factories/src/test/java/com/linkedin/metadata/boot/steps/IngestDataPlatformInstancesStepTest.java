@@ -5,7 +5,6 @@ import com.linkedin.common.urn.Urn;
 import com.linkedin.common.urn.UrnUtils;
 import com.linkedin.metadata.entity.AspectMigrationsDao;
 import com.linkedin.metadata.entity.EntityService;
-import com.linkedin.metadata.entity.ebean.transactions.UpsertBatchItem;
 import com.linkedin.metadata.models.AspectSpec;
 import com.linkedin.metadata.models.EntitySpec;
 import com.linkedin.metadata.models.registry.ConfigEntityRegistry;
@@ -96,24 +95,15 @@ public class IngestDataPlatformInstancesStepTest {
     final IngestDataPlatformInstancesStep step = new IngestDataPlatformInstancesStep(entityService, migrationsDao);
     step.execute();
 
-    verify(entityService, times(1))
-        .ingestAspects(
-            argThat(arg ->
-              arg.getItems().stream()
-                      .allMatch(item -> item.getUrn().getEntityType().equals("chart")
-                              && item.getAspectName().equals(DATA_PLATFORM_INSTANCE_ASPECT_NAME)
-                      && ((UpsertBatchItem) item).getAspect() instanceof DataPlatformInstance)
-            ),
+    verify(entityService, times(countOfChartEntities))
+        .ingestAspect(
+            argThat(arg -> arg.getEntityType().equals("chart")),
+            eq(DATA_PLATFORM_INSTANCE_ASPECT_NAME),
+            any(DataPlatformInstance.class),
             any(),
-            anyBoolean(),
-            anyBoolean());
+            any());
     verify(entityService, times(0))
-        .ingestAspects(argThat(arg ->
-                !arg.getItems().stream()
-                        .allMatch(item -> item.getUrn().getEntityType().equals("chart")
-                                && item.getAspectName().equals(DATA_PLATFORM_INSTANCE_ASPECT_NAME)
-                                && ((UpsertBatchItem) item).getAspect() instanceof DataPlatformInstance)
-        ), any(), anyBoolean(), anyBoolean());
+        .ingestAspect(argThat(arg -> !arg.getEntityType().equals("chart")), anyString(), any(), any(), any());
   }
 
   @NotNull
@@ -137,15 +127,12 @@ public class IngestDataPlatformInstancesStepTest {
       AspectMigrationsDao migrationsDao,
       int countOfCorpUserEntities,
       int countOfChartEntities) {
-    List<Urn> corpUserUrns = insertMockEntities(countOfCorpUserEntities, "corpuser", "urn:li:corpuser:test%d", entityRegistry,
-        entityService);
-    List<Urn> charUrns = insertMockEntities(countOfChartEntities, "chart", "urn:li:chart:(looker,test%d)", entityRegistry,
-        entityService);
+    List<Urn> corpUserUrns = insertMockEntities(countOfCorpUserEntities, "corpuser", "urn:li:corpuser:test%d", entityRegistry, entityService);
+    List<Urn> charUrns = insertMockEntities(countOfChartEntities, "chart", "urn:li:chart:(looker,test%d)", entityRegistry, entityService);
     List<String> allUrnsInDB = Stream.concat(corpUserUrns.stream(), charUrns.stream()).map(Urn::toString).collect(Collectors.toList());
     when(migrationsDao.checkIfAspectExists(DATA_PLATFORM_INSTANCE_ASPECT_NAME)).thenReturn(false);
     when(migrationsDao.countEntities()).thenReturn((long) allUrnsInDB.size());
     when(migrationsDao.listAllUrns(anyInt(), anyInt())).thenReturn(allUrnsInDB);
-    when(entityService.getEntityRegistry()).thenReturn(entityRegistry);
   }
 
   private List<Urn> insertMockEntities(int count, String entity, String urnTemplate, EntityRegistry entityRegistry, EntityService entityService) {

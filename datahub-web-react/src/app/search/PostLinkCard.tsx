@@ -39,17 +39,12 @@ const TextContainer = styled.div`
     flex: 2;
 `;
 
-const FlexWrapper = styled.div<{ alignCenter?: boolean }>`
+const TextWrapper = styled.div`
+    text-align: left;
     display: flex;
     flex-direction: column;
     justify-content: center;
     flex: 2;
-    ${(props) => props.alignCenter && 'align-items: center;'}
-`;
-
-const TextWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
 `;
 
 const HeaderText = styled(Typography.Text)`
@@ -79,21 +74,19 @@ export const PostLinkCard = ({ linkPost }: Props) => {
     const link = linkPost?.content?.link || '';
 
     return (
-        <CardContainer type="link" href={link} target="_blank" rel="noopener noreferrer">
+        <CardContainer type="link" href={link}>
             {hasMedia && (
                 <LogoContainer>
                     <PlatformLogo width={50} height={50} preview={false} src={linkPost?.content?.media?.location} />
                 </LogoContainer>
             )}
             <TextContainer>
-                <FlexWrapper alignCenter={!hasMedia}>
-                    <TextWrapper>
-                        <HeaderText type="secondary">Link</HeaderText>
-                        <Title style={{ margin: 0 }} ellipsis={{ rows: 2 }} level={5}>
-                            {linkPost?.content?.title}
-                        </Title>
-                    </TextWrapper>
-                </FlexWrapper>
+                <TextWrapper style={{ textAlign: 'left' }}>
+                    <HeaderText type="secondary">Link</HeaderText>
+                    <Title style={{ margin: 0 }} ellipsis={{ rows: 2 }} level={5}>
+                        {linkPost?.content?.title}
+                    </Title>
+                </TextWrapper>
                 <StyledArrowOutlined />
             </TextContainer>
         </CardContainer>

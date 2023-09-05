@@ -13,15 +13,10 @@ import com.linkedin.metadata.models.AspectSpec;
 import com.linkedin.metadata.models.registry.EntityRegistry;
 import com.linkedin.metadata.query.ListUrnsResult;
 import com.linkedin.metadata.search.EntitySearchService;
-
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -78,7 +73,6 @@ public class IndexDataPlatformsStep extends UpgradeStep {
     );
 
     //  Loop over Data platforms and produce changelog
-    List<Future<?>> futures = new LinkedList<>();
     for (Urn dpUrn : dataPlatformUrns) {
       EntityResponse dataPlatformEntityResponse = dataPlatformInfoResponses.get(dpUrn);
       if (dataPlatformEntityResponse == null) {
@@ -92,7 +86,7 @@ public class IndexDataPlatformsStep extends UpgradeStep {
         continue;
       }
 
-      futures.add(_entityService.alwaysProduceMCLAsync(
+      _entityService.produceMetadataChangeLog(
           dpUrn,
           Constants.DATA_PLATFORM_ENTITY_NAME,
           Constants.DATA_PLATFORM_INFO_ASPECT_NAME,
@@ -102,16 +96,8 @@ public class IndexDataPlatformsStep extends UpgradeStep {
           null,
           null,
           auditStamp,
-          ChangeType.RESTATE).getFirst());
+          ChangeType.RESTATE);
     }
-
-    futures.stream().filter(Objects::nonNull).forEach(f -> {
-      try {
-        f.get();
-      } catch (InterruptedException | ExecutionException e) {
-        throw new RuntimeException(e);
-      }
-    });
 
     return listResult.getTotal();
   }

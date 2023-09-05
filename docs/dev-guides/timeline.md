@@ -14,16 +14,12 @@ The Timeline API is available in server versions `0.8.28` and higher. The `cli` 
 ## Entity Timeline Conceptually
 For the visually inclined, here is a conceptual diagram that illustrates how to think about the entity timeline with categorical changes overlaid on it.
 
-
-<p align="center">
-  <img width="70%"  src="https://raw.githubusercontent.com/datahub-project/static-assets/main/imgs/timeline/timeline-conceptually.png"/>
-</p>
-
+![../imgs/timeline/timeline-conceptually.png](../imgs/timeline/timeline-conceptually.png)
 
 ## Change Event
 Each modification is modeled as a 
-[ChangeEvent](../../metadata-service/services/src/main/java/com/linkedin/metadata/timeline/data/ChangeEvent.java)
-which are grouped under [ChangeTransactions](../../metadata-service/services/src/main/java/com/linkedin/metadata/timeline/data/ChangeTransaction.java) 
+[ChangeEvent](../../metadata-io/src/main/java/com/linkedin/metadata/timeline/data/ChangeEvent.java)
+which are grouped under [ChangeTransactions](../../metadata-io/src/main/java/com/linkedin/metadata/timeline/data/ChangeTransaction.java) 
 based on timestamp. A `ChangeEvent` consists of:
 
 - `changeType`: An operational type for the change, either `ADD`, `MODIFY`, or `REMOVE`
@@ -232,16 +228,8 @@ http://localhost:8080/openapi/timeline/v1/urn%3Ali%3Adataset%3A%28urn%3Ali%3Adat
 
 The API is browse-able via the UI through through the dropdown.
 Here are a few screenshots showing how to navigate to it. You can try out the API and send example requests.
-
-<p align="center">
-  <img width="70%"  src="https://raw.githubusercontent.com/datahub-project/static-assets/main/imgs/timeline/dropdown-apis.png"/>
-</p>
-
-
-<p align="center">
-  <img width="70%"  src="https://raw.githubusercontent.com/datahub-project/static-assets/main/imgs/timeline/swagger-ui.png"/>
-</p>
-
+![../imgs/timeline/dropdown-apis.png](../imgs/timeline/dropdown-apis.png)
+![../imgs/timeline/swagger-ui.png](../imgs/timeline/swagger-ui.png)
 
 # Future Work
 

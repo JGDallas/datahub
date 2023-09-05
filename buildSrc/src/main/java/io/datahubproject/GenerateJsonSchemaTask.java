@@ -21,7 +21,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.CacheableTask;
+import org.gradle.api.tasks.InputDirectory;
+import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.TaskAction;
 
 import static com.github.fge.processing.ProcessingUtil.*;
 import static org.apache.commons.io.FilenameUtils.*;
@@ -43,7 +46,6 @@ public class GenerateJsonSchemaTask extends DefaultTask {
   }
 
   @InputDirectory
-  @PathSensitive(PathSensitivity.NAME_ONLY)
   public String getInputDirectory() {
    return inputDirectory;
   }

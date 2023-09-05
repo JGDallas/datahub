@@ -10,6 +10,7 @@ from datahub.metadata.com.linkedin.pegasus2avro.mxe import (
     MetadataChangeEvent,
     MetadataChangeProposal,
 )
+from datahub.metadata.com.linkedin.pegasus2avro.usage import UsageAggregation
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +31,7 @@ class DataHubLiteSink(Sink[DataHubLiteSinkConfig, SinkReport]):
                 MetadataChangeEvent,
                 MetadataChangeProposal,
                 MetadataChangeProposalWrapper,
+                UsageAggregation,
             ]
         ],
         write_callback: WriteCallback,

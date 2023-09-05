@@ -8,8 +8,10 @@ import com.linkedin.common.urn.UrnUtils;
 import com.linkedin.data.template.SetMode;
 import com.linkedin.datahub.graphql.QueryContext;
 import com.linkedin.datahub.graphql.generated.ReportOperationInput;
-import com.linkedin.datahub.graphql.resolvers.mutate.MutationUtils;
 import com.linkedin.entity.client.EntityClient;
+import com.linkedin.events.metadata.ChangeType;
+import com.linkedin.metadata.Constants;
+import com.linkedin.metadata.utils.GenericRecordUtils;
 import com.linkedin.mxe.MetadataChangeProposal;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.concurrent.CompletionException;
@@ -17,7 +19,6 @@ import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
 import static com.linkedin.datahub.graphql.TestUtils.*;
-import static com.linkedin.metadata.Constants.*;
 import static org.testng.Assert.*;
 
 
@@ -39,8 +40,12 @@ public class ReportOperationResolverTest {
         .setCustomOperationType(null, SetMode.IGNORE_NULL)
         .setNumAffectedRows(1L);
 
-    MetadataChangeProposal expectedProposal = MutationUtils.buildMetadataChangeProposalWithUrn(UrnUtils.getUrn(TEST_ENTITY_URN),
-        OPERATION_ASPECT_NAME, expectedOperation);
+    MetadataChangeProposal expectedProposal = new MetadataChangeProposal()
+        .setAspectName(Constants.OPERATION_ASPECT_NAME)
+        .setChangeType(ChangeType.UPSERT)
+        .setEntityUrn(UrnUtils.getUrn(TEST_ENTITY_URN))
+        .setEntityType(Constants.DATASET_ENTITY_NAME)
+        .setAspect(GenericRecordUtils.serializeAspect(expectedOperation));
 
     // Test setting the domain
     Mockito.when(mockClient.ingestProposal(
@@ -59,8 +64,7 @@ public class ReportOperationResolverTest {
 
     Mockito.verify(mockClient, Mockito.times(1)).ingestProposal(
         Mockito.eq(expectedProposal),
-        Mockito.any(Authentication.class),
-        Mockito.eq(false)
+        Mockito.any(Authentication.class)
     );
   }
 

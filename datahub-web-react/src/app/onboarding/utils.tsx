@@ -15,46 +15,6 @@ export function getStepIds(userUrn: string) {
     return OnboardingConfig.map((step) => `${userUrn}-${step.id}`);
 }
 
-// if the user just saw the prerequisiteStepId (in stepIdsToAdd) of a conditional step, we need to add this conditional step
-export function getConditionalStepIdsToAdd(providedStepIds: string[], stepIdsToAdd: string[]) {
-    const conditionalStepIds: string[] = [];
-
-    const providedSteps = providedStepIds
-        .map((stepId) => OnboardingConfig.find((step: OnboardingStep) => step.id === stepId))
-        .filter((step) => !!step);
-
-    providedSteps.forEach((step) => {
-        if (
-            step?.prerequisiteStepId &&
-            stepIdsToAdd.includes(step?.prerequisiteStepId) &&
-            !stepIdsToAdd.includes(step.id || '')
-        ) {
-            conditionalStepIds.push(step.id || '');
-        }
-    });
-
-    return conditionalStepIds;
-}
-
-function hasStepBeenSeen(stepId: string, userUrn: string, educationSteps: StepStateResult[]) {
-    const convertedStepId = convertStepId(stepId, userUrn);
-    return educationSteps.some((step) => step.id === convertedStepId);
-}
-
-export function hasSeenPrerequisiteStepIfExists(
-    step: OnboardingStep,
-    userUrn: string,
-    educationSteps: StepStateResult[],
-) {
-    if (step?.prerequisiteStepId) {
-        if (hasStepBeenSeen(step.prerequisiteStepId, userUrn, educationSteps)) {
-            return true;
-        }
-        return false;
-    }
-    return true;
-}
-
 const StepTitle = styled(Typography.Title)`
     margin-botton: 5px;
 `;
@@ -68,14 +28,15 @@ export function getStepsToRender(
     if (!educationSteps) return [];
     const filteredStepIds: string[] = reshow
         ? stepIds
-        : stepIds.filter((stepId) => !hasStepBeenSeen(stepId, userUrn, educationSteps));
+        : stepIds.filter((stepId) => {
+              const convertedStepId = convertStepId(stepId, userUrn);
+              // if we don't have this step in our educationSteps from GMS we haven't seen it yet
+              return !educationSteps.find((step) => step.id === convertedStepId);
+          });
 
-    const finalStepIds = [...filteredStepIds];
-
-    return finalStepIds
+    return filteredStepIds
         .map((stepId) => OnboardingConfig.find((step: OnboardingStep) => step.id === stepId))
         .filter((step) => !!step)
-        .filter((step) => hasSeenPrerequisiteStepIfExists(step as OnboardingStep, userUrn, educationSteps)) // if this is a conditional step, only keep it if the prerequisite step has been seen
         .map((step) => ({
             ...step,
             content: (

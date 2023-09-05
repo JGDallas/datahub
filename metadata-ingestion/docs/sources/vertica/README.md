@@ -8,6 +8,7 @@ The DataHub Vertica Plugin extracts the following:
 * Metadata for databases, schemas, views, tables, and projections
 * Table level lineage
 * Metadata for ML Models
+* Metadata for Vertica OAuth
 
 
 ### Concept Mapping

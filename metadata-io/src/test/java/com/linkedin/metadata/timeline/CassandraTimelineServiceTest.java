@@ -1,9 +1,8 @@
 package com.linkedin.metadata.timeline;
 
-import com.linkedin.metadata.config.PreProcessHooks;
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.linkedin.metadata.CassandraTestUtils;
-import com.linkedin.metadata.entity.EntityServiceImpl;
+import com.linkedin.metadata.entity.EntityService;
 import com.linkedin.metadata.entity.cassandra.CassandraAspectDao;
 import com.linkedin.metadata.event.EventProducer;
 import com.linkedin.metadata.models.registry.EntityRegistryException;
@@ -52,10 +51,7 @@ public class CassandraTimelineServiceTest extends TimelineServiceTest<CassandraA
     _aspectDao.setConnectionValidated(true);
     _entityTimelineService = new TimelineServiceImpl(_aspectDao, _testEntityRegistry);
     _mockProducer = mock(EventProducer.class);
-    PreProcessHooks preProcessHooks = new PreProcessHooks();
-    preProcessHooks.setUiEnabled(true);
-    _entityServiceImpl = new EntityServiceImpl(_aspectDao, _mockProducer, _testEntityRegistry, true,
-        _mockUpdateIndicesService, preProcessHooks);
+    _entityService = new EntityService(_aspectDao, _mockProducer, _testEntityRegistry, true);
   }
 
   /**

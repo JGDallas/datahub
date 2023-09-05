@@ -1,7 +1,7 @@
 import { SearchOutlined } from '@ant-design/icons';
 import React from 'react';
 import styled from 'styled-components/macro';
-import { SuggestionText } from './styledComponents';
+import { SuggestionText } from './AutoCompleteUser';
 
 const TextWrapper = styled.span``;
 

@@ -11,8 +11,7 @@ export const OnChangeMarkdown = ({ onChange }: OnChangeMarkdownProps): null => {
 
     const onDocChanged = useCallback(
         ({ state }) => {
-            let markdown = getMarkdown(state);
-            if (markdown === '&nbsp;') markdown = '';
+            const markdown = getMarkdown(state);
             onChange(markdown);
         },
         [onChange, getMarkdown],

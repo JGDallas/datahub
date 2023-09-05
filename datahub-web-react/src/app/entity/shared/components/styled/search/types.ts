@@ -48,7 +48,6 @@ export enum SelectActionGroups {
     CHANGE_DOMAINS,
     CHANGE_DEPRECATION,
     DELETE,
-    CHANGE_DATA_PRODUCTS,
 }
 
 /**

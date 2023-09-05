@@ -1,4 +1,3 @@
-import pathlib
 from typing import Any, Iterable, List, Optional, cast
 from unittest.mock import patch
 
@@ -7,7 +6,7 @@ from freezegun import freeze_time
 
 from datahub.configuration.common import DynamicTypedConfig
 from datahub.ingestion.api.committable import CommitPolicy, Committable
-from datahub.ingestion.api.common import RecordEnvelope
+from datahub.ingestion.api.common import RecordEnvelope, WorkUnit
 from datahub.ingestion.api.source import Source, SourceReport
 from datahub.ingestion.api.transform import Transformer
 from datahub.ingestion.api.workunit import MetadataWorkUnit
@@ -19,7 +18,6 @@ from datahub.metadata.schema_classes import (
     MetadataChangeEventClass,
     StatusClass,
 )
-from tests.test_helpers.click_helpers import run_datahub_cmd
 from tests.test_helpers.sink_helpers import RecordingSinkReport
 
 FROZEN_TIME = "2020-04-14 07:00:00"
@@ -223,54 +221,6 @@ class TestPipeline(object):
         assert pipeline
 
     @pytest.mark.parametrize(
-        "source,strict_warnings,exit_code",
-        [
-            pytest.param(
-                "FakeSource",
-                False,
-                0,
-            ),
-            pytest.param(
-                "FakeSourceWithWarnings",
-                False,
-                0,
-            ),
-            pytest.param(
-                "FakeSourceWithWarnings",
-                True,
-                1,
-            ),
-        ],
-    )
-    @freeze_time(FROZEN_TIME)
-    def test_pipeline_return_code(self, tmp_path, source, strict_warnings, exit_code):
-        config_file: pathlib.Path = tmp_path / "test.yml"
-
-        config_file.write_text(
-            f"""
----
-run_id: pipeline_test
-source:
-    type: tests.unit.test_pipeline.{source}
-    config: {{}}
-sink:
-    type: console
-"""
-        )
-
-        res = run_datahub_cmd(
-            [
-                "ingest",
-                "-c",
-                f"{config_file}",
-                *(("--strict-warnings",) if strict_warnings else ()),
-            ],
-            tmp_path=tmp_path,
-            check_result=False,
-        )
-        assert res.exit_code == exit_code, res.stdout
-
-    @pytest.mark.parametrize(
         "commit_policy,source,should_commit",
         [
             pytest.param(
@@ -382,8 +332,7 @@ class AddStatusRemovedTransformer(Transformer):
 
 
 class FakeSource(Source):
-    def __init__(self, ctx: PipelineContext):
-        super().__init__(ctx)
+    def __init__(self):
         self.source_report = SourceReport()
         self.work_units: List[MetadataWorkUnit] = [
             MetadataWorkUnit(id="workunit-1", mce=get_initial_mce())
@@ -392,9 +341,9 @@ class FakeSource(Source):
     @classmethod
     def create(cls, config_dict: dict, ctx: PipelineContext) -> "Source":
         assert not config_dict
-        return cls(ctx)
+        return cls()
 
-    def get_workunits(self) -> Iterable[MetadataWorkUnit]:
+    def get_workunits(self) -> Iterable[WorkUnit]:
         return self.work_units
 
     def get_report(self) -> SourceReport:
@@ -405,8 +354,8 @@ class FakeSource(Source):
 
 
 class FakeSourceWithWarnings(FakeSource):
-    def __init__(self, ctx: PipelineContext):
-        super().__init__(ctx)
+    def __init__(self):
+        super().__init__()
         self.source_report.report_warning("test_warning", "warning_text")
 
     def get_report(self) -> SourceReport:
@@ -414,8 +363,8 @@ class FakeSourceWithWarnings(FakeSource):
 
 
 class FakeSourceWithFailures(FakeSource):
-    def __init__(self, ctx: PipelineContext):
-        super().__init__(ctx)
+    def __init__(self):
+        super().__init__()
         self.source_report.report_failure("test_failure", "failure_text")
 
     def get_report(self) -> SourceReport:

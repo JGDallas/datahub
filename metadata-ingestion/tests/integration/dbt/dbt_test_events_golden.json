@@ -8,8 +8,7 @@
         "json": {
             "typeNames": [
                 "Model",
-                "Table",
-                "View"
+                "Table"
             ]
         }
     },
@@ -215,8 +214,7 @@
         "json": {
             "typeNames": [
                 "Model",
-                "Table",
-                "View"
+                "Table"
             ]
         }
     },

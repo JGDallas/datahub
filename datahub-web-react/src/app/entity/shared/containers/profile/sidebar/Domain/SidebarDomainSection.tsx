@@ -1,7 +1,6 @@
 import { Typography, Button, Modal, message } from 'antd';
 import React, { useState } from 'react';
 import { EditOutlined } from '@ant-design/icons';
-import styled from 'styled-components';
 import { EMPTY_MESSAGES } from '../../../../constants';
 import { useEntityData, useMutationUrn, useRefetch } from '../../../../EntityContext';
 import { SidebarHeader } from '../SidebarHeader';
@@ -10,31 +9,11 @@ import { useUnsetDomainMutation } from '../../../../../../../graphql/mutations.g
 import { DomainLink } from '../../../../../../shared/tags/DomainLink';
 import { ENTITY_PROFILE_DOMAINS_ID } from '../../../../../../onboarding/config/EntityProfileOnboardingConfig';
 
-const StyledButton = styled(Button)`
-    display: block;
-    margin-bottom: 8px;
-`;
-
-const ContentWrapper = styled.div<{ displayInline: boolean }>`
-    ${(props) =>
-        props.displayInline &&
-        `
-    display: flex;
-    align-items: center;
-    `}
-`;
-
-interface PropertiesProps {
-    updateOnly?: boolean;
-}
-
 interface Props {
     readOnly?: boolean;
-    properties?: PropertiesProps;
 }
 
-export const SidebarDomainSection = ({ readOnly, properties }: Props) => {
-    const updateOnly = properties?.updateOnly;
+export const SidebarDomainSection = ({ readOnly }: Props) => {
     const { entityData } = useEntityData();
     const refetch = useRefetch();
     const urn = useMutationUrn();
@@ -74,34 +53,31 @@ export const SidebarDomainSection = ({ readOnly, properties }: Props) => {
         <div>
             <div id={ENTITY_PROFILE_DOMAINS_ID} className="sidebar-domain-section">
                 <SidebarHeader title="Domain" />
-                <ContentWrapper displayInline={!!domain}>
+                <div>
                     {domain && (
                         <DomainLink
                             domain={domain}
-                            closable={!readOnly && !updateOnly}
+                            closable={!readOnly}
                             readOnly={readOnly}
                             onClose={(e) => {
                                 e.preventDefault();
                                 onRemoveDomain(entityData?.domain?.associatedUrn);
                             }}
-                            fontSize={12}
                         />
                     )}
-                    {(!domain || !!updateOnly) && (
+                    {!domain && (
                         <>
-                            {!domain && (
-                                <Typography.Paragraph type="secondary">
-                                    {EMPTY_MESSAGES.domain.title}. {EMPTY_MESSAGES.domain.description}
-                                </Typography.Paragraph>
-                            )}
+                            <Typography.Paragraph type="secondary">
+                                {EMPTY_MESSAGES.domain.title}. {EMPTY_MESSAGES.domain.description}
+                            </Typography.Paragraph>
                             {!readOnly && (
-                                <StyledButton type="default" onClick={() => setShowModal(true)}>
+                                <Button type="default" onClick={() => setShowModal(true)}>
                                     <EditOutlined /> Set Domain
-                                </StyledButton>
+                                </Button>
                             )}
                         </>
                     )}
-                </ContentWrapper>
+                </div>
                 {showModal && (
                     <SetDomainModal
                         urns={[urn]}

@@ -29,7 +29,6 @@ fragment lineageNodeProperties on EntityWithRelationships {
         domain {
             ...entityDomain
         }
-        ...entityDataProduct
         deprecation {
             ...deprecationFields
         }
@@ -41,18 +40,6 @@ fragment lineageNodeProperties on EntityWithRelationships {
         }
         status {
             removed
-        }
-        inputOutput {
-            fineGrainedLineages {
-                upstreams {
-                    urn
-                    path
-                }
-                downstreams {
-                    urn
-                    path
-                }
-            }
         }
     }
     ... on DataFlow {
@@ -82,7 +69,6 @@ fragment lineageNodeProperties on EntityWithRelationships {
         domain {
             ...entityDomain
         }
-        ...entityDataProduct
         status {
             removed
         }
@@ -119,7 +105,6 @@ fragment lineageNodeProperties on EntityWithRelationships {
         domain {
             ...entityDomain
         }
-        ...entityDataProduct
         parentContainers {
             ...parentContainersFields
         }
@@ -161,7 +146,6 @@ fragment lineageNodeProperties on EntityWithRelationships {
         domain {
             ...entityDomain
         }
-        ...entityDataProduct
         status {
             removed
         }
@@ -197,12 +181,6 @@ fragment lineageNodeProperties on EntityWithRelationships {
                 urn
                 path
             }
-        }
-        health {
-            type
-            status
-            message
-            causes
         }
     }
     ... on MLModelGroup {
@@ -257,9 +235,6 @@ fragment lineageFields on EntityWithRelationships {
             siblings {
                 urn
                 type
-                ... on Dataset {
-                    exists
-                }
                 ...lineageNodeProperties
             }
         }
@@ -378,9 +353,6 @@ query getEntityLineage(
                 siblings {
                     urn
                     type
-                    ... on Dataset {
-                        exists
-                    }
                     ...lineageNodeProperties
                 }
             }

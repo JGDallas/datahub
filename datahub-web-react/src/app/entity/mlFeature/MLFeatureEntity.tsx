@@ -9,15 +9,13 @@ import { GenericEntityProperties } from '../shared/types';
 import { useGetMlFeatureQuery } from '../../../graphql/mlFeature.generated';
 import { SidebarAboutSection } from '../shared/containers/profile/sidebar/AboutSection/SidebarAboutSection';
 import { SidebarTagsSection } from '../shared/containers/profile/sidebar/SidebarTagsSection';
-import { SidebarOwnerSection } from '../shared/containers/profile/sidebar/Ownership/sidebar/SidebarOwnerSection';
+import { SidebarOwnerSection } from '../shared/containers/profile/sidebar/Ownership/SidebarOwnerSection';
 import { SidebarDomainSection } from '../shared/containers/profile/sidebar/Domain/SidebarDomainSection';
 import { SidebarAccessRequestSection } from '../shared/containers/profile/sidebar/AccessRequest/SidebarAccessRequestSection';
 import { DocumentationTab } from '../shared/tabs/Documentation/DocumentationTab';
 import { FeatureTableTab } from '../shared/tabs/ML/MlFeatureFeatureTableTab';
 import { LineageTab } from '../shared/tabs/Lineage/LineageTab';
 import { EntityMenuItems } from '../shared/EntityDropdown/EntityDropdown';
-import DataProductSection from '../shared/containers/profile/sidebar/DataProduct/DataProductSection';
-import { getDataProduct } from '../shared/utils';
 
 /**
  * Definition of the DataHub MLFeature entity.
@@ -92,16 +90,16 @@ export class MLFeatureEntity implements Entity<MlFeature> {
                     component: SidebarAboutSection,
                 },
                 {
-                    component: SidebarOwnerSection,
-                    properties: {
-                        defaultOwnerType: OwnershipType.TechnicalOwner,
-                    },
-                },
-                {
                     component: SidebarTagsSection,
                     properties: {
                         hasTags: true,
                         hasTerms: true,
+                    },
+                },
+                {
+                    component: SidebarOwnerSection,
+                    properties: {
+                        defaultOwnerType: OwnershipType.TechnicalOwner,
                     },
                 },
                 {
@@ -110,15 +108,11 @@ export class MLFeatureEntity implements Entity<MlFeature> {
                 {
                     component: SidebarAccessRequestSection,
                 },
-                {
-                    component: DataProductSection,
-                },
             ]}
         />
     );
 
     renderPreview = (_: PreviewType, data: MlFeature) => {
-        const genericProperties = this.getGenericEntityProperties(data);
         // eslint-disable-next-line
         const platform = data?.['featureTables']?.relationships?.[0]?.entity?.platform;
         return (
@@ -129,14 +123,12 @@ export class MLFeatureEntity implements Entity<MlFeature> {
                 description={data.description}
                 owners={data.ownership?.owners}
                 platform={platform}
-                dataProduct={getDataProduct(genericProperties?.dataProduct)}
             />
         );
     };
 
     renderSearch = (result: SearchResult) => {
         const data = result.entity as MlFeature;
-        const genericProperties = this.getGenericEntityProperties(data);
         // eslint-disable-next-line
         const platform = data?.['featureTables']?.relationships?.[0]?.entity?.platform;
         return (
@@ -146,11 +138,8 @@ export class MLFeatureEntity implements Entity<MlFeature> {
                 featureNamespace={data.featureNamespace || ''}
                 description={data.description || ''}
                 owners={data.ownership?.owners}
-                dataProduct={getDataProduct(genericProperties?.dataProduct)}
                 platform={platform}
                 platformInstanceId={data.dataPlatformInstance?.instanceId}
-                degree={(result as any).degree}
-                paths={(result as any).paths}
             />
         );
     };
@@ -187,7 +176,6 @@ export class MLFeatureEntity implements Entity<MlFeature> {
             EntityCapabilityType.DOMAINS,
             EntityCapabilityType.DEPRECATION,
             EntityCapabilityType.SOFT_DELETE,
-            EntityCapabilityType.DATA_PRODUCTS,
         ]);
     };
 }

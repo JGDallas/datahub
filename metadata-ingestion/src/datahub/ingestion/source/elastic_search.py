@@ -1,7 +1,5 @@
 import json
 import logging
-import re
-import time
 from collections import defaultdict
 from dataclasses import dataclass, field
 from hashlib import md5
@@ -11,7 +9,7 @@ from elasticsearch import Elasticsearch
 from pydantic import validator
 from pydantic.fields import Field
 
-from datahub.configuration.common import AllowDenyPattern, ConfigModel
+from datahub.configuration.common import AllowDenyPattern
 from datahub.configuration.source_common import (
     EnvConfigMixin,
     PlatformInstanceConfigMixin,
@@ -35,10 +33,6 @@ from datahub.ingestion.api.decorators import (
 from datahub.ingestion.api.source import Source, SourceReport
 from datahub.ingestion.api.workunit import MetadataWorkUnit
 from datahub.ingestion.source.common.subtypes import DatasetSubTypes
-from datahub.ingestion.source_config.operation_config import (
-    OperationConfig,
-    is_profiling_enabled,
-)
 from datahub.metadata.com.linkedin.pegasus2avro.common import StatusClass
 from datahub.metadata.com.linkedin.pegasus2avro.schema import (
     SchemaField,
@@ -50,7 +44,6 @@ from datahub.metadata.schema_classes import (
     BooleanTypeClass,
     BytesTypeClass,
     DataPlatformInstanceClass,
-    DatasetProfileClass,
     DatasetPropertiesClass,
     DateTypeClass,
     NullTypeClass,
@@ -62,7 +55,6 @@ from datahub.metadata.schema_classes import (
     SubTypesClass,
 )
 from datahub.utilities.config_clean import remove_protocol
-from datahub.utilities.urns.dataset_urn import DatasetUrn
 
 logger = logging.getLogger(__name__)
 
@@ -198,47 +190,6 @@ class ElasticsearchSourceReport(SourceReport):
         self.filtered.append(index)
 
 
-class ElasticProfiling(ConfigModel):
-    enabled: bool = Field(
-        default=False,
-        description="Whether to enable profiling for the elastic search source.",
-    )
-    operation_config: OperationConfig = Field(
-        default_factory=OperationConfig,
-        description="Experimental feature. To specify operation configs.",
-    )
-
-
-class CollapseUrns(ConfigModel):
-    urns_suffix_regex: List[str] = Field(
-        default_factory=list,
-        description="""List of regex patterns to remove from the name of the URN. All of the indices before removal of URNs are considered as the same dataset. These are applied in order for each URN.
-        The main case where you would want to have multiple of these if the name where you are trying to remove suffix from have different formats.
-        e.g. ending with -YYYY-MM-DD as well as ending -epochtime would require you to have 2 regex patterns to remove the suffixes across all URNs.""",
-    )
-
-
-def collapse_name(name: str, collapse_urns: CollapseUrns) -> str:
-    for suffix in collapse_urns.urns_suffix_regex:
-        name = re.sub(suffix, "", name)
-    return name
-
-
-def collapse_urn(urn: str, collapse_urns: CollapseUrns) -> str:
-    if len(collapse_urns.urns_suffix_regex) == 0:
-        return urn
-    urn_obj = DatasetUrn.create_from_string(urn)
-    name = collapse_name(name=urn_obj.get_dataset_name(), collapse_urns=collapse_urns)
-    data_platform_urn = urn_obj.get_data_platform_urn()
-    return str(
-        DatasetUrn.create_from_ids(
-            platform_id=data_platform_urn.get_entity_id_as_string(),
-            table_name=name,
-            env=urn_obj.get_env(),
-        )
-    )
-
-
 class ElasticsearchSourceConfig(PlatformInstanceConfigMixin, EnvConfigMixin):
     host: str = Field(
         default="localhost:9200", description="The elastic search host URI."
@@ -297,18 +248,6 @@ class ElasticsearchSourceConfig(PlatformInstanceConfigMixin, EnvConfigMixin):
         description="The regex patterns for filtering index templates to ingest.",
     )
 
-    profiling: ElasticProfiling = Field(
-        default_factory=ElasticProfiling,
-    )
-    collapse_urns: CollapseUrns = Field(
-        default_factory=CollapseUrns,
-    )
-
-    def is_profiling_enabled(self) -> bool:
-        return self.profiling.enabled and is_profiling_enabled(
-            self.profiling.operation_config
-        )
-
     @validator("host")
     def host_colon_port_comma(cls, host_val: str) -> str:
         for entry in host_val.split(","):
@@ -355,7 +294,6 @@ class ElasticsearchSource(Source):
         self.report = ElasticsearchSourceReport()
         self.data_stream_partition_count: Dict[str, int] = defaultdict(int)
         self.platform: str = "elasticsearch"
-        self.cat_response: Optional[List[Dict[str, Any]]] = None
 
     @classmethod
     def create(
@@ -364,25 +302,32 @@ class ElasticsearchSource(Source):
         config = ElasticsearchSourceConfig.parse_obj(config_dict)
         return cls(config, ctx)
 
-    def get_workunits_internal(self) -> Iterable[MetadataWorkUnit]:
+    def get_workunits(self) -> Iterable[MetadataWorkUnit]:
         indices = self.client.indices.get_alias()
+
         for index in indices:
             self.report.report_index_scanned(index)
 
             if self.source_config.index_pattern.allowed(index):
                 for mcp in self._extract_mcps(index, is_index=True):
-                    yield mcp.as_workunit()
+                    wu = MetadataWorkUnit(id=f"index-{index}", mcp=mcp)
+                    self.report.report_workunit(wu)
+                    yield wu
             else:
                 self.report.report_dropped(index)
 
         for mcp in self._get_data_stream_index_count_mcps():
-            yield mcp.as_workunit()
+            wu = MetadataWorkUnit(id=f"index-{index}", mcp=mcp)
+            self.report.report_workunit(wu)
+            yield wu
         if self.source_config.ingest_index_templates:
             templates = self.client.indices.get_template()
             for template in templates:
                 if self.source_config.index_template_pattern.allowed(template):
                     for mcp in self._extract_mcps(template, is_index=False):
-                        yield mcp.as_workunit()
+                        wu = MetadataWorkUnit(id=f"template-{template}", mcp=mcp)
+                        self.report.report_workunit(wu)
+                        yield wu
 
     def _get_data_stream_index_count_mcps(
         self,
@@ -393,9 +338,6 @@ class ElasticsearchSource(Source):
                 name=data_stream,
                 env=self.source_config.env,
                 platform_instance=self.source_config.platform_instance,
-            )
-            dataset_urn = collapse_urn(
-                urn=dataset_urn, collapse_urns=self.source_config.collapse_urns
             )
             yield MetadataChangeProposalWrapper(
                 entityUrn=dataset_urn,
@@ -424,9 +366,6 @@ class ElasticsearchSource(Source):
         else:
             raw_index = self.client.indices.get_template(name=index)
             raw_index_metadata = raw_index[index]
-        collapsed_index_name = collapse_name(
-            name=index, collapse_urns=self.source_config.collapse_urns
-        )
 
         # 1. Construct and emit the schemaMetadata aspect
         # 1.1 Generate the schema fields from ES mappings.
@@ -441,7 +380,7 @@ class ElasticsearchSource(Source):
 
         # 1.2 Generate the SchemaMetadata aspect
         schema_metadata = SchemaMetadata(
-            schemaName=collapsed_index_name,
+            schemaName=index,
             platform=make_data_platform_urn(self.platform),
             version=0,
             hash=md5_hash,
@@ -455,9 +394,6 @@ class ElasticsearchSource(Source):
             name=index,
             platform_instance=self.source_config.platform_instance,
             env=self.source_config.env,
-        )
-        dataset_urn = collapse_urn(
-            urn=dataset_urn, collapse_urns=self.source_config.collapse_urns
         )
         yield MetadataChangeProposalWrapper(
             entityUrn=dataset_urn,
@@ -523,49 +459,6 @@ class ElasticsearchSource(Source):
                     ),
                 ),
             )
-
-        if self.source_config.is_profiling_enabled():
-            if self.cat_response is None:
-                self.cat_response = self.client.cat.indices(
-                    params={
-                        "format": "json",
-                        "bytes": "b",
-                        "h": "index,docs.count,store.size",
-                    }
-                )
-                if self.cat_response is None:
-                    return
-                for item in self.cat_response:
-                    item["index"] = collapse_name(
-                        name=item["index"],
-                        collapse_urns=self.source_config.collapse_urns,
-                    )
-
-            profile_info_current = list(
-                filter(lambda x: x["index"] == collapsed_index_name, self.cat_response)
-            )
-            if len(profile_info_current) > 0:
-                self.cat_response = list(
-                    filter(
-                        lambda x: x["index"] != collapsed_index_name, self.cat_response
-                    )
-                )
-                row_count = 0
-                size_in_bytes = 0
-                for profile_info in profile_info_current:
-                    if profile_info["docs.count"] is not None:
-                        row_count += int(profile_info["docs.count"])
-                    if profile_info["store.size"] is not None:
-                        size_in_bytes += int(profile_info["store.size"])
-                yield MetadataChangeProposalWrapper(
-                    entityUrn=dataset_urn,
-                    aspect=DatasetProfileClass(
-                        timestampMillis=int(time.time() * 1000),
-                        rowCount=row_count,
-                        columnCount=len(schema_fields),
-                        sizeInBytes=size_in_bytes,
-                    ),
-                )
 
     def get_report(self):
         return self.report

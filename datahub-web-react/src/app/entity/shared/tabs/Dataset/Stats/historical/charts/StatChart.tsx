@@ -14,9 +14,8 @@ const ChartTitle = styled(Typography.Text)`
     }
 `;
 
-const ChartCard = styled(Card)<{ visible: boolean }>`
+const ChartCard = styled(Card)`
     box-shadow: ${(props) => props.theme.styles['box-shadow']};
-    visibility: ${(props) => (props.visible ? 'visible' : 'hidden')}; ;
 `;
 
 type Point = {
@@ -24,17 +23,11 @@ type Point = {
     value: number;
 };
 
-type AxisConfig = {
-    formatter: (tick: number) => string;
-};
-
 export type Props = {
     title: string;
     values: Array<Point>;
     tickInterval: DateInterval;
     dateRange: DateRange;
-    yAxis?: AxisConfig;
-    visible?: boolean;
 };
 
 /**
@@ -48,7 +41,7 @@ const DEFAULT_AXIS_WIDTH = 2;
 /**
  * Time Series Chart with a single line.
  */
-export default function StatChart({ title, values, tickInterval: interval, dateRange, yAxis, visible = true }: Props) {
+export default function StatChart({ title, values, tickInterval: interval, dateRange }: Props) {
     const timeSeriesData = useMemo(
         () =>
             values
@@ -63,10 +56,22 @@ export default function StatChart({ title, values, tickInterval: interval, dateR
         [values],
     );
 
+    const chartData = {
+        title,
+        lines: [
+            {
+                name: 'line_1',
+                data: timeSeriesData,
+            },
+        ],
+        interval,
+        dateRange,
+    };
+
     return (
-        <ChartCard visible={visible}>
+        <ChartCard>
             <ChartContainer>
-                <ChartTitle>{title}</ChartTitle>
+                <ChartTitle>{chartData.title}</ChartTitle>
                 <TimeSeriesChart
                     style={{
                         lineColor: DEFAULT_LINE_COLOR,
@@ -74,21 +79,9 @@ export default function StatChart({ title, values, tickInterval: interval, dateR
                         axisWidth: DEFAULT_AXIS_WIDTH,
                     }}
                     hideLegend
-                    chartData={{
-                        title,
-                        lines: [
-                            {
-                                name: 'line_1',
-                                data: timeSeriesData,
-                            },
-                        ],
-                        interval,
-                        dateRange,
-                    }}
+                    chartData={chartData}
                     width={360}
                     height={300}
-                    yScale={{ type: 'linear', includeZero: false }}
-                    yAxis={yAxis}
                 />
             </ChartContainer>
         </ChartCard>

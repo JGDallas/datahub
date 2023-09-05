@@ -114,7 +114,6 @@ class FeastRepositorySource(Source):
     - Column types associated with each entity and feature
     """
 
-    platform = "feast"
     source_config: FeastRepositorySourceConfig
     report: SourceReport
     feature_store: FeatureStore
@@ -368,22 +367,40 @@ class FeastRepositorySource(Source):
         config = FeastRepositorySourceConfig.parse_obj(config_dict)
         return cls(config, ctx)
 
-    def get_workunits_internal(self) -> Iterable[MetadataWorkUnit]:
+    def get_workunits(self) -> Iterable[MetadataWorkUnit]:
         for feature_view in self.feature_store.list_feature_views():
             for entity_name in feature_view.entities:
                 entity = self.feature_store.get_entity(entity_name)
-                yield self._get_entity_workunit(feature_view, entity)
+
+                work_unit = self._get_entity_workunit(feature_view, entity)
+                self.report.report_workunit(work_unit)
+
+                yield work_unit
 
             for field in feature_view.features:
-                yield self._get_feature_workunit(feature_view, field)
+                work_unit = self._get_feature_workunit(feature_view, field)
+                self.report.report_workunit(work_unit)
 
-            yield self._get_feature_view_workunit(feature_view)
+                yield work_unit
+
+            work_unit = self._get_feature_view_workunit(feature_view)
+            self.report.report_workunit(work_unit)
+
+            yield work_unit
 
         for on_demand_feature_view in self.feature_store.list_on_demand_feature_views():
             for feature in on_demand_feature_view.features:
-                yield self._get_feature_workunit(on_demand_feature_view, feature)
+                work_unit = self._get_feature_workunit(on_demand_feature_view, feature)
+                self.report.report_workunit(work_unit)
 
-            yield self._get_on_demand_feature_view_workunit(on_demand_feature_view)
+                yield work_unit
+
+            work_unit = self._get_on_demand_feature_view_workunit(
+                on_demand_feature_view
+            )
+            self.report.report_workunit(work_unit)
+
+            yield work_unit
 
     def get_report(self) -> SourceReport:
         return self.report

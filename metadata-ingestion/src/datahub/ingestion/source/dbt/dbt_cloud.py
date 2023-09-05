@@ -104,20 +104,23 @@ _DBT_GRAPHQL_MODEL_SEED_SNAPSHOT_FIELDS = """
   compiledCode
 """
 
-_DBT_FIELDS_BY_TYPE = {
-    "models": f"""
+_DBT_GRAPHQL_QUERY = f"""
+query DatahubMetadataQuery($jobId: Int!, $runId: Int) {{
+  models(jobId: $jobId, runId: $runId) {{
     { _DBT_GRAPHQL_COMMON_FIELDS }
     { _DBT_GRAPHQL_NODE_COMMON_FIELDS }
     { _DBT_GRAPHQL_MODEL_SEED_SNAPSHOT_FIELDS }
     dependsOn
     materializedType
-""",
-    "seeds": f"""
+  }}
+
+  seeds(jobId: $jobId, runId: $runId) {{
     { _DBT_GRAPHQL_COMMON_FIELDS }
     { _DBT_GRAPHQL_NODE_COMMON_FIELDS }
     { _DBT_GRAPHQL_MODEL_SEED_SNAPSHOT_FIELDS }
-""",
-    "sources": f"""
+  }}
+
+  sources(jobId: $jobId, runId: $runId) {{
     { _DBT_GRAPHQL_COMMON_FIELDS }
     { _DBT_GRAPHQL_NODE_COMMON_FIELDS }
     identifier
@@ -128,8 +131,9 @@ _DBT_FIELDS_BY_TYPE = {
     state
     freshnessChecked
     loader
-""",
-    "snapshots": f"""
+  }}
+
+  snapshots(jobId: $jobId, runId: $runId) {{
     { _DBT_GRAPHQL_COMMON_FIELDS }
     { _DBT_GRAPHQL_NODE_COMMON_FIELDS }
     { _DBT_GRAPHQL_MODEL_SEED_SNAPSHOT_FIELDS }
@@ -139,8 +143,9 @@ _DBT_FIELDS_BY_TYPE = {
     parentsModels {{
       uniqueId
     }}
-""",
-    "tests": f"""
+  }}
+
+  tests(jobId: $jobId, runId: $runId) {{
     { _DBT_GRAPHQL_COMMON_FIELDS }
     state
     columnName
@@ -154,20 +159,12 @@ _DBT_FIELDS_BY_TYPE = {
     rawCode
     compiledSql
     compiledCode
-""",
-    # Currently unsupported dbt node types:
-    # - metrics
-    # - snapshots
-    # - exposures
-}
-
-_DBT_GRAPHQL_QUERY = """
-query DatahubMetadataQuery_{type}($jobId: BigInt!, $runId: BigInt) {{
-  job(id: $jobId, runId: $runId) {{
-    {type} {{
-{fields}
-    }}
   }}
+
+  # Currently unsupported dbt node types:
+  # - metrics
+  # - snapshots
+  # - exposures
 }}
 """
 
@@ -209,36 +206,15 @@ class DBTCloudSource(DBTSourceBase):
         # Additionally, we'd like to model dbt Cloud jobs/runs in DataHub
         # as DataProcesses or DataJobs.
 
-        raw_nodes = []
-        for node_type, fields in _DBT_FIELDS_BY_TYPE.items():
-            logger.info(f"Fetching {node_type} from dbt Cloud")
-            data = self._send_graphql_query(
-                query=_DBT_GRAPHQL_QUERY.format(type=node_type, fields=fields),
-                variables={
-                    "jobId": self.config.job_id,
-                    "runId": self.config.run_id,
-                },
-            )
-
-            raw_nodes.extend(data["job"][node_type])
-
-        nodes = [self._parse_into_dbt_node(node) for node in raw_nodes]
-
-        additional_metadata: Dict[str, Optional[str]] = {
-            "project_id": str(self.config.project_id),
-            "account_id": str(self.config.account_id),
-            "job_id": str(self.config.job_id),
-        }
-
-        return nodes, additional_metadata
-
-    def _send_graphql_query(self, query: str, variables: Dict) -> Dict:
-        logger.debug(f"Sending GraphQL query to dbt Cloud: {query}")
+        logger.debug("Sending graphql request to the dbt Cloud metadata API")
         response = requests.post(
             self.config.metadata_endpoint,
             json={
-                "query": query,
-                "variables": variables,
+                "query": _DBT_GRAPHQL_QUERY,
+                "variables": {
+                    "jobId": self.config.job_id,
+                    "runId": self.config.run_id,
+                },
             },
             headers={
                 "Authorization": f"Bearer {self.config.token}",
@@ -257,7 +233,23 @@ class DBTCloudSource(DBTSourceBase):
             response.raise_for_status()
             raise e
 
-        return data
+        raw_nodes = [
+            *data["models"],
+            *data["seeds"],
+            *data["sources"],
+            *data["snapshots"],
+            *data["tests"],
+        ]
+
+        nodes = [self._parse_into_dbt_node(node) for node in raw_nodes]
+
+        additional_metadata: Dict[str, Optional[str]] = {
+            "project_id": str(self.config.project_id),
+            "account_id": str(self.config.account_id),
+            "job_id": str(self.config.job_id),
+        }
+
+        return nodes, additional_metadata
 
     def _parse_into_dbt_node(self, node: Dict) -> DBTNode:
         key = node["uniqueId"]

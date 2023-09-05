@@ -40,7 +40,6 @@ fragment downloadSearchResults on Entity {
         domain {
             ...entityDomain
         }
-        ...entityDataProduct
         deprecation {
             ...deprecationFields
         }
@@ -110,7 +109,6 @@ fragment downloadSearchResults on Entity {
         domain {
             ...entityDomain
         }
-        ...entityDataProduct
         deprecation {
             ...deprecationFields
         }
@@ -154,7 +152,6 @@ fragment downloadSearchResults on Entity {
         domain {
             ...entityDomain
         }
-        ...entityDataProduct
         deprecation {
             ...deprecationFields
         }
@@ -189,7 +186,6 @@ fragment downloadSearchResults on Entity {
         domain {
             ...entityDomain
         }
-        ...entityDataProduct
         deprecation {
             ...deprecationFields
         }
@@ -219,7 +215,6 @@ fragment downloadSearchResults on Entity {
         domain {
             ...entityDomain
         }
-        ...entityDataProduct
         deprecation {
             ...deprecationFields
         }
@@ -400,33 +395,5 @@ fragment downloadScrollResult on ScrollResults {
 query getDownloadScrollResults($input: ScrollAcrossEntitiesInput!) {
     scrollAcrossEntities(input: $input) {
         ...downloadScrollResult
-    }
-}
-
-fragment downloadScrollAcrossLineageResult on ScrollAcrossLineageResults {
-    nextScrollId
-    count
-    total
-    searchResults {
-        entity {
-            ...downloadSearchResults
-        }
-        matchedFields {
-            name
-            value
-        }
-        insights {
-            text
-            icon
-        }
-    }
-    facets {
-        ...facetFields
-    }
-}
-
-query getDownloadScrollAcrossLineageResults($input: ScrollAcrossLineageInput!) {
-    scrollAcrossLineage(input: $input) {
-        ...downloadScrollAcrossLineageResult
     }
 }

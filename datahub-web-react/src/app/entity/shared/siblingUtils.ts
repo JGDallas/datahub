@@ -2,8 +2,7 @@ import merge from 'deepmerge';
 import { unionBy, keyBy, values } from 'lodash';
 import { useLocation } from 'react-router-dom';
 import * as QueryString from 'query-string';
-import { Dataset, Entity, Maybe, SiblingProperties } from '../../../types.generated';
-import { GenericEntityProperties } from './types';
+import { Entity, MatchedField, Maybe, SiblingProperties } from '../../../types.generated';
 
 export function stripSiblingsFromEntity(entity: any) {
     return {
@@ -170,33 +169,6 @@ export const shouldEntityBeTreatedAsPrimary = (extractedBaseEntity: { siblings?:
     return isPrimary;
 };
 
-const combineEntityWithSiblings = (entity: GenericEntityProperties) => {
-    // eslint-disable-next-line @typescript-eslint/dot-notation
-    const siblingAspect = entity.siblings;
-    if ((siblingAspect?.siblings || []).length === 0) {
-        return entity;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/dot-notation
-    const siblings = siblingAspect?.siblings || [];
-
-    const isPrimary = shouldEntityBeTreatedAsPrimary(entity);
-
-    const combinedBaseEntity: any = siblings.reduce(
-        (prev, current) =>
-            merge(clean(isPrimary ? current : prev), clean(isPrimary ? prev : current), {
-                arrayMerge: combineMerge,
-                customMerge: customMerge.bind({}, isPrimary),
-            }),
-        entity,
-    );
-
-    // Force the urn of the combined entity to the current entity urn.
-    combinedBaseEntity.urn = entity.urn;
-
-    return combinedBaseEntity;
-};
-
 export const combineEntityDataWithSiblings = <T>(baseEntity: T): T => {
     if (!baseEntity) {
         return baseEntity;
@@ -210,53 +182,68 @@ export const combineEntityDataWithSiblings = <T>(baseEntity: T): T => {
         return baseEntity;
     }
 
-    const combinedBaseEntity = combineEntityWithSiblings(extractedBaseEntity);
+    // eslint-disable-next-line @typescript-eslint/dot-notation
+    const siblings: T[] = siblingAspect?.siblings || [];
+
+    const isPrimary = shouldEntityBeTreatedAsPrimary(extractedBaseEntity);
+
+    const combinedBaseEntity: any = siblings.reduce(
+        (prev, current) =>
+            merge(clean(isPrimary ? current : prev), clean(isPrimary ? prev : current), {
+                arrayMerge: combineMerge,
+                customMerge: customMerge.bind({}, isPrimary),
+            }),
+        extractedBaseEntity,
+    ) as T;
+
+    // Force the urn of the combined entity to the current entity urn.
+    combinedBaseEntity.urn = extractedBaseEntity.urn;
 
     return { [baseEntityKey]: combinedBaseEntity } as unknown as T;
 };
 
-export type CombinedEntity = {
+export type CombinedSearchResult = {
     entity: Entity;
-    matchedEntities?: Array<Entity>;
+    matchedFields: MatchedField[];
+    matchedEntities?: Entity[];
 };
 
-type CombinedEntityResult =
-    | {
-          skipped: true;
-      }
-    | {
-          skipped: false;
-          combinedEntity: CombinedEntity;
-      };
+export function combineSiblingsInSearchResults(
+    results:
+        | {
+              entity: Entity;
+              matchedFields: MatchedField[];
+          }[]
+        | undefined,
+) {
+    const combinedResults: CombinedSearchResult[] | undefined = [];
+    const siblingsToPair: Record<string, CombinedSearchResult> = {};
 
-export function combineSiblingsForEntity(entity: Entity, visitedSiblingUrns: Set<string>): CombinedEntityResult {
-    if (visitedSiblingUrns.has(entity.urn)) return { skipped: true };
+    // set sibling associations
+    results?.forEach((result) => {
+        if (result.entity.urn in siblingsToPair) {
+            // filter from repeating
+            // const siblingsCombinedResult = siblingsToPair[result.entity.urn];
+            // siblingsCombinedResult.matchedEntities?.push(result.entity);
+            return;
+        }
 
-    const combinedEntity: CombinedEntity = { entity: combineEntityWithSiblings({ ...entity }) };
-    const siblings = (combinedEntity.entity as GenericEntityProperties).siblings?.siblings ?? [];
-    const isPrimary = (combinedEntity.entity as GenericEntityProperties).siblings?.isPrimary;
-    const siblingUrns = siblings.map((sibling) => sibling?.urn);
+        const combinedResult: CombinedSearchResult = result;
+        const { entity }: { entity: any } = result;
+        const siblingUrns = entity?.siblings?.siblings?.map((sibling) => sibling.urn) || [];
+        if (siblingUrns.length > 0) {
+            combinedResult.matchedEntities = entity.siblings.isPrimary
+                ? [stripSiblingsFromEntity(entity), ...entity.siblings.siblings]
+                : [...entity.siblings.siblings, stripSiblingsFromEntity(entity)];
+            siblingUrns.forEach((urn) => {
+                siblingsToPair[urn] = combinedResult;
+            });
+        }
+        combinedResults.push(combinedResult);
+    });
 
-    if (siblingUrns.length > 0) {
-        combinedEntity.matchedEntities = isPrimary
-            ? [stripSiblingsFromEntity(combinedEntity.entity), ...siblings]
-            : [...siblings, stripSiblingsFromEntity(combinedEntity.entity)];
-
-        combinedEntity.matchedEntities = combinedEntity.matchedEntities.filter(
-            (resultToFilter) => (resultToFilter as Dataset).exists,
-        );
-
-        siblingUrns.forEach((urn) => urn && visitedSiblingUrns.add(urn));
-    }
-
-    return { combinedEntity, skipped: false };
+    return combinedResults;
 }
-
-export function createSiblingEntityCombiner() {
-    const visitedSiblingUrns: Set<string> = new Set();
-    return (entity: Entity) => combineSiblingsForEntity(entity, visitedSiblingUrns);
-}
-
 // used to determine whether sibling entities should be shown merged or not
 export const SEPARATE_SIBLINGS_URL_PARAM = 'separate_siblings';
 

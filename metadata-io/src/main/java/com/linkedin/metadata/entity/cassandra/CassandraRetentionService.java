@@ -14,11 +14,8 @@ import com.linkedin.metadata.entity.EntityService;
 import com.linkedin.metadata.entity.RetentionService;
 import com.linkedin.metadata.entity.EntityAspectIdentifier;
 import com.linkedin.metadata.entity.EntityAspect;
-import com.linkedin.metadata.entity.ebean.transactions.AspectsBatchImpl;
 import com.linkedin.metadata.entity.retention.BulkApplyRetentionArgs;
 import com.linkedin.metadata.entity.retention.BulkApplyRetentionResult;
-import com.linkedin.metadata.entity.transactions.AspectsBatch;
-import com.linkedin.mxe.MetadataChangeProposal;
 import com.linkedin.retention.DataHubRetentionConfig;
 import com.linkedin.retention.Retention;
 import com.linkedin.retention.TimeBasedRetention;
@@ -57,32 +54,21 @@ public class CassandraRetentionService extends RetentionService {
   }
 
   @Override
-  protected AspectsBatch buildAspectsBatch(List<MetadataChangeProposal> mcps) {
-    return AspectsBatchImpl.builder()
-            .mcps(mcps, _entityService.getEntityRegistry())
-            .build();
-  }
-
-  @Override
   @WithSpan
-  protected void applyRetention(List<RetentionContext> retentionContexts) {
+  public void applyRetention(@Nonnull Urn urn, @Nonnull String aspectName, Retention retentionPolicy, Optional<RetentionContext> retentionContext) {
+    log.debug("Applying retention to urn {}, aspectName {}", urn, aspectName);
+    // If no policies are set or has indefinite policy set, do not apply any retention
+    if (retentionPolicy.data().isEmpty()) {
+      return;
+    }
 
-    List<RetentionContext> nonEmptyContexts = retentionContexts.stream()
-            .filter(context -> context.getRetentionPolicy().isPresent()
-                    && !context.getRetentionPolicy().get().data().isEmpty())
-            .collect(Collectors.toList());
+    if (retentionPolicy.hasVersion()) {
+      applyVersionBasedRetention(urn, aspectName, retentionPolicy.getVersion(), retentionContext.flatMap(RetentionService.RetentionContext::getMaxVersion));
+    }
 
-    nonEmptyContexts.forEach(context -> {
-      if (context.getRetentionPolicy().map(Retention::hasVersion).orElse(false)) {
-        Retention retentionPolicy = context.getRetentionPolicy().get();
-        applyVersionBasedRetention(context.getUrn(), context.getAspectName(), retentionPolicy.getVersion(), context.getMaxVersion());
-      }
-
-      if (context.getRetentionPolicy().map(Retention::hasTime).orElse(false)) {
-        Retention retentionPolicy = context.getRetentionPolicy().get();
-        applyTimeBasedRetention(context.getUrn(), context.getAspectName(), retentionPolicy.getTime());
-      }
-    });
+    if (retentionPolicy.hasTime()) {
+      applyTimeBasedRetention(urn, aspectName, retentionPolicy.getTime());
+    }
   }
 
   @Override
@@ -117,12 +103,7 @@ public class CassandraRetentionService extends RetentionService {
           .findFirst()
           .map(DataHubRetentionConfig::getRetention);
       retentionPolicy.ifPresent(retention ->
-          applyRetention(List.of(RetentionContext.builder()
-                  .urn(urn)
-                  .aspectName(aspectNameFromRecord)
-                  .retentionPolicy(retentionPolicy)
-                  .maxVersion(Optional.of(id.getVersion()))
-                  .build())));
+          applyRetention(urn, aspectNameFromRecord, retention, Optional.of(new RetentionContext(Optional.of(id.getVersion())))));
 
       i += 1;
       if (i % _batchSize == 0) {

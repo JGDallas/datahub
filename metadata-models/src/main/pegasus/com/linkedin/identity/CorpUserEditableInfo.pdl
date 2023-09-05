@@ -45,7 +45,7 @@ record CorpUserEditableInfo {
    * DataHub-native display name
    */
   @Searchable = {
-    "fieldType": "WORD_GRAM",
+    "fieldType": "TEXT_PARTIAL",
     "queryByDefault": true,
     "boostScore": 10.0
   }

@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableSet;
 import com.linkedin.common.urn.Urn;
 import com.linkedin.datahub.graphql.QueryContext;
 import com.linkedin.datahub.graphql.exception.AuthorizationException;
-import com.linkedin.datahub.graphql.generated.FacetFilterInput;
 import com.linkedin.datahub.graphql.generated.ListIngestionSourcesInput;
 import com.linkedin.datahub.graphql.generated.ListIngestionSourcesResult;
 import com.linkedin.datahub.graphql.resolvers.ingest.IngestionAuthUtils;
@@ -21,7 +20,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -53,7 +51,6 @@ public class ListIngestionSourcesResolver implements DataFetcher<CompletableFutu
       final Integer start = input.getStart() == null ? DEFAULT_START : input.getStart();
       final Integer count = input.getCount() == null ? DEFAULT_COUNT : input.getCount();
       final String query = input.getQuery() == null ? DEFAULT_QUERY : input.getQuery();
-      final List<FacetFilterInput> filters = input.getFilters() == null ? Collections.emptyList() : input.getFilters();
 
       return CompletableFuture.supplyAsync(() -> {
         try {
@@ -61,8 +58,7 @@ public class ListIngestionSourcesResolver implements DataFetcher<CompletableFutu
           final SearchResult gmsResult = _entityClient.search(
               Constants.INGESTION_SOURCE_ENTITY_NAME,
               query,
-              buildFilter(filters, Collections.emptyList()),
-              null,
+              Collections.emptyMap(),
               start,
               count,
               context.getAuthentication(),

@@ -8,7 +8,6 @@ import { StyledTag } from '../../../entity/shared/components/styled/StyledTag';
 import { HoverEntityTooltip } from '../../../recommendations/renderer/component/HoverEntityTooltip';
 import { useEntityRegistry } from '../../../useEntityRegistry';
 import { TagProfileDrawer } from '../TagProfileDrawer';
-import { useHasMatchedFieldByUrn } from '../../../search/context/SearchResultContext';
 
 const TagLink = styled.span`
     display: inline-block;
@@ -26,7 +25,6 @@ interface Props {
     highlightText?: string;
     onOpenModal?: () => void;
     refetch?: () => Promise<any>;
-    fontSize?: number;
 }
 
 export default function Tag({
@@ -38,11 +36,9 @@ export default function Tag({
     highlightText,
     onOpenModal,
     refetch,
-    fontSize,
 }: Props) {
     const entityRegistry = useEntityRegistry();
     const [removeTagMutation] = useRemoveTagMutation();
-    const highlightTag = useHasMatchedFieldByUrn(tag.tag.urn, 'tags');
 
     const [tagProfileDrawerVisible, setTagProfileDrawerVisible] = useState(false);
     const [addTagUrn, setAddTagUrn] = useState('');
@@ -111,14 +107,8 @@ export default function Tag({
                             e.preventDefault();
                             removeTag(tag);
                         }}
-                        fontSize={fontSize}
-                        highlightTag={highlightTag}
                     >
-                        <Highlight
-                            style={{ marginLeft: 0, fontSize }}
-                            matchStyle={highlightMatchStyle}
-                            search={highlightText}
-                        >
+                        <Highlight style={{ marginLeft: 0 }} matchStyle={highlightMatchStyle} search={highlightText}>
                             {displayName}
                         </Highlight>
                     </StyledTag>

@@ -101,7 +101,6 @@ public class SearchAcrossEntitiesResolverTest {
           null,
           null,
           TEST_VIEW_URN.toString(),
-         null,
          null
       );
       DataFetchingEnvironment mockEnv = Mockito.mock(DataFetchingEnvironment.class);
@@ -196,7 +195,6 @@ public class SearchAcrossEntitiesResolverTest {
             ))
         ),
         TEST_VIEW_URN.toString(),
-        null,
         null
     );
     DataFetchingEnvironment mockEnv = Mockito.mock(DataFetchingEnvironment.class);
@@ -273,7 +271,6 @@ public class SearchAcrossEntitiesResolverTest {
         null,
         null,
         TEST_VIEW_URN.toString(),
-        null,
         null
     );
     DataFetchingEnvironment mockEnv = Mockito.mock(DataFetchingEnvironment.class);
@@ -350,7 +347,6 @@ public class SearchAcrossEntitiesResolverTest {
         null,
         null,
         TEST_VIEW_URN.toString(),
-        null,
         null
     );
     DataFetchingEnvironment mockEnv = Mockito.mock(DataFetchingEnvironment.class);
@@ -409,7 +405,6 @@ public class SearchAcrossEntitiesResolverTest {
         null,
         null,
         TEST_VIEW_URN.toString(),
-        null,
         null
     );
     DataFetchingEnvironment mockEnv = Mockito.mock(DataFetchingEnvironment.class);
@@ -446,7 +441,6 @@ public class SearchAcrossEntitiesResolverTest {
         Mockito.anyInt(),
         Mockito.anyInt(),
         Mockito.eq(null),
-        Mockito.eq(null),
         Mockito.any(Authentication.class)
     )).thenThrow(new RemoteInvocationException());
 
@@ -459,7 +453,6 @@ public class SearchAcrossEntitiesResolverTest {
         null,
         null,
         TEST_VIEW_URN.toString(),
-        null,
         null
     );
     DataFetchingEnvironment mockEnv = Mockito.mock(DataFetchingEnvironment.class);
@@ -500,7 +493,6 @@ public class SearchAcrossEntitiesResolverTest {
         Mockito.eq(start),
         Mockito.eq(limit),
         Mockito.eq(null),
-        Mockito.eq(null),
         Mockito.any(Authentication.class)
     )).thenReturn(
         result
@@ -523,7 +515,6 @@ public class SearchAcrossEntitiesResolverTest {
             Mockito.eq(filter),
             Mockito.eq(start),
             Mockito.eq(limit),
-            Mockito.eq(null),
             Mockito.eq(null),
             Mockito.any(Authentication.class)
         );

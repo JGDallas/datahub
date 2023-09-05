@@ -41,9 +41,6 @@ public class ElasticSearchBulkProcessorFactory {
   @Value("#{new Boolean('${elasticsearch.bulkProcessor.async}')}")
   private boolean async;
 
-  @Value("#{new Boolean('${elasticsearch.bulkProcessor.enableBatchDelete}')}")
-  private boolean enableBatchDelete;
-
   @Value("${elasticsearch.bulkProcessor.refreshPolicy}")
   private String refreshPolicy;
 
@@ -56,7 +53,6 @@ public class ElasticSearchBulkProcessorFactory {
             .bulkRequestsLimit(bulkRequestsLimit)
             .retryInterval(retryInterval)
             .numRetries(numRetries)
-            .batchDelete(enableBatchDelete)
             .writeRequestRefreshPolicy(WriteRequest.RefreshPolicy.valueOf(refreshPolicy))
             .build();
   }

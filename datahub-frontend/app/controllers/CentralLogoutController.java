@@ -16,8 +16,7 @@ import java.nio.charset.StandardCharsets;
  */
 @Slf4j
 public class CentralLogoutController extends LogoutController {
-  private static final String AUTH_URL_CONFIG_PATH = "/login";
-  private static final String DEFAULT_BASE_URL_PATH = "/";
+  private static final String DEFAULT_BASE_URL_PATH = "/login";
   private static Boolean _isOidcEnabled = false;
 
   @Inject
@@ -37,7 +36,8 @@ public class CentralLogoutController extends LogoutController {
   public Result executeLogout(Http.Request request) {
     if (_isOidcEnabled) {
       try {
-        return logout(request).toCompletableFuture().get().withNewSession();
+        return Results.redirect(DEFAULT_BASE_URL_PATH)
+                .removingFromSession(request);
       } catch (Exception e) {
         log.error("Caught exception while attempting to perform SSO logout! It's likely that SSO integration is mis-configured.", e);
         return redirect(
@@ -47,7 +47,7 @@ public class CentralLogoutController extends LogoutController {
         .withNewSession();
       }
     }
-    return Results.redirect(AUTH_URL_CONFIG_PATH)
+    return Results.redirect(DEFAULT_BASE_URL_PATH)
             .withNewSession();
   }
 }

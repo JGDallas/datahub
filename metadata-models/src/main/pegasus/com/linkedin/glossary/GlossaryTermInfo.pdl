@@ -23,10 +23,9 @@ record GlossaryTermInfo includes CustomProperties {
    * Display name of the term
    */
   @Searchable = {
-    "fieldType": "WORD_GRAM",
+    "fieldType": "TEXT_PARTIAL",
     "enableAutocomplete": true,
-    "boostScore": 10.0,
-    "fieldNameAliases": [ "_entityName" ]
+    "boostScore": 10.0
   }
   name: optional string
 

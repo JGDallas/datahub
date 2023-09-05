@@ -266,6 +266,10 @@ class FeatureGroupProcessor:
 
             for feature in feature_group_details["FeatureDefinitions"]:
                 self.report.report_feature_scanned()
-                yield self.get_feature_wu(feature_group_details, feature)
+                wu = self.get_feature_wu(feature_group_details, feature)
+                self.report.report_workunit(wu)
+                yield wu
             self.report.report_feature_group_scanned()
-            yield self.get_feature_group_wu(feature_group_details)
+            wu = self.get_feature_group_wu(feature_group_details)
+            self.report.report_workunit(wu)
+            yield wu

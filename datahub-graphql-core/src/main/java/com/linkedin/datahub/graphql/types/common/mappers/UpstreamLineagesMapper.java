@@ -1,7 +1,11 @@
 package com.linkedin.datahub.graphql.types.common.mappers;
 
+import com.linkedin.common.urn.Urn;
+import com.linkedin.datahub.graphql.generated.SchemaFieldRef;
+import com.linkedin.dataset.FineGrainedLineage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 
@@ -19,10 +23,31 @@ public class UpstreamLineagesMapper {
   }
 
   public List<com.linkedin.datahub.graphql.generated.FineGrainedLineage> apply(@Nonnull final com.linkedin.dataset.UpstreamLineage upstreamLineage) {
-    if (!upstreamLineage.hasFineGrainedLineages() || upstreamLineage.getFineGrainedLineages() == null) {
-      return new ArrayList<>();
+    final List<com.linkedin.datahub.graphql.generated.FineGrainedLineage> result = new ArrayList<>();
+    if (!upstreamLineage.hasFineGrainedLineages()) {
+      return result;
     }
 
-    return FineGrainedLineagesMapper.map(upstreamLineage.getFineGrainedLineages());
+    for (FineGrainedLineage fineGrainedLineage : upstreamLineage.getFineGrainedLineages()) {
+      com.linkedin.datahub.graphql.generated.FineGrainedLineage resultEntry = new com.linkedin.datahub.graphql.generated.FineGrainedLineage();
+      if (fineGrainedLineage.hasUpstreams()) {
+        resultEntry.setUpstreams(fineGrainedLineage.getUpstreams().stream()
+            .filter(entry -> entry.getEntityType().equals("schemaField"))
+            .map(entry -> mapDatasetSchemaField(entry)).collect(
+            Collectors.toList()));
+      }
+      if (fineGrainedLineage.hasDownstreams()) {
+        resultEntry.setDownstreams(fineGrainedLineage.getDownstreams().stream()
+            .filter(entry -> entry.getEntityType().equals("schemaField"))
+            .map(entry ->  mapDatasetSchemaField(entry)).collect(
+            Collectors.toList()));
+      }
+      result.add(resultEntry);
+    }
+    return result;
+  }
+
+  private static SchemaFieldRef mapDatasetSchemaField(final Urn schemaFieldUrn) {
+    return new SchemaFieldRef(schemaFieldUrn.getEntityKey().get(0), schemaFieldUrn.getEntityKey().get(1));
   }
 }

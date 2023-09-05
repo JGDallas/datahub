@@ -9,7 +9,6 @@
             "customProperties": {
                 "platform": "glue",
                 "instance": "some_instance_name",
-                "env": "PROD",
                 "database": "flights-database"
             },
             "name": "flights-database",
@@ -243,10 +242,10 @@
                     "com.linkedin.pegasus2avro.common.GlobalTags": {
                         "tags": [
                             {
-                                "tag": "urn:li:tag:baz:bob"
+                                "tag": "urn:li:tag:foo:bar"
                             },
                             {
-                                "tag": "urn:li:tag:foo:bar"
+                                "tag": "urn:li:tag:baz:bob"
                             }
                         ]
                     }
@@ -289,7 +288,6 @@
             "customProperties": {
                 "platform": "glue",
                 "instance": "some_instance_name",
-                "env": "PROD",
                 "database": "test-database"
             },
             "name": "test-database",
@@ -482,10 +480,10 @@
                     "com.linkedin.pegasus2avro.common.GlobalTags": {
                         "tags": [
                             {
-                                "tag": "urn:li:tag:baz:bob"
+                                "tag": "urn:li:tag:foo:bar"
                             },
                             {
-                                "tag": "urn:li:tag:foo:bar"
+                                "tag": "urn:li:tag:baz:bob"
                             }
                         ]
                     }
@@ -668,10 +666,10 @@
                     "com.linkedin.pegasus2avro.common.GlobalTags": {
                         "tags": [
                             {
-                                "tag": "urn:li:tag:baz:bob"
+                                "tag": "urn:li:tag:foo:bar"
                             },
                             {
-                                "tag": "urn:li:tag:foo:bar"
+                                "tag": "urn:li:tag:baz:bob"
                             }
                         ]
                     }
@@ -1258,28 +1256,6 @@
     "aspect": {
         "json": {
             "removed": false
-        }
-    }
-},
-{
-    "entityType": "tag",
-    "entityUrn": "urn:li:tag:baz:bob",
-    "changeType": "UPSERT",
-    "aspectName": "tagKey",
-    "aspect": {
-        "json": {
-            "name": "baz:bob"
-        }
-    }
-},
-{
-    "entityType": "tag",
-    "entityUrn": "urn:li:tag:foo:bar",
-    "changeType": "UPSERT",
-    "aspectName": "tagKey",
-    "aspect": {
-        "json": {
-            "name": "foo:bar"
         }
     }
 }

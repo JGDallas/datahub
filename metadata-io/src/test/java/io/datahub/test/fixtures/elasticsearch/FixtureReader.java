@@ -36,8 +36,6 @@ public class FixtureReader {
     @Builder.Default
     private String targetIndexPrefix = "";
 
-    private long refreshIntervalSeconds;
-
     public Set<String> read() throws IOException {
         try (Stream<Path> files = Files.list(Paths.get(String.format("%s/%s", inputBase, fixtureName)))) {
             return files.map(file -> {
@@ -66,7 +64,7 @@ public class FixtureReader {
         } finally {
             bulkProcessor.flush();
             try {
-                Thread.sleep(1000 * refreshIntervalSeconds);
+                Thread.sleep(1000);
             } catch (InterruptedException ignored) {
             }
         }

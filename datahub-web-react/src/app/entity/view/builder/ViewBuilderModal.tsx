@@ -79,7 +79,6 @@ export const ViewBuilderModal = ({ mode, urn, initialState, onSubmit, onCancel }
                 visible
                 width={modalWidth}
                 onCancel={onCancel}
-                data-testid="view-modal"
             >
                 <ViewBuilderForm urn={urn} mode={mode} state={viewBuilderState} updateState={setViewBuilderState} />
                 <SaveButtonContainer>

@@ -7,8 +7,7 @@
     "aspect": {
         "json": {
             "typeNames": [
-                "Model",
-                "View"
+                "Model"
             ]
         }
     },
@@ -130,8 +129,7 @@
         "json": {
             "typeNames": [
                 "Model",
-                "Table",
-                "View"
+                "Table"
             ]
         }
     },
@@ -499,8 +497,7 @@
         "json": {
             "typeNames": [
                 "Model",
-                "Table",
-                "View"
+                "Table"
             ]
         }
     },
@@ -663,8 +660,7 @@
     "aspect": {
         "json": {
             "typeNames": [
-                "Snapshot",
-                "View"
+                "Snapshot"
             ]
         }
     },
@@ -931,8 +927,7 @@
     "aspect": {
         "json": {
             "typeNames": [
-                "Source",
-                "source"
+                "Source"
             ]
         }
     },
@@ -1095,8 +1090,7 @@
     "aspect": {
         "json": {
             "typeNames": [
-                "Source",
-                "source"
+                "Source"
             ]
         }
     },
@@ -1283,8 +1277,7 @@
     "aspect": {
         "json": {
             "typeNames": [
-                "Source",
-                "source"
+                "Source"
             ]
         }
     },
@@ -1411,8 +1404,7 @@
     "aspect": {
         "json": {
             "typeNames": [
-                "Source",
-                "source"
+                "Source"
             ]
         }
     },
@@ -1551,8 +1543,7 @@
     "aspect": {
         "json": {
             "typeNames": [
-                "Source",
-                "source"
+                "Source"
             ]
         }
     },
@@ -1699,8 +1690,7 @@
     "aspect": {
         "json": {
             "typeNames": [
-                "Source",
-                "source"
+                "Source"
             ]
         }
     },
@@ -1911,8 +1901,7 @@
     "aspect": {
         "json": {
             "typeNames": [
-                "Source",
-                "source"
+                "Source"
             ]
         }
     },
@@ -2075,8 +2064,7 @@
     "aspect": {
         "json": {
             "typeNames": [
-                "Source",
-                "source"
+                "Source"
             ]
         }
     },
@@ -2260,8 +2248,7 @@
     "aspect": {
         "json": {
             "typeNames": [
-                "Source",
-                "source"
+                "Source"
             ]
         }
     },
@@ -2424,8 +2411,7 @@
     "aspect": {
         "json": {
             "typeNames": [
-                "Source",
-                "source"
+                "Source"
             ]
         }
     },
@@ -2588,8 +2574,7 @@
     "aspect": {
         "json": {
             "typeNames": [
-                "Source",
-                "source"
+                "Source"
             ]
         }
     },
@@ -2752,8 +2737,7 @@
     "aspect": {
         "json": {
             "typeNames": [
-                "Source",
-                "source"
+                "Source"
             ]
         }
     },

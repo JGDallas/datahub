@@ -78,8 +78,6 @@ const StyledViewer = styled(Editor)`
 `;
 
 type Props = {
-    onExpanded: (expanded: boolean) => void;
-    expanded: boolean;
     description: string;
     original?: string | null;
     onUpdate: (
@@ -90,16 +88,10 @@ type Props = {
 
 const ABBREVIATED_LIMIT = 80;
 
-export default function DescriptionField({
-    expanded,
-    onExpanded: handleExpanded,
-    description,
-    onUpdate,
-    isEdited = false,
-    original,
-}: Props) {
+export default function DescriptionField({ description, onUpdate, isEdited = false, original }: Props) {
     const [showAddModal, setShowAddModal] = useState(false);
     const overLimit = removeMarkdown(description).length > 80;
+    const [expanded, setExpanded] = useState(!overLimit);
     const isSchemaEditable = React.useContext(SchemaEditableContext);
     const onCloseModal = () => setShowAddModal(false);
     const { urn, entityType } = useEntityData();
@@ -137,7 +129,7 @@ export default function DescriptionField({
 
     return (
         <DescriptionContainer>
-            {expanded || !overLimit ? (
+            {expanded ? (
                 <>
                     {!!description && <StyledViewer content={description} readOnly />}
                     {!!description && (
@@ -145,7 +137,7 @@ export default function DescriptionField({
                             {overLimit && (
                                 <ReadLessText
                                     onClick={() => {
-                                        handleExpanded(false);
+                                        setExpanded(false);
                                     }}
                                 >
                                     Read Less
@@ -163,7 +155,7 @@ export default function DescriptionField({
                             <>
                                 <Typography.Link
                                     onClick={() => {
-                                        handleExpanded(true);
+                                        setExpanded(true);
                                     }}
                                 >
                                     Read More

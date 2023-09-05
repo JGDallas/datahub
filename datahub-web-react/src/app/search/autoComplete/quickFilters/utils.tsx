@@ -5,13 +5,13 @@ import { IconStyleType } from '../../../entity/Entity';
 import EntityRegistry from '../../../entity/EntityRegistry';
 
 const StyledIcon = styled.img`
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
 `;
 
 export enum QuickFilterField {
     Platform = 'platform',
-    Entity = '_entityType',
+    Entity = 'entity',
 }
 
 export function getQuickFilterDetails(quickFilter: QuickFilter, entityRegistry: EntityRegistry) {
@@ -21,14 +21,10 @@ export function getQuickFilterDetails(quickFilter: QuickFilter, entityRegistry: 
         label = entityRegistry.getDisplayName(EntityType.DataPlatform, quickFilter.entity);
         const genericProps = entityRegistry.getGenericEntityProperties(EntityType.DataPlatform, quickFilter.entity);
         const logoUrl = genericProps?.platform?.properties?.logoUrl || '';
-        if (logoUrl) {
-            icon = <StyledIcon alt="icon" src={logoUrl} />;
-        } else {
-            icon = entityRegistry.getIcon(EntityType.DataPlatform, 14, IconStyleType.ACCENT, 'black');
-        }
+        icon = <StyledIcon alt="icon" src={logoUrl} />;
     } else if (quickFilter.field === QuickFilterField.Entity) {
         label = entityRegistry.getCollectionName(quickFilter.value as EntityType);
-        icon = entityRegistry.getIcon(quickFilter.value as EntityType, 14, IconStyleType.ACCENT, 'black');
+        icon = entityRegistry.getIcon(quickFilter.value as EntityType, 12, IconStyleType.ACCENT, 'black');
     }
 
     return { label, icon };

@@ -29,7 +29,7 @@ record QueryProperties {
    * Optional display name to identify the query.
    */
   @Searchable = {
-    "fieldType": "WORD_GRAM",
+    "fieldType": "TEXT_PARTIAL",
     "enableAutocomplete": true,
     "boostScore": 10.0
   }

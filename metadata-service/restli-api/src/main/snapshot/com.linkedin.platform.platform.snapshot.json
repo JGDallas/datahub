@@ -82,10 +82,7 @@
           }
         },
         "doc" : "URL where the reference exist",
-        "optional" : true,
-        "Searchable" : {
-          "fieldType" : "KEYWORD"
-        }
+        "optional" : true
       } ]
     } ],
     "fields" : [ {
@@ -94,8 +91,7 @@
       "doc" : "Title of the chart",
       "Searchable" : {
         "enableAutocomplete" : true,
-        "fieldNameAliases" : [ "_entityName" ],
-        "fieldType" : "WORD_GRAM"
+        "fieldType" : "TEXT_PARTIAL"
       }
     }, {
       "name" : "description",
@@ -172,10 +168,7 @@
       "name" : "chartUrl",
       "type" : "com.linkedin.common.Url",
       "doc" : "URL for the chart. This could be used as an external link on DataHub to allow users access/view the chart",
-      "optional" : true,
-      "Searchable" : {
-        "fieldType" : "KEYWORD"
-      }
+      "optional" : true
     }, {
       "name" : "inputs",
       "type" : {
@@ -200,12 +193,11 @@
           "type" : "record",
           "name" : "Edge",
           "namespace" : "com.linkedin.common",
-          "doc" : "A common structure to represent all edges to entities when used inside aspects as collections\nThis ensures that all edges have common structure around audit-stamps and will support PATCH, time-travel automatically.\n",
+          "doc" : "Information about a relatonship edge.",
           "fields" : [ {
             "name" : "sourceUrn",
             "type" : "Urn",
-            "doc" : "Urn of the source of this relationship edge.\nIf not specified, assumed to be the entity that this aspect belongs to.",
-            "optional" : true
+            "doc" : "Urn of the source of this relationship edge."
           }, {
             "name" : "destinationUrn",
             "type" : "Urn",
@@ -213,13 +205,11 @@
           }, {
             "name" : "created",
             "type" : "AuditStamp",
-            "doc" : "Audit stamp containing who created this relationship edge and when",
-            "optional" : true
+            "doc" : "Audit stamp containing who created this relationship edge and when"
           }, {
             "name" : "lastModified",
             "type" : "AuditStamp",
-            "doc" : "Audit stamp containing who last modified this relationship edge and when",
-            "optional" : true
+            "doc" : "Audit stamp containing who last modified this relationship edge and when"
           }, {
             "name" : "properties",
             "type" : {
@@ -382,21 +372,6 @@
     } ]
   }, {
     "type" : "record",
-    "name" : "BrowsePathEntry",
-    "namespace" : "com.linkedin.common",
-    "doc" : "Represents a single level in an entity's browsePathV2",
-    "fields" : [ {
-      "name" : "id",
-      "type" : "string",
-      "doc" : "The ID of the browse path entry. This is what gets stored in the index.\nIf there's an urn associated with this entry, id and urn will be the same"
-    }, {
-      "name" : "urn",
-      "type" : "Urn",
-      "doc" : "Optional urn pointing to some entity in DataHub",
-      "optional" : true
-    } ]
-  }, {
-    "type" : "record",
     "name" : "BrowsePaths",
     "namespace" : "com.linkedin.common",
     "doc" : "Shared aspect containing Browse Paths to be indexed for an entity.",
@@ -416,28 +391,6 @@
     } ],
     "Aspect" : {
       "name" : "browsePaths"
-    }
-  }, {
-    "type" : "record",
-    "name" : "BrowsePathsV2",
-    "namespace" : "com.linkedin.common",
-    "doc" : "Shared aspect containing a Browse Path to be indexed for an entity.",
-    "fields" : [ {
-      "name" : "path",
-      "type" : {
-        "type" : "array",
-        "items" : "BrowsePathEntry"
-      },
-      "doc" : "A valid browse path for the entity. This field is provided by DataHub by default.\nThis aspect is a newer version of browsePaths where we can encode more information in the path.\nThis path is also based on containers for a given entity if it has containers.\n\nThis is stored in elasticsearch as unit-separator delimited strings and only includes platform specific folders or containers.\nThese paths should not include high level info captured elsewhere ie. Platform and Environment.",
-      "Searchable" : {
-        "/*/id" : {
-          "fieldName" : "browsePathV2",
-          "fieldType" : "BROWSE_PATH_V2"
-        }
-      }
-    } ],
-    "Aspect" : {
-      "name" : "browsePathsV2"
     }
   }, "com.linkedin.common.ChangeAuditStamps", {
     "type" : "typeref",
@@ -889,7 +842,18 @@
                 }
               }
             },
-            "doc" : "Urn of the applied tag"
+            "doc" : "Urn of the applied tag",
+            "Relationship" : {
+              "entityTypes" : [ "tag" ],
+              "name" : "TaggedWith"
+            },
+            "Searchable" : {
+              "addToFilters" : true,
+              "fieldName" : "tags",
+              "fieldType" : "URN",
+              "filterNameOverride" : "Tag",
+              "hasValuesFieldName" : "hasTags"
+            }
           }, {
             "name" : "context",
             "type" : "string",
@@ -899,20 +863,12 @@
         }
       },
       "doc" : "Tags associated with a given entity",
-      "Relationship" : {
-        "/*/tag" : {
-          "entityTypes" : [ "tag" ],
-          "name" : "TaggedWith"
-        }
-      },
       "Searchable" : {
         "/*/tag" : {
           "addToFilters" : true,
           "boostScore" : 0.5,
           "fieldName" : "tags",
           "fieldType" : "URN",
-          "filterNameOverride" : "Tag",
-          "hasValuesFieldName" : "hasTags",
           "queryByDefault" : true
         }
       }
@@ -1172,11 +1128,10 @@
         "type" : "enum",
         "name" : "OwnershipType",
         "doc" : "Asset owner types",
-        "symbols" : [ "CUSTOM", "TECHNICAL_OWNER", "BUSINESS_OWNER", "DATA_STEWARD", "NONE", "DEVELOPER", "DATAOWNER", "DELEGATE", "PRODUCER", "CONSUMER", "STAKEHOLDER" ],
+        "symbols" : [ "TECHNICAL_OWNER", "BUSINESS_OWNER", "DATA_STEWARD", "NONE", "DEVELOPER", "DATAOWNER", "DELEGATE", "PRODUCER", "CONSUMER", "STAKEHOLDER" ],
         "symbolDocs" : {
           "BUSINESS_OWNER" : "A person or group who is responsible for logical, or business related, aspects of the asset.",
           "CONSUMER" : "A person, group, or service that consumes the data\nDeprecated! Use TECHNICAL_OWNER or BUSINESS_OWNER instead.",
-          "CUSTOM" : "Set when ownership type is unknown or a when new one is specified as an ownership type entity for which we have no\nenum value for. This is used for backwards compatibility",
           "DATAOWNER" : "A person or group that is owning the data\nDeprecated! Use TECHNICAL_OWNER instead.",
           "DATA_STEWARD" : "A steward, expert, or delegate responsible for the asset.",
           "DELEGATE" : "A person or a group that overseas the operation, e.g. a DBA or SRE.\nDeprecated! Use TECHNICAL_OWNER instead.",
@@ -1195,17 +1150,7 @@
           "STAKEHOLDER" : true
         }
       },
-      "doc" : "The type of the ownership",
-      "deprecated" : true
-    }, {
-      "name" : "typeUrn",
-      "type" : "Urn",
-      "doc" : "The type of the ownership\nUrn of type O",
-      "optional" : true,
-      "Relationship" : {
-        "entityTypes" : [ "ownershipType" ],
-        "name" : "ownershipType"
-      }
+      "doc" : "The type of the ownership"
     }, {
       "name" : "source",
       "type" : {
@@ -1327,8 +1272,7 @@
       "Searchable" : {
         "boostScore" : 10.0,
         "enableAutocomplete" : true,
-        "fieldNameAliases" : [ "_entityName" ],
-        "fieldType" : "WORD_GRAM"
+        "fieldType" : "TEXT_PARTIAL"
       }
     }, {
       "name" : "description",
@@ -1418,10 +1362,7 @@
       "name" : "dashboardUrl",
       "type" : "com.linkedin.common.Url",
       "doc" : "URL for the dashboard. This could be used as an external link on DataHub to allow users access/view the dashboard",
-      "optional" : true,
-      "Searchable" : {
-        "fieldType" : "KEYWORD"
-      }
+      "optional" : true
     }, {
       "name" : "access",
       "type" : "com.linkedin.common.AccessLevel",
@@ -1473,8 +1414,7 @@
       "Searchable" : {
         "boostScore" : 10.0,
         "enableAutocomplete" : true,
-        "fieldNameAliases" : [ "_entityName" ],
-        "fieldType" : "WORD_GRAM"
+        "fieldType" : "TEXT_PARTIAL"
       }
     }, {
       "name" : "description",
@@ -1533,8 +1473,7 @@
       "Searchable" : {
         "boostScore" : 10.0,
         "enableAutocomplete" : true,
-        "fieldNameAliases" : [ "_entityName" ],
-        "fieldType" : "WORD_GRAM"
+        "fieldType" : "TEXT_PARTIAL"
       }
     }, {
       "name" : "description",
@@ -1870,7 +1809,7 @@
           } ]
         }
       },
-      "doc" : "Fine-grained column-level lineages\nNot currently supported in the UI\nUse UpstreamLineage aspect for datasets to express Column Level Lineage for the UI",
+      "doc" : "Fine-grained column-level lineages",
       "optional" : true
     } ],
     "Aspect" : {
@@ -1926,8 +1865,7 @@
       "Searchable" : {
         "boostScore" : 10.0,
         "enableAutocomplete" : false,
-        "fieldNameAliases" : [ "_entityName" ],
-        "fieldType" : "WORD_GRAM"
+        "fieldType" : "TEXT_PARTIAL"
       },
       "validate" : {
         "strlen" : {
@@ -1942,7 +1880,7 @@
       "Searchable" : {
         "boostScore" : 10.0,
         "enableAutocomplete" : true,
-        "fieldType" : "WORD_GRAM"
+        "fieldType" : "TEXT_PARTIAL"
       }
     }, {
       "name" : "type",
@@ -2116,8 +2054,7 @@
       "Searchable" : {
         "boostScore" : 10.0,
         "enableAutocomplete" : true,
-        "fieldNameAliases" : [ "_entityName" ],
-        "fieldType" : "WORD_GRAM"
+        "fieldType" : "TEXT_PARTIAL"
       }
     }, {
       "name" : "qualifiedName",
@@ -2128,7 +2065,7 @@
         "addToFilters" : false,
         "boostScore" : 10.0,
         "enableAutocomplete" : true,
-        "fieldType" : "WORD_GRAM"
+        "fieldType" : "TEXT"
       }
     }, {
       "name" : "description",
@@ -2379,7 +2316,7 @@
                   "Aspect" : {
                     "name" : "chartKey"
                   }
-                }, "com.linkedin.chart.ChartInfo", "com.linkedin.chart.ChartQuery", "com.linkedin.chart.EditableChartProperties", "com.linkedin.common.Ownership", "com.linkedin.common.Status", "com.linkedin.common.GlobalTags", "com.linkedin.common.BrowsePaths", "com.linkedin.common.GlossaryTerms", "com.linkedin.common.InstitutionalMemory", "com.linkedin.common.DataPlatformInstance", "com.linkedin.common.BrowsePathsV2" ]
+                }, "com.linkedin.chart.ChartInfo", "com.linkedin.chart.ChartQuery", "com.linkedin.chart.EditableChartProperties", "com.linkedin.common.Ownership", "com.linkedin.common.Status", "com.linkedin.common.GlobalTags", "com.linkedin.common.BrowsePaths", "com.linkedin.common.GlossaryTerms", "com.linkedin.common.InstitutionalMemory", "com.linkedin.common.DataPlatformInstance" ]
               }
             },
             "doc" : "The list of metadata aspects associated with the chart. Depending on the use case, this can either be all, or a selection, of supported aspects."
@@ -2417,7 +2354,7 @@
                     "Searchable" : {
                       "boostScore" : 10.0,
                       "enableAutocomplete" : true,
-                      "fieldType" : "WORD_GRAM",
+                      "fieldType" : "TEXT_PARTIAL",
                       "queryByDefault" : true
                     }
                   } ],
@@ -2437,7 +2374,6 @@
                     "Searchable" : {
                       "boostScore" : 10.0,
                       "enableAutocomplete" : true,
-                      "fieldNameAliases" : [ "_entityName" ],
                       "fieldType" : "TEXT_PARTIAL",
                       "queryByDefault" : true
                     }
@@ -2556,7 +2492,7 @@
                       "boostScore" : 2.0,
                       "enableAutocomplete" : true,
                       "fieldName" : "ldap",
-                      "fieldType" : "WORD_GRAM"
+                      "fieldType" : "TEXT_PARTIAL"
                     }
                   } ],
                   "Aspect" : {
@@ -2586,8 +2522,7 @@
                     "Searchable" : {
                       "boostScore" : 10.0,
                       "enableAutocomplete" : true,
-                      "fieldNameAliases" : [ "_entityName" ],
-                      "fieldType" : "WORD_GRAM",
+                      "fieldType" : "TEXT_PARTIAL",
                       "queryByDefault" : true
                     }
                   }, {
@@ -2650,7 +2585,7 @@
                     "Searchable" : {
                       "boostScore" : 10.0,
                       "enableAutocomplete" : true,
-                      "fieldType" : "WORD_GRAM",
+                      "fieldType" : "TEXT_PARTIAL",
                       "queryByDefault" : true
                     }
                   }, {
@@ -2711,7 +2646,7 @@
                     "optional" : true,
                     "Searchable" : {
                       "boostScore" : 10.0,
-                      "fieldType" : "WORD_GRAM",
+                      "fieldType" : "TEXT_PARTIAL",
                       "queryByDefault" : true
                     }
                   }, {
@@ -2828,7 +2763,7 @@
                   "Aspect" : {
                     "name" : "dashboardKey"
                   }
-                }, "com.linkedin.dashboard.DashboardInfo", "com.linkedin.dashboard.EditableDashboardProperties", "com.linkedin.common.Ownership", "com.linkedin.common.Status", "com.linkedin.common.GlobalTags", "com.linkedin.common.BrowsePaths", "com.linkedin.common.GlossaryTerms", "com.linkedin.common.InstitutionalMemory", "com.linkedin.common.DataPlatformInstance", "com.linkedin.common.BrowsePathsV2" ]
+                }, "com.linkedin.dashboard.DashboardInfo", "com.linkedin.dashboard.EditableDashboardProperties", "com.linkedin.common.Ownership", "com.linkedin.common.Status", "com.linkedin.common.GlobalTags", "com.linkedin.common.BrowsePaths", "com.linkedin.common.GlossaryTerms", "com.linkedin.common.InstitutionalMemory", "com.linkedin.common.DataPlatformInstance" ]
               }
             },
             "doc" : "The list of metadata aspects associated with the dashboard. Depending on the use case, this can either be all, or a selection, of supported aspects."
@@ -2872,7 +2807,7 @@
                     "doc" : "Unique Identifier of the data flow",
                     "Searchable" : {
                       "enableAutocomplete" : true,
-                      "fieldType" : "WORD_GRAM"
+                      "fieldType" : "TEXT_PARTIAL"
                     }
                   }, {
                     "name" : "cluster",
@@ -2885,7 +2820,7 @@
                   "Aspect" : {
                     "name" : "dataFlowKey"
                   }
-                }, "com.linkedin.datajob.DataFlowInfo", "com.linkedin.datajob.EditableDataFlowProperties", "com.linkedin.common.Ownership", "com.linkedin.common.Status", "com.linkedin.common.GlobalTags", "com.linkedin.common.BrowsePaths", "com.linkedin.common.GlossaryTerms", "com.linkedin.common.InstitutionalMemory", "com.linkedin.common.DataPlatformInstance", "com.linkedin.common.BrowsePathsV2" ]
+                }, "com.linkedin.datajob.DataFlowInfo", "com.linkedin.datajob.EditableDataFlowProperties", "com.linkedin.common.Ownership", "com.linkedin.common.Status", "com.linkedin.common.GlobalTags", "com.linkedin.common.BrowsePaths", "com.linkedin.common.GlossaryTerms", "com.linkedin.common.InstitutionalMemory", "com.linkedin.common.DataPlatformInstance" ]
               }
             },
             "doc" : "The list of metadata aspects associated with the data flow. Depending on the use case, this can either be all, or a selection, of supported aspects."
@@ -2935,13 +2870,13 @@
                     "doc" : "Unique Identifier of the data job",
                     "Searchable" : {
                       "enableAutocomplete" : true,
-                      "fieldType" : "WORD_GRAM"
+                      "fieldType" : "TEXT_PARTIAL"
                     }
                   } ],
                   "Aspect" : {
                     "name" : "dataJobKey"
                   }
-                }, "com.linkedin.datajob.DataJobInfo", "com.linkedin.datajob.DataJobInputOutput", "com.linkedin.datajob.EditableDataJobProperties", "com.linkedin.common.Ownership", "com.linkedin.common.Status", "com.linkedin.common.GlobalTags", "com.linkedin.common.BrowsePaths", "com.linkedin.common.GlossaryTerms", "com.linkedin.common.InstitutionalMemory", "com.linkedin.common.DataPlatformInstance", "com.linkedin.common.BrowsePathsV2" ]
+                }, "com.linkedin.datajob.DataJobInfo", "com.linkedin.datajob.DataJobInputOutput", "com.linkedin.datajob.EditableDataJobProperties", "com.linkedin.common.Ownership", "com.linkedin.common.Status", "com.linkedin.common.GlobalTags", "com.linkedin.common.BrowsePaths", "com.linkedin.common.GlossaryTerms", "com.linkedin.common.InstitutionalMemory", "com.linkedin.common.DataPlatformInstance" ]
               }
             },
             "doc" : "The list of metadata aspects associated with the data job. Depending on the use case, this can either be all, or a selection, of supported aspects."
@@ -2988,7 +2923,7 @@
                       "boostScore" : 10.0,
                       "enableAutocomplete" : true,
                       "fieldName" : "id",
-                      "fieldType" : "WORD_GRAM"
+                      "fieldType" : "TEXT_PARTIAL"
                     }
                   }, {
                     "name" : "origin",
@@ -3098,19 +3033,9 @@
                         "type" : "string",
                         "doc" : "The native kafka document schema. This is a human readable avro document schema."
                       }, {
-                        "name" : "documentSchemaType",
-                        "type" : "string",
-                        "doc" : "The native kafka document schema type. This can be AVRO/PROTOBUF/JSON.",
-                        "optional" : true
-                      }, {
                         "name" : "keySchema",
                         "type" : "string",
                         "doc" : "The native kafka key schema as retrieved from Schema Registry",
-                        "optional" : true
-                      }, {
-                        "name" : "keySchemaType",
-                        "type" : "string",
-                        "doc" : "The native kafka key schema type. This can be AVRO/PROTOBUF/JSON.",
                         "optional" : true
                       } ]
                     }, {
@@ -3173,10 +3098,8 @@
                           "type" : "com.linkedin.dataset.SchemaFieldPath",
                           "doc" : "Flattened name of the field. Field is computed from jsonPath field.",
                           "Searchable" : {
-                            "boostScore" : 5.0,
                             "fieldName" : "fieldPaths",
-                            "fieldType" : "TEXT",
-                            "queryByDefault" : "true"
+                            "fieldType" : "TEXT"
                           }
                         }, {
                           "name" : "jsonPath",
@@ -3563,7 +3486,7 @@
                   "Aspect" : {
                     "name" : "editableSchemaMetadata"
                   }
-                }, "com.linkedin.common.GlobalTags", "com.linkedin.common.GlossaryTerms", "com.linkedin.common.BrowsePaths", "com.linkedin.common.DataPlatformInstance", "com.linkedin.dataset.ViewProperties", "com.linkedin.common.BrowsePathsV2" ]
+                }, "com.linkedin.common.GlobalTags", "com.linkedin.common.GlossaryTerms", "com.linkedin.common.BrowsePaths", "com.linkedin.common.DataPlatformInstance", "com.linkedin.dataset.ViewProperties" ]
               }
             },
             "doc" : "The list of metadata aspects associated with the dataset. Depending on the use case, this can either be all, or a selection, of supported aspects."
@@ -3601,7 +3524,7 @@
                     "Searchable" : {
                       "boostScore" : 4.0,
                       "enableAutocomplete" : true,
-                      "fieldType" : "WORD_GRAM"
+                      "fieldType" : "TEXT_PARTIAL"
                     }
                   }, {
                     "name" : "orchestrator",
@@ -3706,8 +3629,7 @@
                     "Searchable" : {
                       "boostScore" : 10.0,
                       "enableAutocomplete" : true,
-                      "fieldNameAliases" : [ "_entityName" ],
-                      "fieldType" : "WORD_GRAM"
+                      "fieldType" : "TEXT_PARTIAL"
                     }
                   }, {
                     "name" : "origin",
@@ -4261,7 +4183,7 @@
                   "Aspect" : {
                     "name" : "sourceCode"
                   }
-                }, "com.linkedin.common.Status", "com.linkedin.common.Cost", "com.linkedin.common.Deprecation", "com.linkedin.common.BrowsePaths", "com.linkedin.common.GlobalTags", "com.linkedin.common.DataPlatformInstance", "com.linkedin.common.BrowsePathsV2" ]
+                }, "com.linkedin.common.Status", "com.linkedin.common.Cost", "com.linkedin.common.Deprecation", "com.linkedin.common.BrowsePaths", "com.linkedin.common.GlobalTags", "com.linkedin.common.DataPlatformInstance" ]
               }
             },
             "doc" : "The list of metadata aspects associated with the MLModel. Depending on the use case, this can either be all, or a selection, of supported aspects."
@@ -4305,8 +4227,7 @@
                     "Searchable" : {
                       "boostScore" : 8.0,
                       "enableAutocomplete" : true,
-                      "fieldNameAliases" : [ "_entityName" ],
-                      "fieldType" : "WORD_GRAM"
+                      "fieldType" : "TEXT_PARTIAL"
                     }
                   } ],
                   "Aspect" : {
@@ -4394,8 +4315,7 @@
                     "Searchable" : {
                       "boostScore" : 8.0,
                       "enableAutocomplete" : true,
-                      "fieldNameAliases" : [ "_entityName" ],
-                      "fieldType" : "WORD_GRAM"
+                      "fieldType" : "TEXT_PARTIAL"
                     }
                   } ],
                   "Aspect" : {
@@ -4444,7 +4364,7 @@
                   "Aspect" : {
                     "name" : "mlFeatureProperties"
                   }
-                }, "com.linkedin.common.Ownership", "com.linkedin.common.InstitutionalMemory", "com.linkedin.common.Status", "com.linkedin.common.Deprecation", "com.linkedin.common.BrowsePaths", "com.linkedin.common.GlobalTags", "com.linkedin.common.DataPlatformInstance", "com.linkedin.common.BrowsePathsV2" ]
+                }, "com.linkedin.common.Ownership", "com.linkedin.common.InstitutionalMemory", "com.linkedin.common.Status", "com.linkedin.common.Deprecation", "com.linkedin.common.BrowsePaths", "com.linkedin.common.GlobalTags", "com.linkedin.common.DataPlatformInstance" ]
               }
             },
             "doc" : "The list of metadata aspects associated with the MLFeature. Depending on the use case, this can either be all, or a selection, of supported aspects."
@@ -4489,8 +4409,7 @@
                     "Searchable" : {
                       "boostScore" : 8.0,
                       "enableAutocomplete" : true,
-                      "fieldNameAliases" : [ "_entityName" ],
-                      "fieldType" : "WORD_GRAM"
+                      "fieldType" : "TEXT_PARTIAL"
                     }
                   } ],
                   "Aspect" : {
@@ -4555,7 +4474,7 @@
                   "Aspect" : {
                     "name" : "mlFeatureTableProperties"
                   }
-                }, "com.linkedin.common.Ownership", "com.linkedin.common.InstitutionalMemory", "com.linkedin.common.Status", "com.linkedin.common.Deprecation", "com.linkedin.common.BrowsePaths", "com.linkedin.common.GlobalTags", "com.linkedin.common.DataPlatformInstance", "com.linkedin.common.BrowsePathsV2" ]
+                }, "com.linkedin.common.Ownership", "com.linkedin.common.InstitutionalMemory", "com.linkedin.common.Status", "com.linkedin.common.Deprecation", "com.linkedin.common.BrowsePaths", "com.linkedin.common.GlobalTags", "com.linkedin.common.DataPlatformInstance" ]
               }
             },
             "doc" : "The list of metadata aspects associated with the MLFeatureTable. Depending on the use case, this can either be all, or a selection, of supported aspects."
@@ -4596,8 +4515,7 @@
                     "Searchable" : {
                       "boostScore" : 10.0,
                       "enableAutocomplete" : true,
-                      "fieldNameAliases" : [ "_entityName" ],
-                      "fieldType" : "WORD_GRAM"
+                      "fieldType" : "TEXT_PARTIAL"
                     }
                   }, {
                     "name" : "origin",
@@ -4703,8 +4621,7 @@
                     "Searchable" : {
                       "boostScore" : 10.0,
                       "enableAutocomplete" : true,
-                      "fieldNameAliases" : [ "_entityName" ],
-                      "fieldType" : "WORD_GRAM"
+                      "fieldType" : "TEXT_PARTIAL"
                     }
                   }, {
                     "name" : "origin",
@@ -4747,7 +4664,7 @@
                   "Aspect" : {
                     "name" : "mlModelGroupProperties"
                   }
-                }, "com.linkedin.common.Ownership", "com.linkedin.common.Status", "com.linkedin.common.Deprecation", "com.linkedin.common.BrowsePaths", "com.linkedin.common.GlobalTags", "com.linkedin.common.DataPlatformInstance", "com.linkedin.common.BrowsePathsV2" ]
+                }, "com.linkedin.common.Ownership", "com.linkedin.common.Status", "com.linkedin.common.Deprecation", "com.linkedin.common.BrowsePaths", "com.linkedin.common.GlobalTags", "com.linkedin.common.DataPlatformInstance" ]
               }
             },
             "doc" : "The list of metadata aspects associated with the MLModelGroup. Depending on the use case, this can either be all, or a selection, of supported aspects."
@@ -4786,7 +4703,7 @@
                       "boostScore" : 10.0,
                       "enableAutocomplete" : true,
                       "fieldName" : "id",
-                      "fieldType" : "WORD_GRAM"
+                      "fieldType" : "TEXT_PARTIAL"
                     }
                   } ],
                   "Aspect" : {
@@ -4804,8 +4721,7 @@
                     "Searchable" : {
                       "boostScore" : 10.0,
                       "enableAutocomplete" : true,
-                      "fieldNameAliases" : [ "_entityName" ],
-                      "fieldType" : "WORD_GRAM"
+                      "fieldType" : "TEXT_PARTIAL"
                     }
                   }, {
                     "name" : "description",
@@ -4860,7 +4776,7 @@
                     "Searchable" : {
                       "enableAutocomplete" : true,
                       "fieldName" : "id",
-                      "fieldType" : "WORD_GRAM"
+                      "fieldType" : "TEXT_PARTIAL"
                     }
                   } ],
                   "Aspect" : {
@@ -4888,8 +4804,7 @@
                     "Searchable" : {
                       "boostScore" : 10.0,
                       "enableAutocomplete" : true,
-                      "fieldNameAliases" : [ "_entityName" ],
-                      "fieldType" : "WORD_GRAM"
+                      "fieldType" : "TEXT_PARTIAL"
                     }
                   }, {
                     "name" : "definition",
@@ -5067,7 +4982,7 @@
                     "type" : "string",
                     "Searchable" : {
                       "enableAutocomplete" : true,
-                      "fieldType" : "WORD_GRAM"
+                      "fieldType" : "TEXT_PARTIAL"
                     }
                   } ],
                   "Aspect" : {
@@ -5106,8 +5021,7 @@
                       "boostScore" : 10.0,
                       "enableAutocomplete" : true,
                       "fieldName" : "displayName",
-                      "fieldNameAliases" : [ "_entityName" ],
-                      "fieldType" : "WORD_GRAM"
+                      "fieldType" : "TEXT_PARTIAL"
                     }
                   }, {
                     "name" : "id",
@@ -5298,14 +5212,6 @@
                         "type" : "boolean",
                         "doc" : "Whether the filter should return true for owners of a particular resource.\nOnly applies to policies of type 'Metadata', which have a resource associated with them.",
                         "default" : false
-                      }, {
-                        "name" : "resourceOwnersTypes",
-                        "type" : {
-                          "type" : "array",
-                          "items" : "com.linkedin.common.Urn"
-                        },
-                        "doc" : "Define type of ownership for the policy",
-                        "optional" : true
                       }, {
                         "name" : "allUsers",
                         "type" : "boolean",

@@ -42,7 +42,6 @@ export const SidebarTagsSection = ({ properties, readOnly }: Props) => {
                     entityType={entityType}
                     refetch={refetch}
                     readOnly={readOnly}
-                    fontSize={12}
                 />
             </span>
             <StyledDivider />
@@ -57,7 +56,6 @@ export const SidebarTagsSection = ({ properties, readOnly }: Props) => {
                     entityType={entityType}
                     refetch={refetch}
                     readOnly={readOnly}
-                    fontSize={12}
                 />
             </span>
         </div>

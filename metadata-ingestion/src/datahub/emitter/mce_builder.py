@@ -6,17 +6,7 @@ import re
 import time
 from enum import Enum
 from hashlib import md5
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    List,
-    Optional,
-    Type,
-    TypeVar,
-    Union,
-    cast,
-    get_type_hints,
-)
+from typing import Any, List, Optional, Type, TypeVar, Union, cast, get_type_hints
 
 import typing_inspect
 
@@ -59,9 +49,6 @@ UNKNOWN_USER = "urn:li:corpuser:unknown"
 DATASET_URN_TO_LOWER: bool = (
     os.getenv("DATAHUB_DATASET_URN_TO_LOWER", "false") == "true"
 )
-
-if TYPE_CHECKING:
-    from datahub.emitter.mcp_builder import DatahubKey
 
 
 # TODO: Delete this once lower-casing is the standard.
@@ -132,7 +119,7 @@ def schema_field_urn_to_key(schema_field_urn: str) -> Optional[SchemaFieldKeyCla
 
 
 def dataset_urn_to_key(dataset_urn: str) -> Optional[DatasetKeyClass]:
-    pattern = r"urn:li:dataset:\((.*),(.*),(.*)\)"
+    pattern = r"urn:li:dataset:\(urn:li:dataPlatform:(.*),(.*),(.*)\)"
     results = re.search(pattern, dataset_urn)
     if results is not None:
         return DatasetKeyClass(platform=results[1], name=results[2], origin=results[3])
@@ -140,14 +127,12 @@ def dataset_urn_to_key(dataset_urn: str) -> Optional[DatasetKeyClass]:
 
 
 def dataset_key_to_urn(key: DatasetKeyClass) -> str:
-    return f"urn:li:dataset:({key.platform},{key.name},{key.origin})"
+    return (
+        f"urn:li:dataset:(urn:li:dataPlatform:{key.platform},{key.name},{key.origin})"
+    )
 
 
-def make_container_urn(guid: Union[str, "DatahubKey"]) -> str:
-    from datahub.emitter.mcp_builder import DatahubKey
-
-    if isinstance(guid, DatahubKey):
-        guid = guid.guid()
+def make_container_urn(guid: str) -> str:
     return f"urn:li:container:{guid}"
 
 
@@ -357,10 +342,6 @@ def make_lineage_mce(
     downstream_urn: str,
     lineage_type: str = DatasetLineageTypeClass.TRANSFORMED,
 ) -> MetadataChangeEventClass:
-    """
-    Note: this function only supports lineage for dataset aspects. It will not
-    update lineage for any other aspect types.
-    """
     mce = MetadataChangeEventClass(
         proposedSnapshot=DatasetSnapshotClass(
             urn=downstream_urn,

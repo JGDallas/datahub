@@ -132,9 +132,7 @@ def test_kafka_source_workunits_with_platform_instance(mock_kafka, mock_admin_cl
 
     # DataPlatform aspect should be present when platform_instance is configured
     data_platform_aspects = [
-        asp
-        for asp in proposed_snap.aspects
-        if isinstance(asp, DataPlatformInstanceClass)
+        asp for asp in proposed_snap.aspects if type(asp) == DataPlatformInstanceClass
     ]
     assert len(data_platform_aspects) == 1
     assert data_platform_aspects[0].instance == make_dataplatform_instance_urn(
@@ -143,7 +141,7 @@ def test_kafka_source_workunits_with_platform_instance(mock_kafka, mock_admin_cl
 
     # The default browse path should include the platform_instance value
     browse_path_aspects = [
-        asp for asp in proposed_snap.aspects if isinstance(asp, BrowsePathsClass)
+        asp for asp in proposed_snap.aspects if type(asp) == BrowsePathsClass
     ]
     assert len(browse_path_aspects) == 1
     assert f"/prod/{PLATFORM}/{PLATFORM_INSTANCE}" in browse_path_aspects[0].paths
@@ -177,17 +175,15 @@ def test_kafka_source_workunits_no_platform_instance(mock_kafka, mock_admin_clie
         env="PROD",
     )
 
-    # DataPlatform aspect should not be present when platform_instance is not configured
+    # DataPlatform aspect should be present when platform_instance is configured
     data_platform_aspects = [
-        asp
-        for asp in proposed_snap.aspects
-        if isinstance(asp, DataPlatformInstanceClass)
+        asp for asp in proposed_snap.aspects if type(asp) == DataPlatformInstanceClass
     ]
     assert len(data_platform_aspects) == 0
 
     # The default browse path should include the platform_instance value
     browse_path_aspects = [
-        asp for asp in proposed_snap.aspects if isinstance(asp, BrowsePathsClass)
+        asp for asp in proposed_snap.aspects if type(asp) == BrowsePathsClass
     ]
     assert len(browse_path_aspects) == 1
     assert f"/prod/{PLATFORM}" in browse_path_aspects[0].paths
@@ -209,7 +205,7 @@ def test_close(mock_kafka, mock_admin_client):
 
 
 @patch(
-    "datahub.ingestion.source.confluent_schema_registry.SchemaRegistryClient",
+    "datahub.ingestion.source.kafka.confluent_kafka.schema_registry.schema_registry_client.SchemaRegistryClient",
     autospec=True,
 )
 @patch("datahub.ingestion.source.kafka.confluent_kafka.Consumer", autospec=True)
@@ -346,26 +342,12 @@ def test_kafka_source_workunits_schema_registry_subject_name_strategies(
                     0
                 ].schema.schema_str
             )
-            # Make sure the schema_type matches for the key schema.
-            assert (
-                schemaMetadataAspect.platformSchema.keySchemaType
-                == topic_subject_schema_map[schemaMetadataAspect.schemaName][
-                    0
-                ].schema.schema_type
-            )
             # Make sure the schema_str matches for the value schema.
             assert (
                 schemaMetadataAspect.platformSchema.documentSchema
                 == topic_subject_schema_map[schemaMetadataAspect.schemaName][
                     1
                 ].schema.schema_str
-            )
-            # Make sure the schema_type matches for the value schema.
-            assert (
-                schemaMetadataAspect.platformSchema.documentSchemaType
-                == topic_subject_schema_map[schemaMetadataAspect.schemaName][
-                    1
-                ].schema.schema_type
             )
             # Make sure we have 2 fields, one from the key schema & one from the value schema.
             assert len(schemaMetadataAspect.fields) == 2
@@ -390,7 +372,7 @@ def test_kafka_source_workunits_schema_registry_subject_name_strategies(
     ],
 )
 @patch(
-    "datahub.ingestion.source.confluent_schema_registry.SchemaRegistryClient",
+    "datahub.ingestion.source.kafka.confluent_kafka.schema_registry.schema_registry_client.SchemaRegistryClient",
     autospec=True,
 )
 @patch("datahub.ingestion.source.kafka.confluent_kafka.Consumer", autospec=True)

@@ -1,4 +1,3 @@
-import { isEqual } from 'lodash';
 import { ColumnEdge } from '../types';
 
 function highlightDownstreamColumnLineage(
@@ -12,11 +11,8 @@ function highlightDownstreamColumnLineage(
         Object.entries(forwardLineage).forEach((entry) => {
             const [targetUrn, fieldPaths] = entry;
             (fieldPaths as string[]).forEach((targetField) => {
-                const edge: ColumnEdge = { sourceUrn, sourceField, targetUrn, targetField };
-                if (!edges.some((value) => isEqual(value, edge))) {
-                    edges.push(edge);
-                    highlightDownstreamColumnLineage(targetField, targetUrn, edges, fineGrainedMap);
-                }
+                edges.push({ sourceUrn, sourceField, targetUrn, targetField });
+                highlightDownstreamColumnLineage(targetField, targetUrn, edges, fineGrainedMap);
             });
         });
     }
@@ -33,11 +29,8 @@ function highlightUpstreamColumnLineage(
         Object.entries(reverseLineage).forEach((entry) => {
             const [sourceUrn, fieldPaths] = entry;
             (fieldPaths as string[]).forEach((sourceField) => {
-                const edge: ColumnEdge = { sourceUrn, sourceField, targetUrn, targetField };
-                if (!edges.some((value) => isEqual(value, edge))) {
-                    edges.push(edge);
-                    highlightUpstreamColumnLineage(sourceField, sourceUrn, edges, fineGrainedMap);
-                }
+                edges.push({ targetUrn, targetField, sourceUrn, sourceField });
+                highlightUpstreamColumnLineage(sourceField, sourceUrn, edges, fineGrainedMap);
             });
         });
     }

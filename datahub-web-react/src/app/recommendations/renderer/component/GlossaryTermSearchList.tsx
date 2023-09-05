@@ -6,7 +6,6 @@ import { useHistory } from 'react-router-dom';
 import { RecommendationContent, GlossaryTerm } from '../../../../types.generated';
 import { navigateToSearchUrl } from '../../../search/utils/navigateToSearchUrl';
 import { useEntityRegistry } from '../../../useEntityRegistry';
-import { UnionType } from '../../../search/utils/constants';
 
 const TermSearchListContainer = styled.div`
     display: flex;
@@ -56,13 +55,8 @@ export const GlossaryTermSearchList = ({ content, onClick }: Props) => {
                     field: 'glossaryTerms',
                     values: [term.urn],
                 },
-                {
-                    field: 'fieldGlossaryTerms',
-                    values: [term.urn],
-                },
             ],
             history,
-            unionType: UnionType.OR,
         });
     };
 

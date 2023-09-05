@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { message } from 'antd';
-import styled from 'styled-components/macro';
+import styled from 'styled-components';
 import analytics, { EventType, EntityActionType } from '../../../../../analytics';
 import { GenericEntityUpdate } from '../../../types';
 import { useEntityData, useEntityUpdate, useMutationUrn, useRefetch } from '../../../EntityContext';
@@ -9,17 +9,10 @@ import { DiscardDescriptionModal } from './DiscardDescriptionModal';
 import { EDITED_DESCRIPTIONS_CACHE_NAME } from '../../../utils';
 import { DescriptionEditorToolbar } from './DescriptionEditorToolbar';
 import { Editor } from './editor/Editor';
-import SourceDescription from './SourceDesription';
 
 const EditorContainer = styled.div`
-    flex: 1;
-`;
-
-const EditorSourceWrapper = styled.div`
     overflow: auto;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
+    height: 100%;
 `;
 
 type DescriptionEditorProps = {
@@ -145,12 +138,9 @@ export const DescriptionEditor = ({ onComplete }: DescriptionEditorProps) => {
                 onClose={handleConfirmClose}
                 disableSave={!isDescriptionUpdated}
             />
-            <EditorSourceWrapper>
-                <EditorContainer>
-                    <Editor content={updatedDescription} onChange={handleEditorChange} />
-                </EditorContainer>
-                <SourceDescription />
-            </EditorSourceWrapper>
+            <EditorContainer>
+                <Editor content={updatedDescription} onChange={handleEditorChange} />
+            </EditorContainer>
             {confirmCloseModalVisible && (
                 <DiscardDescriptionModal
                     cancelModalVisible={confirmCloseModalVisible}

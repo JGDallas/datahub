@@ -1,11 +1,9 @@
-import React from 'react';
 import { Entity as EntityInterface, EntityType, SearchResult } from '../../types.generated';
 import { FetchedEntity } from '../lineage/types';
-import { SearchResultProvider } from '../search/context/SearchResultContext';
 import { Entity, EntityCapabilityType, IconStyleType, PreviewType } from './Entity';
 import { GLOSSARY_ENTITY_TYPES } from './shared/constants';
 import { GenericEntityProperties } from './shared/types';
-import { dictToQueryStringParams, getFineGrainedLineageWithSiblings, urlEncodeUrn } from './shared/utils';
+import { dictToQueryStringParams, urlEncodeUrn } from './shared/utils';
 
 function validatedGet<K, V>(key: K, map: Map<K, V>): V {
     if (map.has(key)) {
@@ -35,10 +33,6 @@ export default class EntityRegistry {
 
     getEntity(type: EntityType): Entity<any> {
         return validatedGet(type, this.entityTypeToEntity);
-    }
-
-    hasEntity(type: EntityType): boolean {
-        return this.entityTypeToEntity.has(type);
     }
 
     getEntities(): Array<Entity<any>> {
@@ -121,9 +115,7 @@ export default class EntityRegistry {
 
     renderSearchResult(type: EntityType, searchResult: SearchResult): JSX.Element {
         const entity = validatedGet(type, this.entityTypeToEntity);
-        return (
-            <SearchResultProvider searchResult={searchResult}>{entity.renderSearch(searchResult)}</SearchResultProvider>
-        );
+        return entity.renderSearch(searchResult);
     }
 
     renderBrowse<T>(type: EntityType, data: T): JSX.Element {
@@ -140,11 +132,6 @@ export default class EntityRegistry {
     getLineageVizConfig<T>(type: EntityType, data: T): FetchedEntity | undefined {
         const entity = validatedGet(type, this.entityTypeToEntity);
         const genericEntityProperties = this.getGenericEntityProperties(type, data);
-        // combine fineGrainedLineages from this node as well as its siblings
-        const fineGrainedLineages = getFineGrainedLineageWithSiblings(
-            genericEntityProperties,
-            (t: EntityType, d: EntityInterface) => this.getGenericEntityProperties(t, d),
-        );
         return (
             ({
                 ...entity.getLineageVizConfig?.(data),
@@ -174,8 +161,7 @@ export default class EntityRegistry {
                     (genericEntityProperties?.upstream?.filtered || 0),
                 status: genericEntityProperties?.status,
                 siblingPlatforms: genericEntityProperties?.siblingPlatforms,
-                fineGrainedLineages,
-                siblings: genericEntityProperties?.siblings,
+                fineGrainedLineages: genericEntityProperties?.fineGrainedLineages,
                 schemaMetadata: genericEntityProperties?.schemaMetadata,
                 inputFields: genericEntityProperties?.inputFields,
                 canEditLineage: genericEntityProperties?.privileges?.canEditLineage,

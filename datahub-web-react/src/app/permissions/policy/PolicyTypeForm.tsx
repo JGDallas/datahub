@@ -42,24 +42,15 @@ export default function PolicyTypeForm({
                 <Typography.Paragraph>A name for your new policy.</Typography.Paragraph>
                 <Input
                     placeholder="Your policy name"
-                    data-testid="policy-name"
                     value={policyName}
                     onChange={(event) => updatePolicyName(event.target.value)}
                 />
             </Form.Item>
             <Form.Item name="policyType" label={<Typography.Text strong>Type</Typography.Text>}>
                 <Typography.Paragraph>The type of policy you would like to create.</Typography.Paragraph>
-                <Select
-                    data-testid="policy-type"
-                    defaultValue={policyType}
-                    onSelect={(value) => setPolicyType(value as PolicyType)}
-                >
-                    <Select.Option data-testid="platform" value={PolicyType.Platform}>
-                        Platform
-                    </Select.Option>
-                    <Select.Option data-testid="metadata" value={PolicyType.Metadata}>
-                        Metadata
-                    </Select.Option>
+                <Select defaultValue={policyType} onSelect={(value) => setPolicyType(value as PolicyType)}>
+                    <Select.Option value={PolicyType.Platform}>Platform</Select.Option>
+                    <Select.Option value={PolicyType.Metadata}>Metadata</Select.Option>
                 </Select>
                 <TypeDescriptionParagraph type="secondary">
                     The <b>Platform</b> policy type allows you to assign top-level DataHub Platform privileges to users.
@@ -79,7 +70,6 @@ export default function PolicyTypeForm({
                 <Typography.Paragraph>An optional description for your new policy.</Typography.Paragraph>
                 <Input
                     placeholder="Your policy description"
-                    data-testid="policy-description"
                     value={policyDescription}
                     onChange={(event) => setPolicyDescription(event.target.value)}
                 />

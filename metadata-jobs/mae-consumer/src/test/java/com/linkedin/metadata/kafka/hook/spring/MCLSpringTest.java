@@ -6,8 +6,7 @@ import com.linkedin.metadata.kafka.hook.UpdateIndicesHook;
 import com.linkedin.metadata.kafka.hook.event.EntityChangeEventGeneratorHook;
 import com.linkedin.metadata.kafka.hook.ingestion.IngestionSchedulerHook;
 import com.linkedin.metadata.kafka.hook.siblings.SiblingAssociationHook;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.cassandra.CassandraAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
@@ -17,17 +16,16 @@ import static org.testng.AssertJUnit.*;
 
 
 @SpringBootTest(classes = {
-    MCLSpringTestConfiguration.class, ConfigurationProvider.class
+    MCLSpringTestConfiguration.class
   },
     properties = {
       "ingestionScheduler.enabled=false",
-      "configEntityRegistry.path=../../metadata-jobs/mae-consumer/src/test/resources/test-entity-registry.yml",
-      "kafka.schemaRegistry.type=INTERNAL"
+      "configEntityRegistry.path=../../metadata-jobs/mae-consumer/src/test/resources/test-entity-registry.yml"
   })
 @TestPropertySource(locations = "classpath:/application.yml", properties = {
     "MCL_CONSUMER_ENABLED=true"
 })
-@EnableAutoConfiguration(exclude = {CassandraAutoConfiguration.class})
+@EnableConfigurationProperties(value = ConfigurationProvider.class)
 public class MCLSpringTest extends AbstractTestNGSpringContextTests {
 
   @Test

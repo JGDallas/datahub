@@ -27,7 +27,6 @@ from datahub.ingestion.api.sink import Sink, SinkReport, WriteCallback
 from datahub.ingestion.api.source import Extractor, Source
 from datahub.ingestion.api.transform import Transformer
 from datahub.ingestion.extractor.extractor_registry import extractor_registry
-from datahub.ingestion.graph.client import DataHubGraph
 from datahub.ingestion.reporting.reporting_provider_registry import (
     reporting_provider_registry,
 )
@@ -184,18 +183,10 @@ class Pipeline:
         self.last_time_printed = int(time.time())
         self.cli_report = CliReport()
 
-        self.graph = None
-        with _add_init_error_context("connect to DataHub"):
-            if self.config.datahub_api:
-                self.graph = DataHubGraph(self.config.datahub_api)
-
-            telemetry.telemetry_instance.update_capture_exception_context(
-                server=self.graph
-            )
         with _add_init_error_context("set up framework context"):
             self.ctx = PipelineContext(
                 run_id=self.config.run_id,
-                graph=self.graph,
+                datahub_api=self.config.datahub_api,
                 pipeline_name=self.config.pipeline_name,
                 dry_run=dry_run,
                 preview_mode=preview_mode,
@@ -311,7 +302,8 @@ class Pipeline:
                     status="CANCELLED"
                     if self.final_status == "cancelled"
                     else "FAILURE"
-                    if self.has_failures()
+                    if self.source.get_report().failures
+                    or self.sink.get_report().failures
                     else "SUCCESS"
                     if self.final_status == "completed"
                     else "UNKNOWN",
@@ -328,7 +320,7 @@ class Pipeline:
         dry_run: bool = False,
         preview_mode: bool = False,
         preview_workunits: int = 10,
-        report_to: Optional[str] = "datahub",
+        report_to: Optional[str] = None,
         no_default_report: bool = False,
         raw_config: Optional[dict] = None,
     ) -> "Pipeline":
@@ -390,7 +382,6 @@ class Pipeline:
                     logger.error(
                         "Failed to process some records. Continuing.", exc_info=e
                     )
-                    # TODO: Transformer errors should cause the pipeline to fail.
 
                 self.extractor.close()
                 if not self.dry_run:
@@ -413,7 +404,7 @@ class Pipeline:
             self.sink.close()
             self.process_commits()
             self.final_status = "completed"
-        except (SystemExit, RuntimeError, KeyboardInterrupt) as e:
+        except (SystemExit, RuntimeError) as e:
             self.final_status = "cancelled"
             logger.error("Caught error", exc_info=e)
             raise
@@ -536,11 +527,6 @@ class Pipeline:
                 return "bright_yellow"
             else:
                 return "bright_green"
-
-    def has_failures(self) -> bool:
-        return bool(
-            self.source.get_report().failures or self.sink.get_report().failures
-        )
 
     def pretty_print_summary(
         self, warnings_as_failure: bool = False, currently_running: bool = False

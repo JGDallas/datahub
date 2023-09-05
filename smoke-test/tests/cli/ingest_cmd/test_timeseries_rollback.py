@@ -8,14 +8,14 @@ import datahub.emitter.mce_builder as builder
 from datahub.emitter.serialization_helper import post_json_transform
 from datahub.entrypoints import datahub
 from datahub.metadata.schema_classes import DatasetProfileClass
-from tests.utils import ingest_file_via_rest, wait_for_writes_to_sync
+from tests.utils import ingest_file_via_rest
 import requests_wrapper as requests
 
 runner = CliRunner(mix_stderr=False)
 
 
 def sync_elastic() -> None:
-    wait_for_writes_to_sync()
+    time.sleep(requests.ELASTICSEARCH_REFRESH_INTERVAL_SECONDS)
 
 
 def datahub_rollback(run_id: str) -> None:

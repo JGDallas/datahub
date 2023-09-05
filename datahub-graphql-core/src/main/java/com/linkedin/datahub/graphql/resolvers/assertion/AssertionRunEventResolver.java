@@ -64,6 +64,7 @@ public class AssertionRunEventResolver implements DataFetcher<CompletableFuture<
             maybeStartTimeMillis,
             maybeEndTimeMillis,
             maybeLimit,
+            false,
             buildFilter(maybeFilters, maybeStatus),
             context.getAuthentication());
 

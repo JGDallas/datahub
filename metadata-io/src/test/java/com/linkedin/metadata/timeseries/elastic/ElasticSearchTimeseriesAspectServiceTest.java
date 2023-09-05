@@ -6,7 +6,6 @@ import com.datahub.test.TestEntityComponentProfile;
 import com.datahub.test.TestEntityComponentProfileArray;
 import com.datahub.test.TestEntityProfile;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
@@ -27,8 +26,6 @@ import com.linkedin.metadata.query.filter.Condition;
 import com.linkedin.metadata.query.filter.Criterion;
 import com.linkedin.metadata.query.filter.CriterionArray;
 import com.linkedin.metadata.query.filter.Filter;
-import com.linkedin.metadata.query.filter.SortCriterion;
-import com.linkedin.metadata.query.filter.SortOrder;
 import com.linkedin.metadata.search.elasticsearch.indexbuilder.ESIndexBuilder;
 import com.linkedin.metadata.search.elasticsearch.update.ESBulkProcessor;
 import com.linkedin.metadata.search.utils.QueryUtils;
@@ -60,20 +57,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.linkedin.metadata.Constants.*;
 import static com.linkedin.metadata.ESTestConfiguration.syncAfterWrite;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
 @Import(ESTestConfiguration.class)
 public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpringContextTests {
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-  static {
-    int maxSize = Integer.parseInt(System.getenv().getOrDefault(INGESTION_MAX_SERIALIZED_STRING_LENGTH, MAX_JACKSON_STRING_SIZE));
-    OBJECT_MAPPER.getFactory().setStreamReadConstraints(StreamReadConstraints.builder().maxStringLength(maxSize).build());
-  }
 
   private static final String ENTITY_NAME = "testEntity";
   private static final String ASPECT_NAME = "testEntityProfile";
@@ -82,8 +73,8 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
   private static final long TIME_INCREMENT = 3600000; // hour in ms.
   private static final String CONTENT_TYPE = "application/json";
 
-  private static final String ES_FIELD_TIMESTAMP = "timestampMillis";
-  private static final String ES_FIELD_STAT = "stat";
+  private static final String ES_FILED_TIMESTAMP = "timestampMillis";
+  private static final String ES_FILED_STAT = "stat";
 
   @Autowired
   private RestHighLevelClient _searchClient;
@@ -220,7 +211,7 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
 
     List<EnvelopedAspect> resultAspects =
         _elasticSearchTimeseriesAspectService.getAspectValues(urn, ENTITY_NAME, ASPECT_NAME, null, null,
-            testEntityProfiles.size(), null);
+            testEntityProfiles.size(), false, null);
     assertEquals(resultAspects.size(), testEntityProfiles.size());
   }
 
@@ -247,39 +238,8 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
   public void testGetAspectTimeseriesValuesAll() {
     List<EnvelopedAspect> resultAspects =
         _elasticSearchTimeseriesAspectService.getAspectValues(TEST_URN, ENTITY_NAME, ASPECT_NAME, null, null,
-            NUM_PROFILES, null);
+            NUM_PROFILES, false, null);
     validateAspectValues(resultAspects, NUM_PROFILES);
-
-    TestEntityProfile firstProfile =
-        (TestEntityProfile) GenericRecordUtils.deserializeAspect(resultAspects.get(0).getAspect().getValue(),
-            CONTENT_TYPE, _aspectSpec);
-    TestEntityProfile lastProfile =
-        (TestEntityProfile) GenericRecordUtils.deserializeAspect(resultAspects.get(resultAspects.size() - 1).getAspect().getValue(),
-            CONTENT_TYPE, _aspectSpec);
-
-    // Now verify that the first index is the one with the highest stat value, and the last the one with the lower.
-    assertEquals((long) firstProfile.getStat(), 20 + (NUM_PROFILES - 1) * 10);
-    assertEquals((long) lastProfile.getStat(), 20);
-  }
-
-  @Test(groups = "getAspectValues", dependsOnGroups = "upsert")
-  public void testGetAspectTimeseriesValuesAllSorted() {
-    List<EnvelopedAspect> resultAspects =
-        _elasticSearchTimeseriesAspectService.getAspectValues(TEST_URN, ENTITY_NAME, ASPECT_NAME, null, null,
-            NUM_PROFILES, null, new SortCriterion().setField("stat").setOrder(SortOrder.ASCENDING));
-    validateAspectValues(resultAspects, NUM_PROFILES);
-
-    TestEntityProfile firstProfile =
-        (TestEntityProfile) GenericRecordUtils.deserializeAspect(resultAspects.get(0).getAspect().getValue(),
-            CONTENT_TYPE, _aspectSpec);
-    TestEntityProfile lastProfile =
-        (TestEntityProfile) GenericRecordUtils.deserializeAspect(resultAspects.get(resultAspects.size() - 1).getAspect().getValue(),
-            CONTENT_TYPE, _aspectSpec);
-
-    // Now verify that the first index is the one with the highest stat value, and the last the one with the lower.
-    assertEquals((long) firstProfile.getStat(), 20);
-    assertEquals((long) lastProfile.getStat(), 20 + (NUM_PROFILES - 1) * 10);
-
   }
 
   @Test(groups = "getAspectValues", dependsOnGroups = "upsert")
@@ -289,7 +249,7 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
     filter.setCriteria(new CriterionArray(hasStatEqualsTwenty));
     List<EnvelopedAspect> resultAspects =
         _elasticSearchTimeseriesAspectService.getAspectValues(TEST_URN, ENTITY_NAME, ASPECT_NAME, null, null,
-            NUM_PROFILES, filter);
+            NUM_PROFILES, false, filter);
     validateAspectValues(resultAspects, 1);
   }
 
@@ -298,7 +258,7 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
     int expectedNumRows = 10;
     List<EnvelopedAspect> resultAspects =
         _elasticSearchTimeseriesAspectService.getAspectValues(TEST_URN, ENTITY_NAME, ASPECT_NAME, _startTime,
-            _startTime + TIME_INCREMENT * (expectedNumRows - 1), expectedNumRows, null);
+            _startTime + TIME_INCREMENT * (expectedNumRows - 1), expectedNumRows, false, null);
     validateAspectValues(resultAspects, expectedNumRows);
   }
 
@@ -308,7 +268,7 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
     List<EnvelopedAspect> resultAspects =
         _elasticSearchTimeseriesAspectService.getAspectValues(TEST_URN, ENTITY_NAME, ASPECT_NAME,
             _startTime + TIME_INCREMENT / 2, _startTime + TIME_INCREMENT * expectedNumRows + TIME_INCREMENT / 2,
-            expectedNumRows, null);
+            expectedNumRows, false, null);
     validateAspectValues(resultAspects, expectedNumRows);
   }
 
@@ -318,7 +278,7 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
     List<EnvelopedAspect> resultAspects =
         _elasticSearchTimeseriesAspectService.getAspectValues(TEST_URN, ENTITY_NAME, ASPECT_NAME,
             _startTime + TIME_INCREMENT / 2, _startTime + TIME_INCREMENT * expectedNumRows + TIME_INCREMENT / 2,
-            expectedNumRows, null);
+            expectedNumRows, true, null);
     validateAspectValues(resultAspects, expectedNumRows);
   }
 
@@ -327,7 +287,7 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
     int expectedNumRows = 1;
     List<EnvelopedAspect> resultAspects =
         _elasticSearchTimeseriesAspectService.getAspectValues(TEST_URN, ENTITY_NAME, ASPECT_NAME,
-            _startTime + TIME_INCREMENT / 2, _startTime + TIME_INCREMENT * 3 / 2, expectedNumRows, null);
+            _startTime + TIME_INCREMENT / 2, _startTime + TIME_INCREMENT * 3 / 2, expectedNumRows, false, null);
     validateAspectValues(resultAspects, expectedNumRows);
   }
 
@@ -336,7 +296,7 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
     Urn nonExistingUrn = new TestEntityUrn("missing", "missing", "missing");
     List<EnvelopedAspect> resultAspects =
         _elasticSearchTimeseriesAspectService.getAspectValues(nonExistingUrn, ENTITY_NAME, ASPECT_NAME, null, null,
-            NUM_PROFILES, null);
+            NUM_PROFILES, false, null);
     validateAspectValues(resultAspects, 0);
   }
 
@@ -350,10 +310,10 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
     // Filter is only on the urn
     Criterion hasUrnCriterion =
         new Criterion().setField("urn").setCondition(Condition.EQUAL).setValue(TEST_URN.toString());
-    Criterion startTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
+    Criterion startTimeCriterion = new Criterion().setField(ES_FILED_TIMESTAMP)
         .setCondition(Condition.GREATER_THAN_OR_EQUAL_TO)
         .setValue(_startTime.toString());
-    Criterion endTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
+    Criterion endTimeCriterion = new Criterion().setField(ES_FILED_TIMESTAMP)
         .setCondition(Condition.LESS_THAN_OR_EQUAL_TO)
         .setValue(String.valueOf(_startTime + 23 * TIME_INCREMENT));
 
@@ -365,14 +325,14 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
         new AggregationSpec().setAggregationType(AggregationType.LATEST).setFieldPath("stat");
 
     // Grouping bucket is only timestamp filed.
-    GroupingBucket timestampBucket = new GroupingBucket().setKey(ES_FIELD_TIMESTAMP)
+    GroupingBucket timestampBucket = new GroupingBucket().setKey(ES_FILED_TIMESTAMP)
         .setType(GroupingBucketType.DATE_GROUPING_BUCKET)
         .setTimeWindowSize(new TimeWindowSize().setMultiple(1).setUnit(CalendarInterval.DAY));
 
     GenericTable resultTable = _elasticSearchTimeseriesAspectService.getAggregatedStats(ENTITY_NAME, ASPECT_NAME,
         new AggregationSpec[]{latestStatAggregationSpec}, filter, new GroupingBucket[]{timestampBucket});
     // Validate column names
-    assertEquals(resultTable.getColumnNames(), new StringArray(ES_FIELD_TIMESTAMP, "latest_" + ES_FIELD_STAT));
+    assertEquals(resultTable.getColumnNames(), new StringArray(ES_FILED_TIMESTAMP, "latest_" + ES_FILED_STAT));
     // Validate column types
     assertEquals(resultTable.getColumnTypes(), new StringArray("long", "long"));
     // Validate rows
@@ -387,10 +347,10 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
     // Filter is only on the urn
     Criterion hasUrnCriterion =
         new Criterion().setField("urn").setCondition(Condition.EQUAL).setValue(TEST_URN.toString());
-    Criterion startTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
+    Criterion startTimeCriterion = new Criterion().setField(ES_FILED_TIMESTAMP)
         .setCondition(Condition.GREATER_THAN_OR_EQUAL_TO)
         .setValue(_startTime.toString());
-    Criterion endTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
+    Criterion endTimeCriterion = new Criterion().setField(ES_FILED_TIMESTAMP)
         .setCondition(Condition.LESS_THAN_OR_EQUAL_TO)
         .setValue(String.valueOf(_startTime + 23 * TIME_INCREMENT));
 
@@ -402,14 +362,14 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
         new AggregationSpec().setAggregationType(AggregationType.LATEST).setFieldPath("aComplexNestedRecord");
 
     // Grouping bucket is only timestamp filed.
-    GroupingBucket timestampBucket = new GroupingBucket().setKey(ES_FIELD_TIMESTAMP)
+    GroupingBucket timestampBucket = new GroupingBucket().setKey(ES_FILED_TIMESTAMP)
         .setType(GroupingBucketType.DATE_GROUPING_BUCKET)
         .setTimeWindowSize(new TimeWindowSize().setMultiple(1).setUnit(CalendarInterval.DAY));
 
     GenericTable resultTable = _elasticSearchTimeseriesAspectService.getAggregatedStats(ENTITY_NAME, ASPECT_NAME,
         new AggregationSpec[]{latestStatAggregationSpec}, filter, new GroupingBucket[]{timestampBucket});
     // Validate column names
-    assertEquals(resultTable.getColumnNames(), new StringArray(ES_FIELD_TIMESTAMP, "latest_aComplexNestedRecord"));
+    assertEquals(resultTable.getColumnNames(), new StringArray(ES_FILED_TIMESTAMP, "latest_aComplexNestedRecord"));
     // Validate column types
     assertEquals(resultTable.getColumnTypes(), new StringArray("long", "record"));
     // Validate rows
@@ -431,10 +391,10 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
     // Filter is only on the urn
     Criterion hasUrnCriterion =
         new Criterion().setField("urn").setCondition(Condition.EQUAL).setValue(TEST_URN.toString());
-    Criterion startTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
+    Criterion startTimeCriterion = new Criterion().setField(ES_FILED_TIMESTAMP)
         .setCondition(Condition.GREATER_THAN_OR_EQUAL_TO)
         .setValue(_startTime.toString());
-    Criterion endTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
+    Criterion endTimeCriterion = new Criterion().setField(ES_FILED_TIMESTAMP)
         .setCondition(Condition.LESS_THAN_OR_EQUAL_TO)
         .setValue(String.valueOf(_startTime + 23 * TIME_INCREMENT));
 
@@ -446,14 +406,14 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
         new AggregationSpec().setAggregationType(AggregationType.LATEST).setFieldPath("strArray");
 
     // Grouping bucket is only timestamp filed.
-    GroupingBucket timestampBucket = new GroupingBucket().setKey(ES_FIELD_TIMESTAMP)
+    GroupingBucket timestampBucket = new GroupingBucket().setKey(ES_FILED_TIMESTAMP)
         .setType(GroupingBucketType.DATE_GROUPING_BUCKET)
         .setTimeWindowSize(new TimeWindowSize().setMultiple(1).setUnit(CalendarInterval.DAY));
 
     GenericTable resultTable = _elasticSearchTimeseriesAspectService.getAggregatedStats(ENTITY_NAME, ASPECT_NAME,
         new AggregationSpec[]{latestStatAggregationSpec}, filter, new GroupingBucket[]{timestampBucket});
     // Validate column names
-    assertEquals(resultTable.getColumnNames(), new StringArray(ES_FIELD_TIMESTAMP, "latest_" + "strArray"));
+    assertEquals(resultTable.getColumnNames(), new StringArray(ES_FILED_TIMESTAMP, "latest_" + "strArray"));
     // Validate column types
     assertEquals(resultTable.getColumnTypes(), new StringArray("long", "array"));
     // Validate rows
@@ -476,10 +436,10 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
     // Filter is only on the urn
     Criterion hasUrnCriterion =
         new Criterion().setField("urn").setCondition(Condition.EQUAL).setValue(TEST_URN.toString());
-    Criterion startTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
+    Criterion startTimeCriterion = new Criterion().setField(ES_FILED_TIMESTAMP)
         .setCondition(Condition.GREATER_THAN_OR_EQUAL_TO)
         .setValue(_startTime.toString());
-    Criterion endTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
+    Criterion endTimeCriterion = new Criterion().setField(ES_FILED_TIMESTAMP)
         .setCondition(Condition.LESS_THAN_OR_EQUAL_TO)
         .setValue(String.valueOf(_startTime + 47 * TIME_INCREMENT));
 
@@ -491,14 +451,14 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
         new AggregationSpec().setAggregationType(AggregationType.LATEST).setFieldPath("stat");
 
     // Grouping bucket is only timestamp filed.
-    GroupingBucket timestampBucket = new GroupingBucket().setKey(ES_FIELD_TIMESTAMP)
+    GroupingBucket timestampBucket = new GroupingBucket().setKey(ES_FILED_TIMESTAMP)
         .setType(GroupingBucketType.DATE_GROUPING_BUCKET)
         .setTimeWindowSize(new TimeWindowSize().setMultiple(1).setUnit(CalendarInterval.DAY));
 
     GenericTable resultTable = _elasticSearchTimeseriesAspectService.getAggregatedStats(ENTITY_NAME, ASPECT_NAME,
         new AggregationSpec[]{latestStatAggregationSpec}, filter, new GroupingBucket[]{timestampBucket});
     // Validate column names
-    assertEquals(resultTable.getColumnNames(), new StringArray(ES_FIELD_TIMESTAMP, "latest_" + ES_FIELD_STAT));
+    assertEquals(resultTable.getColumnNames(), new StringArray(ES_FILED_TIMESTAMP, "latest_" + ES_FILED_STAT));
     // Validate column types
     assertEquals(resultTable.getColumnTypes(), new StringArray("long", "long"));
     // Validate rows
@@ -516,10 +476,10 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
   public void testGetAggregatedStatsLatestStatForFirst10HoursOfDay1() {
     Criterion hasUrnCriterion =
         new Criterion().setField("urn").setCondition(Condition.EQUAL).setValue(TEST_URN.toString());
-    Criterion startTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
+    Criterion startTimeCriterion = new Criterion().setField(ES_FILED_TIMESTAMP)
         .setCondition(Condition.GREATER_THAN_OR_EQUAL_TO)
         .setValue(_startTime.toString());
-    Criterion endTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
+    Criterion endTimeCriterion = new Criterion().setField(ES_FILED_TIMESTAMP)
         .setCondition(Condition.LESS_THAN_OR_EQUAL_TO)
         .setValue(String.valueOf(_startTime + 9 * TIME_INCREMENT));
 
@@ -531,14 +491,14 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
         new AggregationSpec().setAggregationType(AggregationType.LATEST).setFieldPath("stat");
 
     // Grouping bucket is only timestamp filed.
-    GroupingBucket timestampBucket = new GroupingBucket().setKey(ES_FIELD_TIMESTAMP)
+    GroupingBucket timestampBucket = new GroupingBucket().setKey(ES_FILED_TIMESTAMP)
         .setType(GroupingBucketType.DATE_GROUPING_BUCKET)
         .setTimeWindowSize(new TimeWindowSize().setMultiple(1).setUnit(CalendarInterval.DAY));
 
     GenericTable resultTable = _elasticSearchTimeseriesAspectService.getAggregatedStats(ENTITY_NAME, ASPECT_NAME,
         new AggregationSpec[]{latestStatAggregationSpec}, filter, new GroupingBucket[]{timestampBucket});
     // Validate column names
-    assertEquals(resultTable.getColumnNames(), new StringArray(ES_FIELD_TIMESTAMP, "latest_" + ES_FIELD_STAT));
+    assertEquals(resultTable.getColumnNames(), new StringArray(ES_FILED_TIMESTAMP, "latest_" + ES_FILED_STAT));
     // Validate column types
     assertEquals(resultTable.getColumnTypes(), new StringArray("long", "long"));
     // Validate rows
@@ -553,10 +513,10 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
     Long lastEntryTimeStamp = _startTime + 23 * TIME_INCREMENT;
     Criterion hasUrnCriterion =
         new Criterion().setField("urn").setCondition(Condition.EQUAL).setValue(TEST_URN.toString());
-    Criterion startTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
+    Criterion startTimeCriterion = new Criterion().setField(ES_FILED_TIMESTAMP)
         .setCondition(Condition.GREATER_THAN_OR_EQUAL_TO)
         .setValue(_startTime.toString());
-    Criterion endTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
+    Criterion endTimeCriterion = new Criterion().setField(ES_FILED_TIMESTAMP)
         .setCondition(Condition.LESS_THAN_OR_EQUAL_TO)
         .setValue(String.valueOf(lastEntryTimeStamp));
     Criterion hasCol1 =
@@ -570,7 +530,7 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
         new AggregationSpec().setAggregationType(AggregationType.LATEST).setFieldPath("componentProfiles.stat");
 
     // Grouping bucket is timestamp filed + componentProfiles.key.
-    GroupingBucket timestampBucket = new GroupingBucket().setKey(ES_FIELD_TIMESTAMP)
+    GroupingBucket timestampBucket = new GroupingBucket().setKey(ES_FILED_TIMESTAMP)
         .setType(GroupingBucketType.DATE_GROUPING_BUCKET)
         .setTimeWindowSize(new TimeWindowSize().setMultiple(1).setUnit(CalendarInterval.DAY));
 
@@ -582,7 +542,7 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
         new GroupingBucket[]{timestampBucket, componentProfilesBucket});
     // Validate column names
     assertEquals(resultTable.getColumnNames(),
-        new StringArray(ES_FIELD_TIMESTAMP, "componentProfiles.key", "latest_" + "componentProfiles.stat"));
+        new StringArray(ES_FILED_TIMESTAMP, "componentProfiles.key", "latest_" + "componentProfiles.stat"));
     // Validate column types
     assertEquals(resultTable.getColumnTypes(), new StringArray("long", "string", "long"));
     // Validate rows
@@ -597,10 +557,10 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
     Long lastEntryTimeStamp = _startTime + 23 * TIME_INCREMENT;
     Criterion hasUrnCriterion =
         new Criterion().setField("urn").setCondition(Condition.EQUAL).setValue(TEST_URN.toString());
-    Criterion startTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
+    Criterion startTimeCriterion = new Criterion().setField(ES_FILED_TIMESTAMP)
         .setCondition(Condition.GREATER_THAN_OR_EQUAL_TO)
         .setValue(_startTime.toString());
-    Criterion endTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
+    Criterion endTimeCriterion = new Criterion().setField(ES_FILED_TIMESTAMP)
         .setCondition(Condition.LESS_THAN_OR_EQUAL_TO)
         .setValue(String.valueOf(lastEntryTimeStamp));
 
@@ -612,7 +572,7 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
         new AggregationSpec().setAggregationType(AggregationType.LATEST).setFieldPath("componentProfiles.stat");
 
     // Grouping bucket is timestamp filed + componentProfiles.key.
-    GroupingBucket timestampBucket = new GroupingBucket().setKey(ES_FIELD_TIMESTAMP)
+    GroupingBucket timestampBucket = new GroupingBucket().setKey(ES_FILED_TIMESTAMP)
         .setType(GroupingBucketType.DATE_GROUPING_BUCKET)
         .setTimeWindowSize(new TimeWindowSize().setMultiple(1).setUnit(CalendarInterval.DAY));
 
@@ -624,7 +584,7 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
         new GroupingBucket[]{timestampBucket, componentProfilesBucket});
     // Validate column names
     assertEquals(resultTable.getColumnNames(),
-        new StringArray(ES_FIELD_TIMESTAMP, "componentProfiles.key", "latest_" + "componentProfiles.stat"));
+        new StringArray(ES_FILED_TIMESTAMP, "componentProfiles.key", "latest_" + "componentProfiles.stat"));
     // Validate column types
     assertEquals(resultTable.getColumnTypes(), new StringArray("long", "string", "long"));
     // Validate rows
@@ -643,10 +603,10 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
   public void testGetAggregatedStatsSumStatForFirst10HoursOfDay1() {
     Criterion hasUrnCriterion =
         new Criterion().setField("urn").setCondition(Condition.EQUAL).setValue(TEST_URN.toString());
-    Criterion startTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
+    Criterion startTimeCriterion = new Criterion().setField(ES_FILED_TIMESTAMP)
         .setCondition(Condition.GREATER_THAN_OR_EQUAL_TO)
         .setValue(_startTime.toString());
-    Criterion endTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
+    Criterion endTimeCriterion = new Criterion().setField(ES_FILED_TIMESTAMP)
         .setCondition(Condition.LESS_THAN_OR_EQUAL_TO)
         .setValue(String.valueOf(_startTime + 9 * TIME_INCREMENT));
 
@@ -658,14 +618,14 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
         new AggregationSpec().setAggregationType(AggregationType.SUM).setFieldPath("stat");
 
     // Grouping bucket is only timestamp filed.
-    GroupingBucket timestampBucket = new GroupingBucket().setKey(ES_FIELD_TIMESTAMP)
+    GroupingBucket timestampBucket = new GroupingBucket().setKey(ES_FILED_TIMESTAMP)
         .setType(GroupingBucketType.DATE_GROUPING_BUCKET)
         .setTimeWindowSize(new TimeWindowSize().setMultiple(1).setUnit(CalendarInterval.DAY));
 
     GenericTable resultTable = _elasticSearchTimeseriesAspectService.getAggregatedStats(ENTITY_NAME, ASPECT_NAME,
         new AggregationSpec[]{sumAggregationSpec}, filter, new GroupingBucket[]{timestampBucket});
     // Validate column names
-    assertEquals(resultTable.getColumnNames(), new StringArray(ES_FIELD_TIMESTAMP, "sum_" + ES_FIELD_STAT));
+    assertEquals(resultTable.getColumnNames(), new StringArray(ES_FILED_TIMESTAMP, "sum_" + ES_FILED_STAT));
     // Validate column types
     assertEquals(resultTable.getColumnTypes(), new StringArray("long", "double"));
     // Validate rows
@@ -682,10 +642,10 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
     Long lastEntryTimeStamp = _startTime + 23 * TIME_INCREMENT;
     Criterion hasUrnCriterion =
         new Criterion().setField("urn").setCondition(Condition.EQUAL).setValue(TEST_URN.toString());
-    Criterion startTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
+    Criterion startTimeCriterion = new Criterion().setField(ES_FILED_TIMESTAMP)
         .setCondition(Condition.GREATER_THAN_OR_EQUAL_TO)
         .setValue(_startTime.toString());
-    Criterion endTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
+    Criterion endTimeCriterion = new Criterion().setField(ES_FILED_TIMESTAMP)
         .setCondition(Condition.LESS_THAN_OR_EQUAL_TO)
         .setValue(String.valueOf(lastEntryTimeStamp));
     Criterion hasCol2 =
@@ -699,7 +659,7 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
         new AggregationSpec().setAggregationType(AggregationType.SUM).setFieldPath("componentProfiles.stat");
 
     // Grouping bucket is timestamp filed + componentProfiles.key.
-    GroupingBucket timestampBucket = new GroupingBucket().setKey(ES_FIELD_TIMESTAMP)
+    GroupingBucket timestampBucket = new GroupingBucket().setKey(ES_FILED_TIMESTAMP)
         .setType(GroupingBucketType.DATE_GROUPING_BUCKET)
         .setTimeWindowSize(new TimeWindowSize().setMultiple(1).setUnit(CalendarInterval.DAY));
 
@@ -711,7 +671,7 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
         new GroupingBucket[]{timestampBucket, componentProfilesBucket});
     // Validate column names
     assertEquals(resultTable.getColumnNames(),
-        new StringArray(ES_FIELD_TIMESTAMP, "componentProfiles.key", "sum_" + "componentProfiles.stat"));
+        new StringArray(ES_FILED_TIMESTAMP, "componentProfiles.key", "sum_" + "componentProfiles.stat"));
     // Validate column types
     assertEquals(resultTable.getColumnTypes(), new StringArray("long", "string", "double"));
     // Validate rows
@@ -728,10 +688,10 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
     // Filter is only on the urn
     Criterion hasUrnCriterion =
         new Criterion().setField("urn").setCondition(Condition.EQUAL).setValue(TEST_URN.toString());
-    Criterion startTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
+    Criterion startTimeCriterion = new Criterion().setField(ES_FILED_TIMESTAMP)
         .setCondition(Condition.GREATER_THAN_OR_EQUAL_TO)
         .setValue(_startTime.toString());
-    Criterion endTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
+    Criterion endTimeCriterion = new Criterion().setField(ES_FILED_TIMESTAMP)
         .setCondition(Condition.LESS_THAN_OR_EQUAL_TO)
         .setValue(String.valueOf(_startTime + 23 * TIME_INCREMENT));
 
@@ -743,14 +703,14 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
         new AggregationSpec().setAggregationType(AggregationType.CARDINALITY).setFieldPath("strStat");
 
     // Grouping bucket is only timestamp filed.
-    GroupingBucket timestampBucket = new GroupingBucket().setKey(ES_FIELD_TIMESTAMP)
+    GroupingBucket timestampBucket = new GroupingBucket().setKey(ES_FILED_TIMESTAMP)
         .setType(GroupingBucketType.DATE_GROUPING_BUCKET)
         .setTimeWindowSize(new TimeWindowSize().setMultiple(1).setUnit(CalendarInterval.DAY));
 
     GenericTable resultTable = _elasticSearchTimeseriesAspectService.getAggregatedStats(ENTITY_NAME, ASPECT_NAME,
         new AggregationSpec[]{cardinalityStatAggregationSpec}, filter, new GroupingBucket[]{timestampBucket});
     // Validate column names
-    assertEquals(resultTable.getColumnNames(), new StringArray(ES_FIELD_TIMESTAMP, "cardinality_" + "strStat"));
+    assertEquals(resultTable.getColumnNames(), new StringArray(ES_FILED_TIMESTAMP, "cardinality_" + "strStat"));
     // Validate column types
     assertEquals(resultTable.getColumnTypes(), new StringArray("long", "long"));
     // Validate rows
@@ -764,10 +724,10 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
     // Filter is only on the urn
     Criterion hasUrnCriterion =
         new Criterion().setField("urn").setCondition(Condition.EQUAL).setValue(TEST_URN.toString());
-    Criterion startTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
+    Criterion startTimeCriterion = new Criterion().setField(ES_FILED_TIMESTAMP)
         .setCondition(Condition.GREATER_THAN_OR_EQUAL_TO)
         .setValue(_startTime.toString());
-    Criterion endTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
+    Criterion endTimeCriterion = new Criterion().setField(ES_FILED_TIMESTAMP)
         .setCondition(Condition.LESS_THAN_OR_EQUAL_TO)
         .setValue(String.valueOf(_startTime + 23 * TIME_INCREMENT));
 
@@ -796,14 +756,14 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
         new StringArrayArray(new StringArray("col1", "3264"), new StringArray("col2", "3288")));
   }
 
-  @Test(groups = {"deleteAspectValues1"}, dependsOnGroups = {"getAggregatedStats", "getAspectValues", "testCountBeforeDelete"})
+  @Test(groups = {"deleteAspectValues1"}, dependsOnGroups = {"getAggregatedStats", "getAspectValues"})
   public void testDeleteAspectValuesByUrnAndTimeRangeDay1() {
     Criterion hasUrnCriterion =
         new Criterion().setField("urn").setCondition(Condition.EQUAL).setValue(TEST_URN.toString());
-    Criterion startTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
+    Criterion startTimeCriterion = new Criterion().setField(ES_FILED_TIMESTAMP)
         .setCondition(Condition.GREATER_THAN_OR_EQUAL_TO)
         .setValue(_startTime.toString());
-    Criterion endTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
+    Criterion endTimeCriterion = new Criterion().setField(ES_FILED_TIMESTAMP)
         .setCondition(Condition.LESS_THAN_OR_EQUAL_TO)
         .setValue(String.valueOf(_startTime + 23 * TIME_INCREMENT));
 
@@ -816,7 +776,7 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
     assertEquals(result.getNumDocsDeleted(), Long.valueOf(72L));
   }
 
-  @Test(groups = {"deleteAspectValues2"}, dependsOnGroups = {"deleteAspectValues1", "testCountAfterDelete"})
+  @Test(groups = {"deleteAspectValues2"}, dependsOnGroups = {"deleteAspectValues1"})
   public void testDeleteAspectValuesByUrn() {
     Criterion hasUrnCriterion =
         new Criterion().setField("urn").setCondition(Condition.EQUAL).setValue(TEST_URN.toString());
@@ -825,62 +785,5 @@ public class ElasticSearchTimeseriesAspectServiceTest extends AbstractTestNGSpri
         _elasticSearchTimeseriesAspectService.deleteAspectValues(ENTITY_NAME, ASPECT_NAME, filter);
     // Of the 300 elastic docs upserted for TEST_URN, 72 got deleted by deleteAspectValues1 test group leaving 228.
     assertEquals(result.getNumDocsDeleted(), Long.valueOf(228L));
-  }
-
-  @Test(groups = {"testCountBeforeDelete"}, dependsOnGroups = {"upsert"})
-  public void testCountByFilter() {
-    // Test with filter
-    Criterion hasUrnCriterion =
-        new Criterion().setField("urn").setCondition(Condition.EQUAL).setValue(TEST_URN.toString());
-    Filter filter = QueryUtils.getFilterFromCriteria(ImmutableList.of(hasUrnCriterion));
-    long count =
-        _elasticSearchTimeseriesAspectService.countByFilter(ENTITY_NAME, ASPECT_NAME, filter);
-    assertEquals(count, 300L);
-
-    // Test with filter with multiple criteria
-    Criterion startTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
-        .setCondition(Condition.GREATER_THAN_OR_EQUAL_TO)
-        .setValue(_startTime.toString());
-    Criterion endTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
-        .setCondition(Condition.LESS_THAN_OR_EQUAL_TO)
-        .setValue(String.valueOf(_startTime + 23 * TIME_INCREMENT));
-
-    Filter urnAndTimeFilter =
-        QueryUtils.getFilterFromCriteria(ImmutableList.of(hasUrnCriterion, startTimeCriterion, endTimeCriterion));
-    count =
-        _elasticSearchTimeseriesAspectService.countByFilter(ENTITY_NAME, ASPECT_NAME, urnAndTimeFilter);
-    assertEquals(count, 72L);
-
-    // test without filter
-    count =
-        _elasticSearchTimeseriesAspectService.countByFilter(ENTITY_NAME, ASPECT_NAME, new Filter());
-    // There may be other entities in there from other tests
-    assertTrue(count >= 300L);
-  }
-
-  @Test(groups = {"testCountAfterDelete"}, dependsOnGroups = {"deleteAspectValues1"})
-  public void testCountByFilterAfterDelete() throws InterruptedException {
-    syncAfterWrite(_bulkProcessor);
-    // Test with filter
-    Criterion hasUrnCriterion =
-        new Criterion().setField("urn").setCondition(Condition.EQUAL).setValue(TEST_URN.toString());
-    Filter filter = QueryUtils.getFilterFromCriteria(ImmutableList.of(hasUrnCriterion));
-    long count =
-        _elasticSearchTimeseriesAspectService.countByFilter(ENTITY_NAME, ASPECT_NAME, filter);
-    assertEquals(count, 228L);
-
-    // Test with filter with multiple criteria
-    Criterion startTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
-        .setCondition(Condition.GREATER_THAN_OR_EQUAL_TO)
-        .setValue(_startTime.toString());
-    Criterion endTimeCriterion = new Criterion().setField(ES_FIELD_TIMESTAMP)
-        .setCondition(Condition.LESS_THAN_OR_EQUAL_TO)
-        .setValue(String.valueOf(_startTime + 23 * TIME_INCREMENT));
-
-    Filter urnAndTimeFilter =
-        QueryUtils.getFilterFromCriteria(ImmutableList.of(hasUrnCriterion, startTimeCriterion, endTimeCriterion));
-    count =
-        _elasticSearchTimeseriesAspectService.countByFilter(ENTITY_NAME, ASPECT_NAME, urnAndTimeFilter);
-    assertEquals(count, 0L);
   }
 }

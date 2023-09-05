@@ -7,7 +7,7 @@ on:
       - "docs/**"
       - "**.md"
   release:
-    types: [published]
+    types: [published, edited]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}

@@ -159,19 +159,11 @@ along with simplifying the number of raw data models that need defined, includin
 
 From an architectural PoV, we will move from a before that looks something like this:
 
-
-<p align="center">
-  <img width="70%"  src="https://raw.githubusercontent.com/datahub-project/static-assets/main/imgs/no-code-before.png"/>
-</p>
-
+![no-code-before](../imgs/no-code-before.png)
 
 to an after that looks like this
 
-
-<p align="center">
-  <img width="70%"  src="https://raw.githubusercontent.com/datahub-project/static-assets/main/imgs/no-code-after.png"/>
-</p>
-
+![no-code-after](../imgs/no-code-after.png)
 
 That is, a move away from patterns of strong-typing-everywhere to a more generic + flexible world. 
 
@@ -219,7 +211,7 @@ record ServiceKey {
   * Name of the service
   */
   @Searchable = {
-    "fieldType": "WORD_GRAM",
+    "fieldType": "TEXT_PARTIAL",
     "enableAutocomplete": true
   }
   name: string

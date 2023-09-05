@@ -23,9 +23,6 @@ public class ElasticsearchConnector {
     _numRetries = numRetries;
   }
 
-  /*
-    Be careful here, we are mixing `DataHub` change type semantics with `Elasticsearch` concepts.
-  */
   public void feedElasticEvent(@Nonnull ElasticEvent event) {
     if (event.getActionType().equals(ChangeType.DELETE)) {
       _bulkProcessor.add(createDeleteRequest(event));

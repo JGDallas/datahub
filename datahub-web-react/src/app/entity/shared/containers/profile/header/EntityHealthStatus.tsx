@@ -1,45 +1,27 @@
 import React from 'react';
+import { Tooltip } from 'antd';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
-import { getHealthTypeName, getHealthRedirectPath } from '../../../../../shared/health/healthUtils';
-import { HealthStatusType } from '../../../../../../types.generated';
-import { ANTD_GRAY, REDESIGN_COLORS } from '../../../constants';
+import { getHealthIcon } from '../../../../../shared/health/healthUtils';
+import { HealthStatus, HealthStatusType } from '../../../../../../types.generated';
 
 const StatusContainer = styled.div`
     display: flex;
-    justify-content: left;
+    justify-content: center;
     align-items: center;
-    color: ${ANTD_GRAY[1]};
-    font-size: 14px;
-`;
-
-const Title = styled.span`
-    display: flex;
-    align-items: center;
-    font-weight: bold;
-    margin-right: 8px;
-    width: 72px;
-`;
-
-const RedirectLink = styled(Link)`
-    margin-left: 4px;
-    color: ${REDESIGN_COLORS.BLUE};
+    margin-left: 8px;
 `;
 
 type Props = {
     type: HealthStatusType;
+    status: HealthStatus;
     message?: string | undefined;
-    baseUrl: string;
 };
 
-export const EntityHealthStatus = ({ type, message, baseUrl }: Props) => {
-    const title = getHealthTypeName(type);
-    const redirectPath = getHealthRedirectPath(type);
-    const fullPath = `${baseUrl}/${redirectPath}`;
+export const EntityHealthStatus = ({ type, status, message }: Props) => {
+    const icon = getHealthIcon(type, status, 18);
     return (
         <StatusContainer>
-            <Title>{title}</Title> {message}
-            {redirectPath && <RedirectLink to={fullPath}>details</RedirectLink>}
+            <Tooltip title={message}>{icon}</Tooltip>
         </StatusContainer>
     );
 };

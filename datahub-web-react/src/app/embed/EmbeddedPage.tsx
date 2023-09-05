@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useParams } from 'react-router';
 import styled from 'styled-components/macro';
 import { useGetGrantedPrivilegesQuery } from '../../graphql/policy.generated';
@@ -9,8 +9,6 @@ import { decodeUrn } from '../entity/shared/utils';
 import CompactContext from '../shared/CompactContext';
 import { useEntityRegistry } from '../useEntityRegistry';
 import { useGetAuthenticatedUserUrn } from '../useGetAuthenticatedUser';
-import analytics from '../analytics/analytics';
-import { EventType } from '../analytics';
 
 const EmbeddedPageWrapper = styled.div`
     max-height: 100%;
@@ -30,14 +28,6 @@ export default function EmbeddedPage({ entityType }: Props) {
     const entityRegistry = useEntityRegistry();
     const { urn: encodedUrn } = useParams<RouteParams>();
     const urn = decodeUrn(encodedUrn);
-
-    useEffect(() => {
-        analytics.event({
-            type: EventType.EmbedProfileViewEvent,
-            entityType,
-            entityUrn: urn,
-        });
-    }, [entityType, urn]);
 
     const authenticatedUserUrn = useGetAuthenticatedUserUrn();
     const { data } = useGetGrantedPrivilegesQuery({

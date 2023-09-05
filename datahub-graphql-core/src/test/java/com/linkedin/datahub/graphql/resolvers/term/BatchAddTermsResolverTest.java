@@ -14,7 +14,6 @@ import com.linkedin.datahub.graphql.generated.ResourceRefInput;
 import com.linkedin.datahub.graphql.resolvers.mutate.BatchAddTermsResolver;
 import com.linkedin.metadata.Constants;
 import com.linkedin.metadata.entity.EntityService;
-import com.linkedin.metadata.entity.ebean.transactions.AspectsBatchImpl;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.concurrent.CompletionException;
 import org.mockito.Mockito;
@@ -33,7 +32,7 @@ public class BatchAddTermsResolverTest {
 
   @Test
   public void testGetSuccessNoExistingTerms() throws Exception {
-    EntityService mockService = getMockEntityService();
+    EntityService mockService = Mockito.mock(EntityService.class);
 
     Mockito.when(mockService.getAspect(
         Mockito.eq(UrnUtils.getUrn(TEST_ENTITY_URN_1)),
@@ -67,7 +66,7 @@ public class BatchAddTermsResolverTest {
     Mockito.when(mockEnv.getContext()).thenReturn(mockContext);
     assertTrue(resolver.get(mockEnv).get());
 
-    verifyIngestProposal(mockService, 1);
+    verifyIngestProposal(mockService, 2);
 
     Mockito.verify(mockService, Mockito.times(1)).exists(
         Mockito.eq(Urn.createFromString(TEST_GLOSSARY_TERM_1_URN))
@@ -84,7 +83,7 @@ public class BatchAddTermsResolverTest {
         new GlossaryTermAssociation().setUrn(GlossaryTermUrn.createFromString(TEST_GLOSSARY_TERM_1_URN))))
     );
 
-    EntityService mockService = getMockEntityService();
+    EntityService mockService = Mockito.mock(EntityService.class);
 
     Mockito.when(mockService.getAspect(
         Mockito.eq(UrnUtils.getUrn(TEST_ENTITY_URN_1)),
@@ -119,7 +118,7 @@ public class BatchAddTermsResolverTest {
     Mockito.when(mockEnv.getContext()).thenReturn(mockContext);
     assertTrue(resolver.get(mockEnv).get());
 
-    verifyIngestProposal(mockService, 1);
+    verifyIngestProposal(mockService, 2);
 
     Mockito.verify(mockService, Mockito.times(1)).exists(
         Mockito.eq(Urn.createFromString(TEST_GLOSSARY_TERM_1_URN))
@@ -132,7 +131,7 @@ public class BatchAddTermsResolverTest {
 
   @Test
   public void testGetFailureTagDoesNotExist() throws Exception {
-    EntityService mockService = getMockEntityService();
+    EntityService mockService = Mockito.mock(EntityService.class);
 
     Mockito.when(mockService.getAspect(
         Mockito.eq(UrnUtils.getUrn(TEST_ENTITY_URN_1)),
@@ -161,7 +160,7 @@ public class BatchAddTermsResolverTest {
 
   @Test
   public void testGetFailureResourceDoesNotExist() throws Exception {
-    EntityService mockService = getMockEntityService();
+    EntityService mockService = Mockito.mock(EntityService.class);
 
     Mockito.when(mockService.getAspect(
         Mockito.eq(UrnUtils.getUrn(TEST_ENTITY_URN_1)),
@@ -197,7 +196,7 @@ public class BatchAddTermsResolverTest {
 
   @Test
   public void testGetUnauthorized() throws Exception {
-    EntityService mockService = getMockEntityService();
+    EntityService mockService = Mockito.mock(EntityService.class);
 
     BatchAddTermsResolver resolver = new BatchAddTermsResolver(mockService);
 
@@ -218,10 +217,10 @@ public class BatchAddTermsResolverTest {
 
   @Test
   public void testGetEntityClientException() throws Exception {
-    EntityService mockService = getMockEntityService();
+    EntityService mockService = Mockito.mock(EntityService.class);
 
     Mockito.doThrow(RuntimeException.class).when(mockService).ingestProposal(
-        Mockito.any(AspectsBatchImpl.class),
+        Mockito.any(),
         Mockito.any(AuditStamp.class), Mockito.anyBoolean());
 
     BatchAddTermsResolver resolver = new BatchAddTermsResolver(mockService);

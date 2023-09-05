@@ -88,7 +88,6 @@ class SnowflakeTable(BaseTable):
 
 @dataclass
 class SnowflakeView(BaseView):
-    materialized: bool = False
     columns: List[SnowflakeColumn] = field(default_factory=list)
     tags: Optional[List[SnowflakeTag]] = None
     column_tags: Dict[str, List[SnowflakeTag]] = field(default_factory=dict)
@@ -261,7 +260,6 @@ class SnowflakeDataDictionary(SnowflakeQueryMixin):
         for table in cur:
             if table["TABLE_SCHEMA"] not in tables:
                 tables[table["TABLE_SCHEMA"]] = []
-
             tables[table["TABLE_SCHEMA"]].append(
                 SnowflakeTable(
                     name=table["TABLE_NAME"],
@@ -323,8 +321,6 @@ class SnowflakeDataDictionary(SnowflakeQueryMixin):
                     comment=table["comment"],
                     view_definition=table["text"],
                     last_altered=table["created_on"],
-                    materialized=table.get("is_materialized", "false").lower()
-                    == "true",
                 )
             )
         return views

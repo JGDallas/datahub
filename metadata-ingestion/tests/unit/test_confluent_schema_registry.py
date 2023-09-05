@@ -4,7 +4,6 @@ from unittest.mock import patch
 from confluent_kafka.schema_registry.schema_registry_client import (
     RegisteredSchema,
     Schema,
-    SchemaReference,
 )
 
 from datahub.ingestion.source.confluent_schema_registry import ConfluentSchemaRegistry
@@ -91,9 +90,7 @@ class ConfluentSchemaRegistryTest(unittest.TestCase):
                     schema_str=schema_str_orig,
                     schema_type="AVRO",
                     references=[
-                        SchemaReference(
-                            name="TestTopic1", subject="schema_subject_1", version=1
-                        )
+                        dict(name="TestTopic1", subject="schema_subject_1", version=1)
                     ],
                 )
             )
@@ -112,9 +109,7 @@ class ConfluentSchemaRegistryTest(unittest.TestCase):
                     schema_str=schema_str_orig,
                     schema_type="AVRO",
                     references=[
-                        SchemaReference(
-                            name="schema_subject_1", subject="TestTopic1", version=1
-                        )
+                        dict(name="schema_subject_1", subject="TestTopic1", version=1)
                     ],
                 )
             )

@@ -2,20 +2,23 @@ package com.linkedin.datahub.graphql.resolvers.search;
 
 import com.linkedin.common.urn.UrnUtils;
 import com.linkedin.datahub.graphql.QueryContext;
+import com.linkedin.datahub.graphql.generated.EntityType;
 import com.linkedin.datahub.graphql.generated.SearchAcrossEntitiesInput;
 import com.linkedin.datahub.graphql.generated.SearchResults;
+import com.linkedin.datahub.graphql.resolvers.EntityTypeMapper;
 import com.linkedin.datahub.graphql.resolvers.ResolverUtils;
+import com.linkedin.datahub.graphql.types.common.mappers.SearchFlagsInputMapper;
 import com.linkedin.datahub.graphql.types.mappers.UrnSearchResultsMapper;
 import com.linkedin.entity.client.EntityClient;
 import com.linkedin.metadata.query.SearchFlags;
 import com.linkedin.metadata.query.filter.Filter;
-import com.linkedin.metadata.query.filter.SortCriterion;
 import com.linkedin.metadata.service.ViewService;
 import com.linkedin.view.DataHubViewInfo;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,7 +45,9 @@ public class SearchAcrossEntitiesResolver implements DataFetcher<CompletableFutu
     final SearchAcrossEntitiesInput input =
         bindArgument(environment.getArgument("input"), SearchAcrossEntitiesInput.class);
 
-    final List<String> entityNames = getEntityNames(input.getTypes());
+    final List<EntityType> entityTypes =
+        (input.getTypes() == null || input.getTypes().isEmpty()) ? SEARCHABLE_ENTITY_TYPES : input.getTypes();
+    final List<String> entityNames = entityTypes.stream().map(EntityTypeMapper::getName).collect(Collectors.toList());
 
     // escape forward slash since it is a reserved character in Elasticsearch
     final String sanitizedQuery = ResolverUtils.escapeForwardSlash(input.getQuery());
@@ -58,8 +63,11 @@ public class SearchAcrossEntitiesResolver implements DataFetcher<CompletableFutu
 
       final Filter baseFilter = ResolverUtils.buildFilter(input.getFilters(), input.getOrFilters());
 
-      SearchFlags searchFlags = mapInputFlags(input.getSearchFlags());
-      SortCriterion sortCriterion = input.getSortInput() != null ? mapSortCriterion(input.getSortInput().getSortCriterion()) : null;
+      SearchFlags searchFlags = null;
+      com.linkedin.datahub.graphql.generated.SearchFlags inputFlags = input.getSearchFlags();
+      if (inputFlags != null) {
+        searchFlags = SearchFlagsInputMapper.INSTANCE.apply(inputFlags);
+      }
 
       try {
         log.debug(
@@ -77,7 +85,6 @@ public class SearchAcrossEntitiesResolver implements DataFetcher<CompletableFutu
             start,
             count,
             searchFlags,
-            sortCriterion,
             ResolverUtils.getAuthentication(environment)));
       } catch (Exception e) {
         log.error(

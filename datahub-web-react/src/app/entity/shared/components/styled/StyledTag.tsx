@@ -2,20 +2,11 @@ import { Tag } from 'antd';
 import styled, { css } from 'styled-components';
 import ColorHash from 'color-hash';
 
-export const generateColor = new ColorHash({
+const generateColor = new ColorHash({
     saturation: 0.9,
 });
 
-export const StyledTag = styled(Tag)<{ $color: any; $colorHash?: string; fontSize?: number; highlightTag?: boolean }>`
-    &&& {
-        ${(props) =>
-            props.highlightTag &&
-            `
-                background: ${props.theme.styles['highlight-color']};
-                border: 1px solid ${props.theme.styles['highlight-border-color']};
-            `}
-    }
-    ${(props) => props.fontSize && `font-size: ${props.fontSize}px;`}
+export const StyledTag = styled(Tag)<{ $color: any; $colorHash?: string }>`
     ${(props) =>
         props.$colorHash &&
         css`
@@ -28,7 +19,7 @@ export const StyledTag = styled(Tag)<{ $color: any; $colorHash?: string; fontSiz
                     ? generateColor.hex(props.$colorHash)
                     : props.$color};
                 border-radius: 100em;
-                margin-right: 4px;
+                margin-right: 3px;
             }
         `}
 `;

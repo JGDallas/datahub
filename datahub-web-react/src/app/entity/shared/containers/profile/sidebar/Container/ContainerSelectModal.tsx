@@ -108,7 +108,7 @@ export const ContainerSelectModal = ({ onCloseModal, defaultValues, onOkOverride
         setSelectedContainers(selectedContainers?.filter((container) => container.urn !== val.value));
     };
 
-    const onOk = () => {
+    const onOk = async () => {
         if (!selectedContainers) {
             return;
         }

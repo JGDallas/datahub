@@ -4,8 +4,6 @@ import { Deprecation, Domain, EntityType, Owner, ParentNodesResult } from '../..
 import DefaultPreviewCard from '../../../preview/DefaultPreviewCard';
 import { useEntityRegistry } from '../../../useEntityRegistry';
 import { IconStyleType, PreviewType } from '../../Entity';
-import UrlButton from '../../shared/UrlButton';
-import { getRelatedEntitiesUrl } from '../utils';
 
 export const Preview = ({
     urn,
@@ -41,9 +39,6 @@ export const Preview = ({
             deprecation={deprecation}
             parentNodes={parentNodes}
             domain={domain}
-            entityTitleSuffix={
-                <UrlButton href={getRelatedEntitiesUrl(entityRegistry, urn)}>View Related Entities</UrlButton>
-            }
         />
     );
 };

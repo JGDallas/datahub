@@ -138,57 +138,25 @@ Successfully added `conn_id`=datahub_rest_default : datahub_rest://:@http://data
 
 Navigate the Airflow UI to find the sample Airflow dag we just brought in
 
-
-<p align="center">
-  <img width="70%"  src="https://raw.githubusercontent.com/datahub-project/static-assets/main/imgs/airflow/find_the_dag.png"/>
-</p>
-
+![Find the DAG](../../docs/imgs/airflow/find_the_dag.png)
 
 By default, Airflow loads all DAG-s in paused status. Unpause the sample DAG to use it.
-
-<p align="center">
-  <img width="70%"  src="https://raw.githubusercontent.com/datahub-project/static-assets/main/imgs/airflow/paused_dag.png"/>
-</p>
-
-
-<p align="center">
-  <img width="70%"  src="https://raw.githubusercontent.com/datahub-project/static-assets/main/imgs/airflow/unpaused_dag.png"/>
-</p>
-
+![Paused DAG](../../docs/imgs/airflow/paused_dag.png)
+![Unpaused DAG](../../docs/imgs/airflow/unpaused_dag.png)
 
 Then trigger the DAG to run.
 
-
-<p align="center">
-  <img width="70%"  src="https://raw.githubusercontent.com/datahub-project/static-assets/main/imgs/airflow/trigger_dag.png"/>
-</p>
-
+![Trigger the DAG](../../docs/imgs/airflow/trigger_dag.png)
 
 After the DAG runs successfully, go over to your DataHub instance to see the Pipeline and navigate its lineage.
 
+![DataHub Pipeline View](../../docs/imgs/airflow/datahub_pipeline_view.png)
 
-<p align="center">
-  <img width="70%"  src="https://raw.githubusercontent.com/datahub-project/static-assets/main/imgs/airflow/datahub_pipeline_view.png"/>
-</p>
+![DataHub Pipeline Entity](../../docs/imgs/airflow/datahub_pipeline_entity.png)
 
+![DataHub Task View](../../docs/imgs/airflow/datahub_task_view.png)
 
-
-<p align="center">
-  <img width="70%"  src="https://raw.githubusercontent.com/datahub-project/static-assets/main/imgs/airflow/datahub_pipeline_entity.png"/>
-</p>
-
-
-
-<p align="center">
-  <img width="70%"  src="https://raw.githubusercontent.com/datahub-project/static-assets/main/imgs/airflow/datahub_task_view.png"/>
-</p>
-
-
-
-<p align="center">
-  <img width="70%"  src="https://raw.githubusercontent.com/datahub-project/static-assets/main/imgs/airflow/datahub_lineage_view.png"/>
-</p>
-
+![DataHub Lineage View](../../docs/imgs/airflow/datahub_lineage_view.png)
 
 ## TroubleShooting
 
@@ -196,17 +164,9 @@ Most issues are related to connectivity between Airflow and DataHub.
 
 Here is how you can debug them.
 
+![Find the Task Log](../../docs/imgs/airflow/finding_failed_log.png)
 
-<p align="center">
-  <img width="70%"  src="https://raw.githubusercontent.com/datahub-project/static-assets/main/imgs/airflow/finding_failed_log.png"/>
-</p>
-
-
-
-<p align="center">
-  <img width="70%"  src="https://raw.githubusercontent.com/datahub-project/static-assets/main/imgs/airflow/connection_error.png"/>
-</p>
-
+![Inspect the Log](../../docs/imgs/airflow/connection_error.png)
 
 In this case, clearly the connection `datahub-rest` has not been registered. Looks like we forgot to register the connection with Airflow!
 Let's execute Step 4 to register the datahub connection with Airflow.
@@ -215,8 +175,4 @@ In case the connection was registered successfully but you are still seeing `Fai
 
 After re-running the DAG, we see success!
 
-
-<p align="center">
-  <img width="70%"  src="https://raw.githubusercontent.com/datahub-project/static-assets/main/imgs/airflow/successful_run.png"/>
-</p>
-
+![Pipeline Success](../../docs/imgs/airflow/successful_run.png)

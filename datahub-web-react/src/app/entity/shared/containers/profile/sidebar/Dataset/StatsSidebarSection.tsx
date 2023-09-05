@@ -8,7 +8,7 @@ import { ANTD_GRAY } from '../../../../constants';
 import { useBaseEntity, useRouteToTab } from '../../../../EntityContext';
 import { SidebarHeader } from '../SidebarHeader';
 import { InfoItem } from '../../../../components/styled/InfoItem';
-import { formatNumberWithoutAbbreviation } from '../../../../../../shared/formatNumber';
+import { countSeparator } from '../../../../../../../utils/formatter/index';
 
 const HeaderInfoBody = styled(Typography.Text)`
     font-size: 16px;
@@ -83,7 +83,7 @@ export const SidebarStatsSection = () => {
                             onClick={() => routeToTab({ tabName: 'Queries' })}
                             width={INFO_ITEM_WIDTH_PX}
                         >
-                            <HeaderInfoBody>{formatNumberWithoutAbbreviation(latestProfile?.rowCount)}</HeaderInfoBody>
+                            <HeaderInfoBody>{countSeparator(latestProfile?.rowCount)}</HeaderInfoBody>
                         </InfoItem>
                     ) : null}
                     {latestProfile?.columnCount ? (

@@ -5,7 +5,7 @@ import com.linkedin.datahub.upgrade.UpgradeStep;
 import com.linkedin.datahub.upgrade.UpgradeStepResult;
 import com.linkedin.datahub.upgrade.impl.DefaultUpgradeStepResult;
 import com.linkedin.metadata.entity.ebean.EbeanAspectV2;
-import io.ebean.Database;
+import io.ebean.EbeanServer;
 import java.util.function.Function;
 
 
@@ -14,9 +14,9 @@ import java.util.function.Function;
  */
 public class ClearAspectV2TableStep implements UpgradeStep {
 
-  private final Database _server;
+  private final EbeanServer _server;
 
-  public ClearAspectV2TableStep(final Database server) {
+  public ClearAspectV2TableStep(final EbeanServer server) {
     _server = server;
   }
 

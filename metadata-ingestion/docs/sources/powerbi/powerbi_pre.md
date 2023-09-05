@@ -16,7 +16,7 @@
 | `Dataset's Table`     | `Dataset`           |
 | `Tile`                | `Chart`             |
 | `Report.webUrl`       | `Chart.externalUrl` |
-| `Workspace`           | `Container`         |
+| `Workspace`           | `N/A`               |
 | `Report`              | `Dashboard`         |
 | `Page`                | `Chart`             |
 

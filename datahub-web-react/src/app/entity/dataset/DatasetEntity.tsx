@@ -11,7 +11,7 @@ import { DocumentationTab } from '../shared/tabs/Documentation/DocumentationTab'
 import { SchemaTab } from '../shared/tabs/Dataset/Schema/SchemaTab';
 import QueriesTab from '../shared/tabs/Dataset/Queries/QueriesTab';
 import { SidebarAboutSection } from '../shared/containers/profile/sidebar/AboutSection/SidebarAboutSection';
-import { SidebarOwnerSection } from '../shared/containers/profile/sidebar/Ownership/sidebar/SidebarOwnerSection';
+import { SidebarOwnerSection } from '../shared/containers/profile/sidebar/Ownership/SidebarOwnerSection';
 import { SidebarTagsSection } from '../shared/containers/profile/sidebar/SidebarTagsSection';
 import StatsTab from '../shared/tabs/Dataset/Stats/StatsTab';
 import { LineageTab } from '../shared/tabs/Lineage/LineageTab';
@@ -26,12 +26,9 @@ import { OperationsTab } from './profile/OperationsTab';
 import { EntityMenuItems } from '../shared/EntityDropdown/EntityDropdown';
 import { SidebarSiblingsSection } from '../shared/containers/profile/sidebar/SidebarSiblingsSection';
 import { DatasetStatsSummarySubHeader } from './profile/stats/stats/DatasetStatsSummarySubHeader';
-import { MatchedFieldList } from '../../search/matches/MatchedFieldList';
+import { DatasetSearchSnippet } from './DatasetSearchSnippet';
 import { EmbedTab } from '../shared/tabs/Embed/EmbedTab';
 import EmbeddedProfile from '../shared/embed/EmbeddedProfile';
-import DataProductSection from '../shared/containers/profile/sidebar/DataProduct/DataProductSection';
-import { getDataProduct } from '../shared/utils';
-import { matchedFieldPathsRenderer } from '../../search/matches/matchedFieldPathsRenderer';
 
 const SUBTYPES = {
     VIEW: 'view',
@@ -215,9 +212,6 @@ export class DatasetEntity implements Entity<Dataset> {
                 {
                     component: SidebarAccessRequestSection,
                 },
-                {
-                    component: DataProductSection,
-                },
                 // TODO: Add back once entity-level recommendations are complete.
                 // {
                 //    component: SidebarRecommendationsSection,
@@ -242,7 +236,6 @@ export class DatasetEntity implements Entity<Dataset> {
     };
 
     renderPreview = (_: PreviewType, data: Dataset) => {
-        const genericProperties = this.getGenericEntityProperties(data);
         return (
             <Preview
                 urn={data.urn}
@@ -259,10 +252,8 @@ export class DatasetEntity implements Entity<Dataset> {
                 globalTags={data.globalTags}
                 glossaryTerms={data.glossaryTerms}
                 domain={data.domain?.domain}
-                dataProduct={getDataProduct(genericProperties?.dataProduct)}
                 container={data.container}
                 externalUrl={data.properties?.externalUrl}
-                health={data.health}
             />
         );
     };
@@ -289,13 +280,12 @@ export class DatasetEntity implements Entity<Dataset> {
                 owners={data.ownership?.owners}
                 globalTags={data.globalTags}
                 domain={data.domain?.domain}
-                dataProduct={getDataProduct(genericProperties?.dataProduct)}
                 deprecation={data.deprecation}
                 glossaryTerms={data.glossaryTerms}
                 subtype={data.subTypes?.typeNames?.[0]}
                 container={data.container}
                 parentContainers={data.parentContainers}
-                snippet={<MatchedFieldList customFieldRenderer={matchedFieldPathsRenderer} />}
+                snippet={<DatasetSearchSnippet matchedFields={result.matchedFields} />}
                 insights={result.insights}
                 externalUrl={data.properties?.externalUrl}
                 statsSummary={data.statsSummary}
@@ -305,9 +295,6 @@ export class DatasetEntity implements Entity<Dataset> {
                 lastUpdatedMs={
                     (data as any).lastOperation?.length && (data as any).lastOperation[0].lastUpdatedTimestamp
                 }
-                health={data.health}
-                degree={(result as any).degree}
-                paths={(result as any).paths}
             />
         );
     };
@@ -321,7 +308,6 @@ export class DatasetEntity implements Entity<Dataset> {
             subtype: entity?.subTypes?.typeNames?.[0] || undefined,
             icon: entity?.platform?.properties?.logoUrl || undefined,
             platform: entity?.platform,
-            health: entity?.health || undefined,
         };
     };
 
@@ -349,7 +335,6 @@ export class DatasetEntity implements Entity<Dataset> {
             EntityCapabilityType.DOMAINS,
             EntityCapabilityType.DEPRECATION,
             EntityCapabilityType.SOFT_DELETE,
-            EntityCapabilityType.DATA_PRODUCTS,
         ]);
     };
 

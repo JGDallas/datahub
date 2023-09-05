@@ -37,7 +37,6 @@ fragment dataFlowFields on DataFlow {
     domain {
         ...entityDomain
     }
-    ...entityDataProduct
     status {
         removed
     }
@@ -46,9 +45,6 @@ fragment dataFlowFields on DataFlow {
     }
     dataPlatformInstance {
         ...dataPlatformInstanceFields
-    }
-    browsePathV2 {
-        ...browsePathV2Fields
     }
 }
 

@@ -22,10 +22,9 @@ record DashboardInfo includes CustomProperties, ExternalReference {
    * Title of the dashboard
    */
   @Searchable = {
-    "fieldType": "WORD_GRAM",
+    "fieldType": "TEXT_PARTIAL",
     "enableAutocomplete": true,
-    "boostScore": 10.0,
-    "fieldNameAliases": [ "_entityName" ]
+    "boostScore": 10.0
   }
   title: string
 
@@ -108,9 +107,6 @@ record DashboardInfo includes CustomProperties, ExternalReference {
   /**
    * URL for the dashboard. This could be used as an external link on DataHub to allow users access/view the dashboard
    */
-  @Searchable = {
-    "fieldType": "KEYWORD"
-  }
   dashboardUrl: optional Url
 
   /**

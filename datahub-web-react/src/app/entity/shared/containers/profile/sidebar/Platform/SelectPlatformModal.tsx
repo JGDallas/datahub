@@ -105,7 +105,7 @@ export const SelectPlatformModal = ({ onCloseModal, defaultValues, onOk, titleOv
         setSelectedPlatforms(selectedPlatforms?.filter((platform) => platform.urn !== val.value));
     };
 
-    const handleOk = () => {
+    const handleOk = async () => {
         if (!selectedPlatforms) {
             return;
         }

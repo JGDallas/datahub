@@ -159,7 +159,7 @@ class ModeSource(Source):
 
     config: ModeConfig
     report: SourceReport
-    platform = "mode"
+    tool = "mode"
 
     def __hash__(self):
         return id(self)
@@ -199,9 +199,7 @@ class ModeSource(Source):
         self, space_name: str, report_info: dict
     ) -> DashboardSnapshot:
         report_token = report_info.get("token", "")
-        dashboard_urn = builder.make_dashboard_urn(
-            self.platform, report_info.get("id", "")
-        )
+        dashboard_urn = builder.make_dashboard_urn(self.tool, report_info.get("id", ""))
         dashboard_snapshot = DashboardSnapshot(
             urn=dashboard_urn,
             aspects=[],
@@ -305,9 +303,7 @@ class ModeSource(Source):
             charts = self._get_charts(report_token, query.get("token", ""))
             # build chart urns
             for chart in charts:
-                chart_urn = builder.make_chart_urn(
-                    self.platform, chart.get("token", "")
-                )
+                chart_urn = builder.make_chart_urn(self.tool, chart.get("token", ""))
                 chart_urns.append(chart_urn)
 
         return chart_urns
@@ -583,7 +579,7 @@ class ModeSource(Source):
     def construct_chart_from_api_data(
         self, chart_data: dict, query: dict, path: str
     ) -> ChartSnapshot:
-        chart_urn = builder.make_chart_urn(self.platform, chart_data.get("token", ""))
+        chart_urn = builder.make_chart_urn(self.tool, chart_data.get("token", ""))
         chart_snapshot = ChartSnapshot(
             urn=chart_urn,
             aspects=[],
@@ -765,7 +761,10 @@ class ModeSource(Source):
                 mce = MetadataChangeEvent(
                     proposedSnapshot=dashboard_snapshot_from_report
                 )
-                yield MetadataWorkUnit(id=dashboard_snapshot_from_report.urn, mce=mce)
+                wu = MetadataWorkUnit(id=dashboard_snapshot_from_report.urn, mce=mce)
+                self.report.report_workunit(wu)
+
+                yield wu
 
     def emit_chart_mces(self) -> Iterable[MetadataWorkUnit]:
         # Space/collection -> report -> query -> Chart
@@ -789,14 +788,17 @@ class ModeSource(Source):
                             chart, query, path
                         )
                         mce = MetadataChangeEvent(proposedSnapshot=chart_snapshot)
-                        yield MetadataWorkUnit(id=chart_snapshot.urn, mce=mce)
+                        wu = MetadataWorkUnit(id=chart_snapshot.urn, mce=mce)
+                        self.report.report_workunit(wu)
+
+                        yield wu
 
     @classmethod
     def create(cls, config_dict: dict, ctx: PipelineContext) -> Source:
         config = ModeConfig.parse_obj(config_dict)
         return cls(ctx, config)
 
-    def get_workunits_internal(self) -> Iterable[MetadataWorkUnit]:
+    def get_workunits(self) -> Iterable[MetadataWorkUnit]:
         yield from self.emit_dashboard_mces()
         yield from self.emit_chart_mces()
 

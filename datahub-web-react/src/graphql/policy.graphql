@@ -34,13 +34,6 @@ query listPolicies($input: ListPoliciesInput!) {
                 allUsers
                 allGroups
                 resourceOwners
-                resourceOwnersTypes
-                resolvedOwnershipTypes {
-                    urn
-                    info {
-                        name
-                    }
-                }
                 resolvedUsers {
                     username
                     urn

@@ -1,12 +1,11 @@
-apply plugin: 'java-library'
+apply plugin: 'java'
 
 dependencies {
-  api project(':metadata-events:mxe-avro-1.7')
-  api project(':metadata-models')
-  api spec.product.pegasus.dataAvro1_6
+  compile project(':metadata-events:mxe-avro-1.7')
+  compile project(':metadata-models')
+  compile spec.product.pegasus.dataAvro1_6
 
-  testImplementation project(':test-models')
-  testImplementation project(path: ':test-models', configuration: 'testDataTemplate')
+  testCompile project(':test-models')
 
   constraints {
     implementation(externalDependency.log4jCore) {

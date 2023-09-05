@@ -254,7 +254,7 @@ export const IngestionSourceList = () => {
         setPage(newPage);
     };
 
-    const deleteIngestionSource = (urn: string) => {
+    const deleteIngestionSource = async (urn: string) => {
         removeFromListIngestionSourcesCache(client, urn, page, pageSize, query);
         removeIngestionSourceMutation({
             variables: { urn },

@@ -10,8 +10,6 @@ import { IconStyleType } from '../../Entity';
 import { useEntityData } from '../EntityContext';
 import { getDisplayedEntityType } from '../containers/profile/header/PlatformContent/PlatformContentContainer';
 import { ANTD_GRAY } from '../constants';
-import analytics from '../../../analytics/analytics';
-import { EventType } from '../../../analytics';
 
 const HeaderWrapper = styled.div`
     display: flex;
@@ -63,14 +61,6 @@ export default function EmbeddedHeader() {
     const appConfig = useAppConfig();
     const themeConfig = useTheme();
 
-    function trackClickViewInDataHub() {
-        analytics.event({
-            type: EventType.EmbedProfileViewInDataHubEvent,
-            entityType,
-            entityUrn: entityData?.urn || '',
-        });
-    }
-
     const typeIcon = entityRegistry.getIcon(entityType, 12, IconStyleType.ACCENT, ANTD_GRAY[8]);
     const displayedEntityType = getDisplayedEntityType(entityData, entityRegistry, entityType);
     const entityName = entityRegistry.getDisplayName(entityType, entityData);
@@ -96,7 +86,6 @@ export default function EmbeddedHeader() {
                         href={`${window.location.origin}/${entityTypePathName}/${entityData?.urn}`}
                         target="_blank"
                         rel="noreferrer noopener"
-                        onClick={trackClickViewInDataHub}
                     >
                         view in DataHub <ArrowRightOutlined />
                     </StyledLink>

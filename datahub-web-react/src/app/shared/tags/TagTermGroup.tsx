@@ -29,7 +29,6 @@ type Props = {
     entityType?: EntityType;
     entitySubresource?: string;
     highlightText?: string;
-    fontSize?: number;
     refetch?: () => Promise<any>;
     readOnly?: boolean;
 };
@@ -64,7 +63,6 @@ export default function TagTermGroup({
     entityType,
     entitySubresource,
     highlightText,
-    fontSize,
     refetch,
     readOnly,
 }: Props) {
@@ -105,7 +103,6 @@ export default function TagTermGroup({
                         highlightText={highlightText}
                         onOpenModal={onOpenModal}
                         refetch={refetch}
-                        fontSize={fontSize}
                     />
                 );
             })}
@@ -119,7 +116,6 @@ export default function TagTermGroup({
                     highlightText={highlightText}
                     onOpenModal={onOpenModal}
                     refetch={refetch}
-                    fontSize={fontSize}
                 />
             ))}
             {/* uneditable tags are provided by ingestion pipelines exclusively */}
@@ -141,7 +137,6 @@ export default function TagTermGroup({
                         highlightText={highlightText}
                         onOpenModal={onOpenModal}
                         refetch={refetch}
-                        fontSize={fontSize}
                     />
                 );
             })}
@@ -160,7 +155,6 @@ export default function TagTermGroup({
                         highlightText={highlightText}
                         onOpenModal={onOpenModal}
                         refetch={refetch}
-                        fontSize={fontSize}
                     />
                 );
             })}

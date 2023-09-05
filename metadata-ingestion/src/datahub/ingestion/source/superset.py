@@ -1,40 +1,28 @@
 import json
 import logging
 from functools import lru_cache
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, Iterable, Optional
 
 import dateutil.parser as dp
 import requests
 from pydantic.class_validators import root_validator, validator
 from pydantic.fields import Field
 
-from datahub.configuration import ConfigModel
+from datahub.configuration.common import ConfigModel
 from datahub.emitter.mce_builder import DEFAULT_ENV
 from datahub.ingestion.api.common import PipelineContext
 from datahub.ingestion.api.decorators import (
-    SourceCapability,
     SupportStatus,
-    capability,
     config_class,
     platform_name,
     support_status,
 )
-from datahub.ingestion.api.source import MetadataWorkUnitProcessor, Source
+from datahub.ingestion.api.source import Source, SourceReport
 from datahub.ingestion.api.workunit import MetadataWorkUnit
 from datahub.ingestion.source.sql import sql_common
-from datahub.ingestion.source.state.stale_entity_removal_handler import (
-    StaleEntityRemovalHandler,
-    StaleEntityRemovalSourceReport,
-    StatefulStaleMetadataRemovalConfig,
-)
-from datahub.ingestion.source.state.stateful_ingestion_base import (
-    StatefulIngestionConfigBase,
-    StatefulIngestionSourceBase,
-)
 from datahub.metadata.com.linkedin.pegasus2avro.common import (
     AuditStamp,
     ChangeAuditStamps,
-    Status,
 )
 from datahub.metadata.com.linkedin.pegasus2avro.metadata.snapshot import (
     ChartSnapshot,
@@ -70,7 +58,7 @@ chart_type_from_viz_type = {
 }
 
 
-class SupersetConfig(StatefulIngestionConfigBase, ConfigModel):
+class SupersetConfig(ConfigModel):
     # See the Superset /security/login endpoint for details
     # https://superset.apache.org/docs/rest-api
     connect_uri: str = Field(
@@ -82,12 +70,6 @@ class SupersetConfig(StatefulIngestionConfigBase, ConfigModel):
     )
     username: Optional[str] = Field(default=None, description="Superset username.")
     password: Optional[str] = Field(default=None, description="Superset password.")
-
-    # Configuration for stateful ingestion
-    stateful_ingestion: Optional[StatefulStaleMetadataRemovalConfig] = Field(
-        default=None, description="Superset Stateful Ingestion Config."
-    )
-
     provider: str = Field(default="db", description="Superset provider.")
     options: Dict = Field(default={}, description="")
     env: str = Field(
@@ -137,10 +119,7 @@ def get_filter_name(filter_obj):
 @platform_name("Superset")
 @config_class(SupersetConfig)
 @support_status(SupportStatus.CERTIFIED)
-@capability(
-    SourceCapability.DELETION_DETECTION, "Optionally enabled via stateful_ingestion"
-)
-class SupersetSource(StatefulIngestionSourceBase):
+class SupersetSource(Source):
     """
     This plugin extracts the following:
     - Charts, dashboards, and associated metadata
@@ -149,17 +128,16 @@ class SupersetSource(StatefulIngestionSourceBase):
     """
 
     config: SupersetConfig
-    report: StaleEntityRemovalSourceReport
+    report: SourceReport
     platform = "superset"
-    stale_entity_removal_handler: StaleEntityRemovalHandler
 
     def __hash__(self):
         return id(self)
 
     def __init__(self, ctx: PipelineContext, config: SupersetConfig):
-        super().__init__(config, ctx)
+        super().__init__(ctx)
         self.config = config
-        self.report = StaleEntityRemovalSourceReport()
+        self.report = SourceReport()
 
         login_response = requests.post(
             f"{self.config.connect_uri}/api/v1/security/login",
@@ -200,8 +178,6 @@ class SupersetSource(StatefulIngestionSourceBase):
             f"{self.config.connect_uri}/api/v1/database/{database_id}"
         ).json()
         sqlalchemy_uri = database_response.get("result", {}).get("sqlalchemy_uri")
-        if sqlalchemy_uri is None:
-            return database_response.get("result", {}).get("backend", "external")
         return sql_common.get_platform_from_sqlalchemy_uri(sqlalchemy_uri)
 
     @lru_cache(maxsize=None)
@@ -233,7 +209,7 @@ class SupersetSource(StatefulIngestionSourceBase):
         dashboard_urn = f"urn:li:dashboard:({self.platform},{dashboard_data['id']})"
         dashboard_snapshot = DashboardSnapshot(
             urn=dashboard_urn,
-            aspects=[Status(removed=False)],
+            aspects=[],
         )
 
         modified_actor = f"urn:li:corpuser:{(dashboard_data.get('changed_by') or {}).get('username', 'unknown')}"
@@ -299,13 +275,16 @@ class SupersetSource(StatefulIngestionSourceBase):
                     dashboard_data
                 )
                 mce = MetadataChangeEvent(proposedSnapshot=dashboard_snapshot)
-                yield MetadataWorkUnit(id=dashboard_snapshot.urn, mce=mce)
+                wu = MetadataWorkUnit(id=dashboard_snapshot.urn, mce=mce)
+                self.report.report_workunit(wu)
+
+                yield wu
 
     def construct_chart_from_chart_data(self, chart_data):
         chart_urn = f"urn:li:chart:({self.platform},{chart_data['id']})"
         chart_snapshot = ChartSnapshot(
             urn=chart_urn,
-            aspects=[Status(removed=False)],
+            aspects=[],
         )
 
         modified_actor = f"urn:li:corpuser:{(chart_data.get('changed_by') or {}).get('username', 'unknown')}"
@@ -398,19 +377,14 @@ class SupersetSource(StatefulIngestionSourceBase):
                 chart_snapshot = self.construct_chart_from_chart_data(chart_data)
 
                 mce = MetadataChangeEvent(proposedSnapshot=chart_snapshot)
-                yield MetadataWorkUnit(id=chart_snapshot.urn, mce=mce)
+                wu = MetadataWorkUnit(id=chart_snapshot.urn, mce=mce)
+                self.report.report_workunit(wu)
 
-    def get_workunits_internal(self) -> Iterable[MetadataWorkUnit]:
+                yield wu
+
+    def get_workunits(self) -> Iterable[MetadataWorkUnit]:
         yield from self.emit_dashboard_mces()
         yield from self.emit_chart_mces()
 
-    def get_workunit_processors(self) -> List[Optional[MetadataWorkUnitProcessor]]:
-        return [
-            *super().get_workunit_processors(),
-            StaleEntityRemovalHandler.create(
-                self, self.config, self.ctx
-            ).workunit_processor,
-        ]
-
-    def get_report(self) -> StaleEntityRemovalSourceReport:
+    def get_report(self) -> SourceReport:
         return self.report

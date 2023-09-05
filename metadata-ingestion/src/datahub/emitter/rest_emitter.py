@@ -7,7 +7,6 @@ from json.decoder import JSONDecodeError
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import requests
-from deprecated import deprecated
 from requests.adapters import HTTPAdapter, Retry
 from requests.exceptions import HTTPError, RequestException
 
@@ -31,14 +30,13 @@ _DEFAULT_READ_TIMEOUT_SEC = (
 )
 _DEFAULT_RETRY_STATUS_CODES = [  # Additional status codes to retry on
     429,
-    500,
     502,
     503,
     504,
 ]
 _DEFAULT_RETRY_METHODS = ["HEAD", "GET", "POST", "PUT", "DELETE", "OPTIONS", "TRACE"]
 _DEFAULT_RETRY_MAX_TIMES = int(
-    os.getenv("DATAHUB_REST_EMITTER_DEFAULT_RETRY_MAX_TIMES", "4")
+    os.getenv("DATAHUB_REST_EMITTER_DEFAULT_RETRY_MAX_TIMES", "3")
 )
 
 
@@ -63,14 +61,13 @@ class DataHubRestEmitter(Closeable):
         retry_max_times: Optional[int] = None,
         extra_headers: Optional[Dict[str, str]] = None,
         ca_certificate_path: Optional[str] = None,
-        client_certificate_path: Optional[str] = None,
+        server_telemetry_id: Optional[str] = None,
         disable_ssl_verification: bool = False,
     ):
-        if not gms_server:
-            raise ConfigurationError("gms server is required")
         self._gms_server = gms_server
         self._token = token
         self.server_config: Dict[str, Any] = {}
+        self.server_telemetry_id: str = ""
 
         self._session = requests.Session()
 
@@ -89,9 +86,6 @@ class DataHubRestEmitter(Closeable):
 
         if extra_headers:
             self._session.headers.update(extra_headers)
-
-        if client_certificate_path:
-            self._session.cert = client_certificate_path
 
         if ca_certificate_path:
             self._session.verify = ca_certificate_path
@@ -149,8 +143,7 @@ class DataHubRestEmitter(Closeable):
         )
 
     def test_connection(self) -> dict:
-        url = f"{self._gms_server}/config"
-        response = self._session.get(url)
+        response = self._session.get(f"{self._gms_server}/config")
         if response.status_code == 200:
             config: dict = response.json()
             if config.get("noCode") == "true":
@@ -165,24 +158,13 @@ class DataHubRestEmitter(Closeable):
                     or config.get("config", {}).get("shouldShowDatasetLineage")
                     is not None
                 ):
-                    raise ConfigurationError(
-                        "You seem to have connected to the frontend instead of the GMS endpoint. "
-                        "The rest emitter should connect to DataHub GMS (usually <datahub-gms-host>:8080) or Frontend GMS API (usually <frontend>:9002/api/gms)"
-                    )
+                    message = "You seem to have connected to the frontend instead of the GMS endpoint. The rest emitter should connect to DataHub GMS (usually <datahub-gms-host>:8080) or Frontend GMS API (usually <frontend>:9002/api/gms)"
                 else:
-                    raise ConfigurationError(
-                        "You have either connected to a pre-v0.8.0 DataHub GMS instance, or to a different server altogether! "
-                        "Please check your configuration and make sure you are talking to the DataHub GMS endpoint."
-                    )
+                    message = "You have either connected to a pre-v0.8.0 DataHub GMS instance, or to a different server altogether! Please check your configuration and make sure you are talking to the DataHub GMS endpoint."
+                raise ConfigurationError(message)
         else:
-            logger.debug(
-                f"Unable to connect to {url} with status_code: {response.status_code}. Response: {response.text}"
-            )
-            if response.status_code == 401:
-                message = f"Unable to connect to {url} - got an authentication error: {response.text}."
-            else:
-                message = f"Unable to connect to {url} with status_code: {response.status_code}."
-            message += "\nPlease check your configuration and make sure you are talking to the DataHub GMS (usually <datahub-gms-host>:8080) or Frontend GMS API (usually <frontend>:9002/api/gms)."
+            auth_message = "Maybe you need to set up authentication? "
+            message = f"Unable to connect to {self._gms_server}/config with status_code: {response.status_code}. {auth_message if response.status_code == 401 else ''}Please check your configuration and make sure you are talking to the DataHub GMS (usually <datahub-gms-host>:8080) or Frontend GMS API (usually <frontend>:9002/api/gms)."
             raise ConfigurationError(message)
 
     def emit(
@@ -249,14 +231,17 @@ class DataHubRestEmitter(Closeable):
 
         self._emit_generic(url, payload)
 
-    @deprecated
     def emit_usage(self, usageStats: UsageAggregation) -> None:
         url = f"{self._gms_server}/usageStats?action=batchIngest"
 
         raw_usage_obj = usageStats.to_obj()
         usage_obj = pre_json_transform(raw_usage_obj)
 
-        snapshot = {"buckets": [usage_obj]}
+        snapshot = {
+            "buckets": [
+                usage_obj,
+            ]
+        }
         payload = json.dumps(snapshot)
         self._emit_generic(url, payload)
 
@@ -271,14 +256,9 @@ class DataHubRestEmitter(Closeable):
             response.raise_for_status()
         except HTTPError as e:
             try:
-                info: Dict = response.json()
-                logger.debug(
-                    "Full stack trace from DataHub:\n%s", info.get("stackTrace")
-                )
-                info.pop("stackTrace", None)
+                info = response.json()
                 raise OperationalError(
-                    f"Unable to emit metadata to DataHub GMS: {info.get('message')}",
-                    info,
+                    "Unable to emit metadata to DataHub GMS", info
                 ) from e
             except JSONDecodeError:
                 # If we can't parse the JSON, just raise the original error.
@@ -296,11 +276,9 @@ class DataHubRestEmitter(Closeable):
             if self._token
             else ""
         )
-        return f"{self.__class__.__name__}: configured to talk to {self._gms_server}{token_str}"
-
-    def flush(self) -> None:
-        # No-op, but present to keep the interface consistent with the Kafka emitter.
-        pass
+        return (
+            f"DataHubRestEmitter: configured to talk to {self._gms_server}{token_str}"
+        )
 
     def close(self) -> None:
         self._session.close()

@@ -18,7 +18,8 @@ import play.Logger;
 
 public class AuthenticationManager {
 
-  private AuthenticationManager(boolean verbose) {
+  private AuthenticationManager() {
+
   }
 
   public static void authenticateJaasUser(@Nonnull String userName, @Nonnull String password) throws Exception {
@@ -32,9 +33,7 @@ public class AuthenticationManager {
       LoginContext lc = new LoginContext("WHZ-Authentication", new WHZCallbackHandler(userName, password));
       lc.login();
     } catch (LoginException le) {
-      AuthenticationException authenticationException = new AuthenticationException(le.getMessage());
-      authenticationException.setRootCause(le);
-      throw authenticationException;
+      throw new AuthenticationException(le.toString());
     }
   }
 

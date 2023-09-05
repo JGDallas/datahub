@@ -7,7 +7,6 @@ import com.linkedin.common.Ownership
 import com.linkedin.common.Status
 import com.linkedin.common.Deprecation
 import com.linkedin.common.BrowsePaths
-import com.linkedin.common.BrowsePathsV2
 import com.linkedin.common.GlobalTags
 import com.linkedin.common.DataPlatformInstance
 
@@ -23,6 +22,5 @@ typeref MLFeatureAspect = union[
   Deprecation,
   BrowsePaths,
   GlobalTags,
-  DataPlatformInstance,
-  BrowsePathsV2
+  DataPlatformInstance
 ]

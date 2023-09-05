@@ -59,8 +59,7 @@ public class CancelIngestionExecutionRequestResolverTest {
     // Verify ingest proposal has been called to create a Signal request.
     Mockito.verify(mockClient, Mockito.times(1)).ingestProposal(
         Mockito.any(MetadataChangeProposal.class),
-        Mockito.any(Authentication.class),
-        Mockito.eq(false)
+        Mockito.any(Authentication.class)
     );
   }
 

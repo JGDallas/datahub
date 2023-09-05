@@ -54,44 +54,33 @@ class DatahubKey(BaseModel):
         return _stable_guid_from_dict(bag)
 
 
-class ContainerKey(DatahubKey):
-    """Base class for container guid keys. Most users should use one of the subclasses instead."""
-
+class PlatformKey(DatahubKey):
     platform: str
     instance: Optional[str] = None
 
-    env: Optional[str] = None
-
     # BUG: In some of our sources, we incorrectly set the platform instance
-    # to the env if the platform instance was not specified. Now, we have to maintain
+    # to the env if no platform instance was specified. Now, we have to maintain
     # backwards compatibility with this bug, which means generating our GUIDs
-    # in the same way.
-    backcompat_env_as_instance: bool = Field(default=False, exclude=True)
+    # in the same way. Specifically, we need to use the backcompat value if
+    # the normal instance value is not set.
+    backcompat_instance_for_guid: Optional[str] = Field(default=None, exclude=True)
 
     def guid_dict(self) -> Dict[str, str]:
-        bag = self.dict(by_alias=True, exclude_none=True, exclude={"env"})
+        # FIXME: Notice that we can't use exclude_none=True here. This is because
+        # we need to maintain the insertion order in the dict (so that instance)
+        # comes before the keys from any subclasses. While the guid computation
+        # method uses sort_keys=True, we also use the guid_dict method when
+        # generating custom properties, which are not sorted.
+        bag = self.dict(by_alias=True, exclude_none=False)
 
-        if (
-            self.backcompat_env_as_instance
-            and self.instance is None
-            and self.env is not None
-        ):
-            bag["instance"] = self.env
+        if self.instance is None:
+            bag["instance"] = self.backcompat_instance_for_guid
 
+        bag = {k: v for k, v in bag.items() if v is not None}
         return bag
 
-    def property_dict(self) -> Dict[str, str]:
-        return self.dict(by_alias=True, exclude_none=True)
 
-    def as_urn(self) -> str:
-        return make_container_urn(guid=self.guid())
-
-
-# DEPRECATION: Keeping the `PlatformKey` name around for backwards compatibility.
-PlatformKey = ContainerKey
-
-
-class DatabaseKey(ContainerKey):
+class DatabaseKey(PlatformKey):
     database: str
 
 
@@ -99,11 +88,11 @@ class SchemaKey(DatabaseKey):
     db_schema: str = Field(alias="schema")
 
 
-class ProjectIdKey(ContainerKey):
+class ProjectIdKey(PlatformKey):
     project_id: str
 
 
-class MetastoreKey(ContainerKey):
+class MetastoreKey(PlatformKey):
     metastore: str
 
 
@@ -119,11 +108,11 @@ class BigQueryDatasetKey(ProjectIdKey):
     dataset_id: str
 
 
-class FolderKey(ContainerKey):
+class FolderKey(PlatformKey):
     folder_abs_path: str
 
 
-class BucketKey(ContainerKey):
+class S3BucketKey(PlatformKey):
     bucket_name: str
 
 
@@ -136,7 +125,7 @@ class DatahubKeyJSONEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-KeyType = TypeVar("KeyType", bound=ContainerKey)
+KeyType = TypeVar("KeyType", bound=PlatformKey)
 
 
 def add_domain_to_entity_wu(
@@ -197,7 +186,7 @@ def gen_containers(
     container_key: KeyType,
     name: str,
     sub_types: List[str],
-    parent_container_key: Optional[ContainerKey] = None,
+    parent_container_key: Optional[PlatformKey] = None,
     extra_properties: Optional[Dict[str, str]] = None,
     domain_urn: Optional[str] = None,
     description: Optional[str] = None,
@@ -208,7 +197,9 @@ def gen_containers(
     created: Optional[int] = None,
     last_modified: Optional[int] = None,
 ) -> Iterable[MetadataWorkUnit]:
-    container_urn = container_key.as_urn()
+    container_urn = make_container_urn(
+        guid=container_key.guid(),
+    )
     yield MetadataChangeProposalWrapper(
         entityUrn=f"{container_urn}",
         # entityKeyAspect=ContainerKeyClass(guid=parent_container_key.guid()),
@@ -216,7 +207,7 @@ def gen_containers(
             name=name,
             description=description,
             customProperties={
-                **container_key.property_dict(),
+                **container_key.guid_dict(),
                 **(extra_properties or {}),
             },
             externalUrl=external_url,

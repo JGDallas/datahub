@@ -40,17 +40,15 @@ class ProfilingHandler(StatefulIngestionUsecaseHandlerBase[ProfilingCheckpointSt
         pipeline_name: Optional[str],
         run_id: str,
     ):
-        self.state_provider = source.state_provider
+        self.source = source
         self.stateful_ingestion_config: Optional[
             ProfilingStatefulIngestionConfig
         ] = config.stateful_ingestion
         self.pipeline_name = pipeline_name
         self.run_id = run_id
-        self.checkpointing_enabled: bool = (
-            self.state_provider.is_stateful_ingestion_configured()
-        )
+        self.checkpointing_enabled: bool = source.is_stateful_ingestion_configured()
         self._job_id = self._init_job_id()
-        self.state_provider.register_stateful_ingestion_usecase_handler(self)
+        self.source.register_stateful_ingestion_usecase_handler(self)
 
     def _ignore_old_state(self) -> bool:
         if (
@@ -93,7 +91,7 @@ class ProfilingHandler(StatefulIngestionUsecaseHandlerBase[ProfilingCheckpointSt
     def get_current_state(self) -> Optional[ProfilingCheckpointState]:
         if not self.is_checkpointing_enabled() or self._ignore_new_state():
             return None
-        cur_checkpoint = self.state_provider.get_current_checkpoint(self.job_id)
+        cur_checkpoint = self.source.get_current_checkpoint(self.job_id)
         assert cur_checkpoint is not None
         cur_state = cast(ProfilingCheckpointState, cur_checkpoint.state)
         return cur_state
@@ -110,7 +108,7 @@ class ProfilingHandler(StatefulIngestionUsecaseHandlerBase[ProfilingCheckpointSt
     def get_last_state(self) -> Optional[ProfilingCheckpointState]:
         if not self.is_checkpointing_enabled() or self._ignore_old_state():
             return None
-        last_checkpoint = self.state_provider.get_last_checkpoint(
+        last_checkpoint = self.source.get_last_checkpoint(
             self.job_id, ProfilingCheckpointState
         )
         if last_checkpoint and last_checkpoint.state:

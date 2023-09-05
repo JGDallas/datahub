@@ -5,9 +5,10 @@ source:
   config:
     username: clickhouseuser
     password: clickhousepass
-    host_port: localhost:28123
+    database: clickhousedb
+    host_port: localhost:58123
     platform_instance: clickhousetestserver
-    database_pattern:
+    schema_pattern:
       allow:
         - "^db1"
     profile_pattern:

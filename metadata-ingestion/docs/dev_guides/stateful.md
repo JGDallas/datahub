@@ -38,9 +38,7 @@ Following is the list of current use-cases powered by stateful ingestion in data
 Stateful ingestion can be used to automatically soft-delete the tables and views that are seen in a previous run
 but absent in the current run (they are either deleted or no longer desired).
 
-<p align="center">
-  <img width="70%"  src="https://raw.githubusercontent.com/datahub-project/static-assets/main/imgs/stale_metadata_deletion.png"/>
-</p>
+![Stale Metadata Deletion](./stale_metadata_deletion.png)
 
 #### Supported sources
 * All sql based sources.

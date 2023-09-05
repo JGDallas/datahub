@@ -73,7 +73,6 @@ export default function constructTree(
             if (!(entity.urn in updatedFetchedEntities)) {
                 updatedFetchedEntities = extendAsyncEntities(
                     {},
-                    {},
                     updatedFetchedEntities,
                     entityRegistry,
                     createEntityAndType(entity),
@@ -100,7 +99,6 @@ export default function constructTree(
         canEditLineage: fetchedEntity?.canEditLineage,
         upstreamRelationships: fetchedEntity?.upstreamRelationships || [],
         downstreamRelationships: fetchedEntity?.downstreamRelationships || [],
-        health: fetchedEntity?.health,
     };
     const lineageConfig = entityRegistry.getLineageVizConfig(entityAndType.type, entityAndType.entity);
     let updatedLineageConfig = { ...lineageConfig };

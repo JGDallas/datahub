@@ -1,10 +1,6 @@
 from typing import List, Set
 
-from datahub.emitter.mce_builder import (
-    dataset_key_to_urn,
-    make_data_platform_urn,
-    make_dataset_urn,
-)
+from datahub.emitter.mce_builder import dataset_key_to_urn, make_dataset_urn
 from datahub.metadata.schema_classes import DatasetKeyClass
 
 
@@ -28,9 +24,7 @@ class CheckpointStateUtil:
     def get_urn_from_encoded_dataset(encoded_urn: str) -> str:
         platform, name, env = encoded_urn.split(CheckpointStateUtil.get_separator())
         return dataset_key_to_urn(
-            DatasetKeyClass(
-                platform=make_data_platform_urn(platform), name=name, origin=env
-            )
+            DatasetKeyClass(platform=platform, name=name, origin=env)
         )
 
     @staticmethod

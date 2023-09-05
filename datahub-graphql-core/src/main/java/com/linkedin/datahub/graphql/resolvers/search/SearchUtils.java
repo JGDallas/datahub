@@ -5,16 +5,11 @@ import com.google.common.collect.ImmutableList;
 import com.linkedin.common.urn.Urn;
 import com.linkedin.datahub.graphql.generated.EntityType;
 import com.linkedin.datahub.graphql.generated.FacetFilterInput;
-import com.linkedin.datahub.graphql.resolvers.EntityTypeMapper;
-import com.linkedin.datahub.graphql.types.common.mappers.SearchFlagsInputMapper;
-import com.linkedin.metadata.query.SearchFlags;
 import com.linkedin.metadata.query.filter.ConjunctiveCriterion;
 import com.linkedin.metadata.query.filter.ConjunctiveCriterionArray;
 import com.linkedin.metadata.query.filter.Criterion;
 import com.linkedin.metadata.query.filter.CriterionArray;
 import com.linkedin.metadata.query.filter.Filter;
-import com.linkedin.metadata.query.filter.SortCriterion;
-import com.linkedin.metadata.query.filter.SortOrder;
 import com.linkedin.metadata.service.ViewService;
 import com.linkedin.view.DataHubViewInfo;
 import java.util.ArrayList;
@@ -72,9 +67,7 @@ public class SearchUtils {
           EntityType.CORP_GROUP,
           EntityType.CONTAINER,
           EntityType.DOMAIN,
-          EntityType.DATA_PRODUCT,
           EntityType.NOTEBOOK);
-
 
   /**
    * Entities that are part of autocomplete by default in Auto Complete Across Entities
@@ -94,8 +87,7 @@ public class SearchUtils {
           EntityType.TAG,
           EntityType.CORP_USER,
           EntityType.CORP_GROUP,
-          EntityType.NOTEBOOK,
-          EntityType.DATA_PRODUCT);
+          EntityType.NOTEBOOK);
 
   /**
    * A prioritized list of source filter types used to generate quick filters
@@ -364,26 +356,5 @@ public class SearchUtils {
       }
     }
     return maxHops;
-  }
-
-  public static SearchFlags mapInputFlags(com.linkedin.datahub.graphql.generated.SearchFlags inputFlags) {
-    SearchFlags searchFlags = null;
-    if (inputFlags != null) {
-      searchFlags = SearchFlagsInputMapper.INSTANCE.apply(inputFlags);
-    }
-    return searchFlags;
-  }
-
-  public static SortCriterion mapSortCriterion(com.linkedin.datahub.graphql.generated.SortCriterion sortCriterion) {
-    SortCriterion result = new SortCriterion();
-    result.setField(sortCriterion.getField());
-    result.setOrder(SortOrder.valueOf(sortCriterion.getSortOrder().name()));
-    return result;
-  }
-
-  public static List<String> getEntityNames(List<EntityType> inputTypes) {
-    final List<EntityType> entityTypes =
-        (inputTypes == null || inputTypes.isEmpty()) ? SEARCHABLE_ENTITY_TYPES : inputTypes;
-    return entityTypes.stream().map(EntityTypeMapper::getName).collect(Collectors.toList());
   }
 }

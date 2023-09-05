@@ -28,11 +28,11 @@ public class RecentlyEditedCandidateSourceFactory {
 
   @Autowired
   @Qualifier("entityService")
-  private EntityService _entityService;
+  private EntityService entityService;
 
   @Bean(name = "recentlyEditedCandidateSource")
   @Nonnull
   protected RecentlyEditedSource getInstance() {
-    return new RecentlyEditedSource(searchClient, indexConvention, _entityService);
+    return new RecentlyEditedSource(searchClient, indexConvention, entityService);
   }
 }

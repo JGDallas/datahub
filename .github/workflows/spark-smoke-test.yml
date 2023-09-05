@@ -9,7 +9,6 @@ on:
       - "metadata_models/**"
       - "metadata-integration/java/datahub-client/**"
       - "metadata-integration/java/spark-lineage"
-      - ".github/workflows/spark-smoke-test.yml"
   pull_request:
     branches:
       - master
@@ -17,9 +16,8 @@ on:
       - "metadata_models/**"
       - "metadata-integration/java/datahub-client/**"
       - "metadata-integration/java/spark-lineage"
-      - ".github/workflows/spark-smoke-test.yml"
   release:
-    types: [published]
+    types: [published, edited]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -40,19 +38,8 @@ jobs:
           python-version: "3.7"
       - name: Install dependencies
         run: ./metadata-ingestion/scripts/install_deps.sh
-      - name: Remove images
-        run: docker image prune -a -f || true
       - name: Smoke test
-        run: |
-          ./gradlew :metadata-integration:java:spark-lineage:integrationTest \
-             -x :datahub-web-react:yarnTest \
-             -x :datahub-web-react:yarnLint \
-             -x :datahub-web-react:yarnGenerate \
-             -x :datahub-web-react:yarnInstall \
-             -x :datahub-web-react:yarnQuickBuild \
-             -x :datahub-web-react:copyAssets \
-             -x :datahub-web-react:distZip \
-             -x :datahub-web-react:jar
+        run: ./gradlew :metadata-integration:java:spark-lineage:integrationTest --max-workers=2
       - uses: actions/upload-artifact@v3
         if: always()
         with:

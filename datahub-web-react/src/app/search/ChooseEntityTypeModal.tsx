@@ -1,6 +1,5 @@
 import { Button, Modal, Select } from 'antd';
 import React, { useState } from 'react';
-import { EntityType } from '../../types.generated';
 import { useEntityRegistry } from '../useEntityRegistry';
 
 type Props = {
@@ -49,10 +48,7 @@ export const ChooseEntityTypeModal = ({ defaultValues, onCloseModal, onOk, title
                 placeholder="Datasets, Dashboards, Charts, and more..."
                 onSelect={(newValue) => addEntityType(newValue)}
                 onDeselect={(newValue) => removeEntityType(newValue)}
-                value={stagedValues.map((stagedEntityType) => ({
-                    value: stagedEntityType,
-                    label: entityRegistry.getCollectionName(stagedEntityType as EntityType),
-                }))}
+                value={stagedValues}
                 dropdownMatchSelectWidth={false}
             >
                 {entityTypes.map((type) => (

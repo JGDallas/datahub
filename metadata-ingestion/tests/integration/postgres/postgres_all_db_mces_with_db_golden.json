@@ -8,7 +8,7 @@
         "json": {
             "customProperties": {
                 "platform": "postgres",
-                "env": "PROD",
+                "instance": "PROD",
                 "database": "postgres"
             },
             "name": "postgres"
@@ -68,21 +68,6 @@
 },
 {
     "entityType": "container",
-    "entityUrn": "urn:li:container:0202f800c992262c01ae6bbd5ee313f7",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": []
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1646575200000,
-        "runId": "postgres-test"
-    }
-},
-{
-    "entityType": "container",
     "entityUrn": "urn:li:container:a208486b83be39fa411922e07701d984",
     "changeType": "UPSERT",
     "aspectName": "containerProperties",
@@ -90,7 +75,7 @@
         "json": {
             "customProperties": {
                 "platform": "postgres",
-                "env": "PROD",
+                "instance": "PROD",
                 "database": "postgres",
                 "schema": "public"
             },
@@ -166,26 +151,6 @@
 },
 {
     "entityType": "container",
-    "entityUrn": "urn:li:container:a208486b83be39fa411922e07701d984",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": [
-                {
-                    "id": "urn:li:container:0202f800c992262c01ae6bbd5ee313f7",
-                    "urn": "urn:li:container:0202f800c992262c01ae6bbd5ee313f7"
-                }
-            ]
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1646575200000,
-        "runId": "postgres-test"
-    }
-},
-{
-    "entityType": "container",
     "entityUrn": "urn:li:container:a6097853edba03be190d99ece4b307ff",
     "changeType": "UPSERT",
     "aspectName": "containerProperties",
@@ -193,7 +158,7 @@
         "json": {
             "customProperties": {
                 "platform": "postgres",
-                "env": "PROD",
+                "instance": "PROD",
                 "database": "postgrestest"
             },
             "name": "postgrestest"
@@ -253,21 +218,6 @@
 },
 {
     "entityType": "container",
-    "entityUrn": "urn:li:container:a6097853edba03be190d99ece4b307ff",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": []
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1646575200000,
-        "runId": "postgres-test"
-    }
-},
-{
-    "entityType": "container",
     "entityUrn": "urn:li:container:51904fc8cd5cc729bc630decff284525",
     "changeType": "UPSERT",
     "aspectName": "containerProperties",
@@ -275,7 +225,7 @@
         "json": {
             "customProperties": {
                 "platform": "postgres",
-                "env": "PROD",
+                "instance": "PROD",
                 "database": "postgrestest",
                 "schema": "public"
             },
@@ -342,26 +292,6 @@
     "aspect": {
         "json": {
             "container": "urn:li:container:a6097853edba03be190d99ece4b307ff"
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1646575200000,
-        "runId": "postgres-test"
-    }
-},
-{
-    "entityType": "container",
-    "entityUrn": "urn:li:container:51904fc8cd5cc729bc630decff284525",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": [
-                {
-                    "id": "urn:li:container:a6097853edba03be190d99ece4b307ff",
-                    "urn": "urn:li:container:a6097853edba03be190d99ece4b307ff"
-                }
-            ]
         }
     },
     "systemMetadata": {
@@ -516,18 +446,6 @@
                                 "nativeDataType": "VARCHAR(length=255)",
                                 "recursive": false,
                                 "isPartOfKey": false
-                            },
-                            {
-                                "fieldPath": "metadata_json",
-                                "nullable": false,
-                                "type": {
-                                    "type": {
-                                        "com.linkedin.pegasus2avro.schema.RecordType": {}
-                                    }
-                                },
-                                "nativeDataType": "JSON(astext_type=Text())",
-                                "recursive": false,
-                                "isPartOfKey": false
                             }
                         ]
                     }
@@ -570,88 +488,31 @@
                 "partition": "FULL_TABLE_SNAPSHOT"
             },
             "rowCount": 2,
-            "columnCount": 9,
+            "columnCount": 8,
             "fieldProfiles": [
                 {
-                    "fieldPath": "urn",
-                    "uniqueCount": 1,
-                    "uniqueProportion": 0.5,
-                    "nullCount": 0,
-                    "nullProportion": 0.0
+                    "fieldPath": "urn"
                 },
                 {
-                    "fieldPath": "aspect",
-                    "uniqueCount": 2,
-                    "uniqueProportion": 1,
-                    "nullCount": 0,
-                    "nullProportion": 0.0
+                    "fieldPath": "aspect"
                 },
                 {
-                    "fieldPath": "version",
-                    "uniqueCount": 1,
-                    "uniqueProportion": 0.5,
-                    "nullCount": 0,
-                    "nullProportion": 0.0
+                    "fieldPath": "version"
                 },
                 {
-                    "fieldPath": "metadata",
-                    "uniqueCount": 2,
-                    "uniqueProportion": 1,
-                    "nullCount": 0,
-                    "nullProportion": 0.0
+                    "fieldPath": "metadata"
                 },
                 {
-                    "fieldPath": "systemmetadata",
-                    "uniqueCount": 0,
-                    "nullCount": 2,
-                    "nullProportion": 1
+                    "fieldPath": "systemmetadata"
                 },
                 {
-                    "fieldPath": "createdon",
-                    "uniqueCount": 1,
-                    "uniqueProportion": 0.5,
-                    "nullCount": 0,
-                    "nullProportion": 0.0
+                    "fieldPath": "createdon"
                 },
                 {
-                    "fieldPath": "createdby",
-                    "uniqueCount": 1,
-                    "uniqueProportion": 0.5,
-                    "nullCount": 0,
-                    "nullProportion": 0.0
+                    "fieldPath": "createdby"
                 },
                 {
-                    "fieldPath": "createdfor",
-                    "uniqueCount": 0,
-                    "nullCount": 2,
-                    "nullProportion": 1
-                },
-                {
-                    "fieldPath": "metadata_json"
-                }
-            ]
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1646575200000,
-        "runId": "postgres-test"
-    }
-},
-{
-    "entityType": "dataset",
-    "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:postgres,postgrestest.public.metadata_aspect_v2,PROD)",
-    "changeType": "UPSERT",
-    "aspectName": "browsePathsV2",
-    "aspect": {
-        "json": {
-            "path": [
-                {
-                    "id": "urn:li:container:a6097853edba03be190d99ece4b307ff",
-                    "urn": "urn:li:container:a6097853edba03be190d99ece4b307ff"
-                },
-                {
-                    "id": "urn:li:container:51904fc8cd5cc729bc630decff284525",
-                    "urn": "urn:li:container:51904fc8cd5cc729bc630decff284525"
+                    "fieldPath": "createdfor"
                 }
             ]
         }
@@ -678,21 +539,6 @@
                     "type": "TRANSFORMED"
                 }
             ]
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1646575200000,
-        "runId": "postgres-test"
-    }
-},
-{
-    "entityType": "dataset",
-    "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:postgres,postgrestest.public.metadata_aspect_view,PROD)",
-    "changeType": "UPSERT",
-    "aspectName": "status",
-    "aspect": {
-        "json": {
-            "removed": false
         }
     },
     "systemMetadata": {

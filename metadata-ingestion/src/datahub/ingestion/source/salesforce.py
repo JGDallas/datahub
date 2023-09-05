@@ -18,7 +18,7 @@ from datahub.configuration.common import (
 from datahub.configuration.source_common import DatasetSourceConfigMixin
 from datahub.emitter.mcp import MetadataChangeProposalWrapper
 from datahub.emitter.mcp_builder import add_domain_to_entity_wu
-from datahub.ingestion.api.common import PipelineContext
+from datahub.ingestion.api.common import PipelineContext, WorkUnit
 from datahub.ingestion.api.decorators import (
     SourceCapability,
     SupportStatus,
@@ -28,12 +28,7 @@ from datahub.ingestion.api.decorators import (
     support_status,
 )
 from datahub.ingestion.api.source import Source, SourceReport
-from datahub.ingestion.api.workunit import MetadataWorkUnit
 from datahub.ingestion.source.common.subtypes import DatasetSubTypes
-from datahub.ingestion.source_config.operation_config import (
-    OperationConfig,
-    is_profiling_enabled,
-)
 from datahub.metadata.schema_classes import (
     AuditStampClass,
     BooleanTypeClass,
@@ -66,17 +61,12 @@ logger = logging.getLogger(__name__)
 class SalesforceAuthType(Enum):
     USERNAME_PASSWORD = "USERNAME_PASSWORD"
     DIRECT_ACCESS_TOKEN = "DIRECT_ACCESS_TOKEN"
-    JSON_WEB_TOKEN = "JSON_WEB_TOKEN"
 
 
 class SalesforceProfilingConfig(ConfigModel):
     enabled: bool = Field(
         default=False,
         description="Whether profiling should be done. Supports only table-level profiling at this stage",
-    )
-    operation_config: OperationConfig = Field(
-        default_factory=OperationConfig,
-        description="Experimental feature. To specify operation configs.",
     )
 
     # TODO - support field level profiling
@@ -90,12 +80,6 @@ class SalesforceConfig(DatasetSourceConfigMixin):
     # Username, Password Auth
     username: Optional[str] = Field(description="Salesforce username")
     password: Optional[str] = Field(description="Password for Salesforce user")
-    consumer_key: Optional[str] = Field(
-        description="Consumer key for Salesforce JSON web token access"
-    )
-    private_key: Optional[str] = Field(
-        description="Private key as a string for Salesforce JSON web token access"
-    )
     security_token: Optional[str] = Field(
         description="Security token for Salesforce username"
     )
@@ -131,11 +115,6 @@ class SalesforceConfig(DatasetSourceConfigMixin):
         default=AllowDenyPattern.allow_all(),
         description="Regex patterns for profiles to filter in ingestion, allowed by the `object_pattern`.",
     )
-
-    def is_profiling_enabled(self) -> bool:
-        return self.profiling.enabled and is_profiling_enabled(
-            self.profiling.operation_config
-        )
 
     @validator("instance_url")
     def remove_trailing_slash(cls, v):
@@ -251,26 +230,6 @@ class SalesforceSource(Source):
                     domain="test" if self.config.is_sandbox else None,
                 )
 
-            elif self.config.auth is SalesforceAuthType.JSON_WEB_TOKEN:
-                logger.debug("Json Web Token provided in the config")
-                assert (
-                    self.config.username is not None
-                ), "Config username is required for JSON_WEB_TOKEN auth"
-                assert (
-                    self.config.consumer_key is not None
-                ), "Config consumer_key is required for JSON_WEB_TOKEN auth"
-                assert (
-                    self.config.private_key is not None
-                ), "Config private_key is required for JSON_WEB_TOKEN auth"
-
-                self.sf = Salesforce(
-                    username=self.config.username,
-                    consumer_key=self.config.consumer_key,
-                    privatekey=self.config.private_key,
-                    session=self.session,
-                    domain="test" if self.config.is_sandbox else None,
-                )
-
         except Exception as e:
             logger.error(e)
             raise ConfigurationError("Salesforce login failed") from e
@@ -294,15 +253,13 @@ class SalesforceSource(Source):
                 )
             )
 
-    def get_workunits_internal(self) -> Iterable[MetadataWorkUnit]:
+    def get_workunits(self) -> Iterable[WorkUnit]:
         sObjects = self.get_salesforce_objects()
 
         for sObject in sObjects:
             yield from self.get_salesforce_object_workunits(sObject)
 
-    def get_salesforce_object_workunits(
-        self, sObject: dict
-    ) -> Iterable[MetadataWorkUnit]:
+    def get_salesforce_object_workunits(self, sObject: dict) -> Iterable[WorkUnit]:
         sObjectName = sObject["QualifiedApiName"]
 
         if not self.config.object_pattern.allowed(sObjectName):
@@ -342,7 +299,7 @@ class SalesforceSource(Source):
         if self.config.domain is not None:
             yield from self.get_domain_workunit(sObjectName, datasetUrn)
 
-        if self.config.is_profiling_enabled() and self.config.profile_pattern.allowed(
+        if self.config.profiling.enabled and self.config.profile_pattern.allowed(
             sObjectName
         ):
             yield from self.get_profile_workunit(sObjectName, datasetUrn)
@@ -383,7 +340,7 @@ class SalesforceSource(Source):
 
     def get_domain_workunit(
         self, dataset_name: str, datasetUrn: str
-    ) -> Iterable[MetadataWorkUnit]:
+    ) -> Iterable[WorkUnit]:
         domain_urn: Optional[str] = None
 
         for domain, pattern in self.config.domain.items():
@@ -395,7 +352,7 @@ class SalesforceSource(Source):
                 domain_urn=domain_urn, entity_urn=datasetUrn
             )
 
-    def get_platform_instance_workunit(self, datasetUrn: str) -> MetadataWorkUnit:
+    def get_platform_instance_workunit(self, datasetUrn: str) -> WorkUnit:
         dataPlatformInstance = DataPlatformInstanceClass(
             builder.make_data_platform_urn(self.platform),
             instance=builder.make_dataplatform_instance_urn(
@@ -409,15 +366,13 @@ class SalesforceSource(Source):
 
     def get_operation_workunit(
         self, customObject: dict, datasetUrn: str
-    ) -> Iterable[MetadataWorkUnit]:
-        reported_time: int = int(time.time() * 1000)
-
+    ) -> Iterable[WorkUnit]:
         if customObject.get("CreatedBy") and customObject.get("CreatedDate"):
             timestamp = self.get_time_from_salesforce_timestamp(
                 customObject["CreatedDate"]
             )
             operation = OperationClass(
-                timestampMillis=reported_time,
+                timestampMillis=timestamp,
                 operationType=OperationTypeClass.CREATE,
                 lastUpdatedTimestamp=timestamp,
                 actor=builder.make_user_urn(customObject["CreatedBy"]["Username"]),
@@ -438,7 +393,7 @@ class SalesforceSource(Source):
                     customObject["LastModifiedDate"]
                 )
                 operation = OperationClass(
-                    timestampMillis=reported_time,
+                    timestampMillis=timestamp,
                     operationType=OperationTypeClass.ALTER,
                     lastUpdatedTimestamp=timestamp,
                     actor=builder.make_user_urn(
@@ -456,7 +411,7 @@ class SalesforceSource(Source):
 
     def get_properties_workunit(
         self, sObject: dict, customObject: Dict[str, str], datasetUrn: str
-    ) -> MetadataWorkUnit:
+    ) -> WorkUnit:
         propertyLabels = {
             # from EntityDefinition
             "DurableId": "Durable Id",
@@ -493,9 +448,7 @@ class SalesforceSource(Source):
             entityUrn=datasetUrn, aspect=datasetProperties
         ).as_workunit()
 
-    def get_subtypes_workunit(
-        self, sObjectName: str, datasetUrn: str
-    ) -> MetadataWorkUnit:
+    def get_subtypes_workunit(self, sObjectName: str, datasetUrn: str) -> WorkUnit:
         subtypes: List[str] = []
         if sObjectName.endswith("__c"):
             subtypes.append(DatasetSubTypes.SALESFORCE_CUSTOM_OBJECT)
@@ -508,7 +461,7 @@ class SalesforceSource(Source):
 
     def get_profile_workunit(
         self, sObjectName: str, datasetUrn: str
-    ) -> Iterable[MetadataWorkUnit]:
+    ) -> Iterable[WorkUnit]:
         # Here approximate record counts as returned by recordCount API are used as rowCount
         # In future, count() SOQL query may be used instead, if required, might be more expensive
         sObject_records_count_url = (
@@ -633,7 +586,7 @@ class SalesforceSource(Source):
 
     def get_schema_metadata_workunit(
         self, sObjectName: str, sObject: dict, customObject: dict, datasetUrn: str
-    ) -> Iterable[MetadataWorkUnit]:
+    ) -> Iterable[WorkUnit]:
         sObject_fields_query_url = (
             self.base_url
             + "tooling/query?q=SELECT "

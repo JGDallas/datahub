@@ -19,7 +19,6 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -53,7 +52,6 @@ public class AuthServiceController {
   Authentication _systemAuthentication;
 
   @Inject
-  @Qualifier("configurationProvider")
   ConfigurationProvider _configProvider;
 
   @Inject

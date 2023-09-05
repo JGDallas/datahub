@@ -45,39 +45,6 @@ nodes:
         description: The gender identity of the individual
         inherits:
           - Classification.Sensitive
-  - name: Shipping
-    description: Provides terms related to the shipping domain
-    owners:
-      users:
-        - njones
-      groups:
-        - logistics
-    terms:
-      - name: FullAddress
-        description: A collection of information to give the location of a building or plot of land.
-        owners:
-          users:
-            - njones
-          groups:
-            - logistics
-        term_source: "EXTERNAL"
-        source_ref: FIBO
-        source_url: "https://www.google.com"
-        inherits:
-          - Privacy.PII
-        contains:
-          - Shipping.ZipCode
-          - Shipping.CountryCode
-          - Shipping.StreetAddress
-        custom_properties:
-          is_used_for_compliance_tracking: true
-        knowledge_links:
-          - url: "https://en.wikipedia.org/wiki/Address"
-            label: Wiki link
-        domain: "urn:li:domain:Logistics"
-    knowledge_links:
-      - label: Wiki link for shipping
-        url: "https://en.wikipedia.org/wiki/Freight_transport"
   - name: ClientsAndAccounts
     description: Provides basic concepts such as account, account holder, account provider, relationship manager that are commonly used by financial services providers to describe customers and to determine counterparty identities
     owners:
@@ -101,8 +68,6 @@ nodes:
   - name: Housing
     description: Provides terms related to the housing domain
     owners:
-      users:
-        - mjames
       groups:
         - interior
     nodes:
@@ -133,8 +98,8 @@ nodes:
         source_ref: FIBO
         source_url: "https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/Account"
         values:
-          - Housing.Colors.Red
-          - Housing.Colors.Pink
+          - House.Colors.Red
+          - House.Colors.Pink
 
       - name: Kitchen
         description: a room or area where food is prepared and cooked.
@@ -148,7 +113,7 @@ nodes:
         source_ref: FIBO
         source_url: "https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/Account"
         related_terms:
-          - Housing.Kitchen
+          - House.Kitchen
         knowledge_links:
           - url: "https://en.wikipedia.org/wiki/Spoon"
             label: Wiki link

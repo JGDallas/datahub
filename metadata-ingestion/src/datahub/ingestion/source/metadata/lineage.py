@@ -1,7 +1,6 @@
 import logging
 from dataclasses import dataclass, field
-from functools import partial
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Dict, Iterable, List, Optional, Union
 
 from pydantic import validator
 from pydantic.fields import Field
@@ -27,16 +26,9 @@ from datahub.ingestion.api.decorators import (
     platform_name,
     support_status,
 )
-from datahub.ingestion.api.source import MetadataWorkUnitProcessor, Source, SourceReport
-from datahub.ingestion.api.source_helpers import (
-    auto_status_aspect,
-    auto_workunit_reporter,
-)
-from datahub.ingestion.api.workunit import MetadataWorkUnit
-from datahub.metadata.com.linkedin.pegasus2avro.dataset import (
-    FineGrainedLineageDownstreamType,
-    FineGrainedLineageUpstreamType,
-)
+from datahub.ingestion.api.source import Source, SourceReport
+from datahub.ingestion.api.workunit import MetadataWorkUnit, UsageStatsWorkUnit
+from datahub.utilities.source_helpers import auto_workunit_reporter
 
 logger = logging.getLogger(__name__)
 
@@ -57,44 +49,9 @@ class EntityConfig(EnvConfigMixin):
         return v
 
 
-class FineGrainedLineageConfig(ConfigModel):
-    upstreamType: str = "FIELD_SET"
-    upstreams: Optional[List[str]]
-    downstreamType: str = "FIELD"
-    downstreams: Optional[List[str]]
-    transformOperation: Optional[str]
-    confidenceScore: Optional[float] = 1.0
-
-    @validator("upstreamType")
-    def upstream_type_must_be_supported(cls, v: str) -> str:
-        allowed_types = [
-            FineGrainedLineageUpstreamType.FIELD_SET,
-            FineGrainedLineageUpstreamType.DATASET,
-            FineGrainedLineageUpstreamType.NONE,
-        ]
-        if v not in allowed_types:
-            raise ConfigurationError(
-                f"Upstream Type must be one of {allowed_types}, {v} is not yet supported."
-            )
-        return v
-
-    @validator("downstreamType")
-    def downstream_type_must_be_supported(cls, v: str) -> str:
-        allowed_types = [
-            FineGrainedLineageDownstreamType.FIELD_SET,
-            FineGrainedLineageDownstreamType.FIELD,
-        ]
-        if v not in allowed_types:
-            raise ValueError(
-                f"Downstream Type must be one of {allowed_types}, {v} is not yet supported."
-            )
-        return v
-
-
 class EntityNodeConfig(ConfigModel):
     entity: EntityConfig
     upstream: Optional[List["EntityNodeConfig"]]
-    fineGrainedLineages: Optional[List[FineGrainedLineageConfig]]
 
 
 # https://pydantic-docs.helpmanual.io/usage/postponed_annotations/ required for when you reference a model within itself
@@ -143,15 +100,12 @@ class LineageFileSource(Source):
         lineage_config = LineageConfig.parse_obj(config)
         return lineage_config
 
-    def get_workunit_processors(self) -> List[Optional[MetadataWorkUnitProcessor]]:
-        return [
-            auto_status_aspect,
-            partial(auto_workunit_reporter, self.get_report()),
-        ]
+    def get_workunits(self) -> Iterable[Union[MetadataWorkUnit, UsageStatsWorkUnit]]:
+        return auto_workunit_reporter(self.report, self.get_workunits_internal())
 
     def get_workunits_internal(
         self,
-    ) -> Iterable[MetadataWorkUnit]:
+    ) -> Iterable[Union[MetadataWorkUnit, UsageStatsWorkUnit]]:
         config = self.load_lineage_config(self.config.file)
         logger.debug(config)
         for entity_node in config.lineage:
@@ -179,7 +133,6 @@ def _get_lineage_mcp(
     entity_node: EntityNodeConfig, preserve_upstream: bool
 ) -> Optional[MetadataChangeProposalWrapper]:
     new_upstreams: List[models.UpstreamClass] = []
-    new_fine_grained_lineages: List[models.FineGrainedLineageClass] = []
     # if this entity has upstream nodes defined, we'll want to do some work.
     # if no upstream nodes are present, we don't emit an MCP for it.
     if not entity_node.upstream:
@@ -226,22 +179,8 @@ def _get_lineage_mcp(
                 f"Entity type: {upstream_entity.type} is unsupported. "
                 f"Upstream lineage will be skipped for {upstream_entity.name}->{entity.name}"
             )
-    for fine_grained_lineage in entity_node.fineGrainedLineages or []:
-        new_fine_grained_lineages.append(
-            models.FineGrainedLineageClass(
-                upstreams=fine_grained_lineage.upstreams,
-                upstreamType=fine_grained_lineage.upstreamType,
-                downstreams=fine_grained_lineage.downstreams,
-                downstreamType=fine_grained_lineage.downstreamType,
-                confidenceScore=fine_grained_lineage.confidenceScore,
-                transformOperation=fine_grained_lineage.transformOperation,
-            )
-        )
 
     return MetadataChangeProposalWrapper(
         entityUrn=entity_urn,
-        aspect=models.UpstreamLineageClass(
-            upstreams=new_upstreams,
-            fineGrainedLineages=new_fine_grained_lineages,
-        ),
+        aspect=models.UpstreamLineageClass(upstreams=new_upstreams),
     )

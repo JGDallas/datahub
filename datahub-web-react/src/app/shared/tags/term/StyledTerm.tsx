@@ -23,7 +23,6 @@ interface Props {
     canRemove?: boolean;
     readOnly?: boolean;
     highlightText?: string;
-    fontSize?: number;
     onOpenModal?: () => void;
     refetch?: () => Promise<any>;
 }

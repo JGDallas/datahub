@@ -1,5 +1,6 @@
 import requests
-from tests.consistency_utils import wait_for_writes_to_sync
+from .constants import *
+from time import sleep
 
 
 class CustomSession(requests.Session):
@@ -11,7 +12,7 @@ class CustomSession(requests.Session):
         response = super(CustomSession, self).post(*args, **kwargs)
         if "/logIn" not in args[0]:
             print("sleeping.")
-            wait_for_writes_to_sync()
+            sleep(ELASTICSEARCH_REFRESH_INTERVAL_SECONDS)
         return response
 
 
@@ -19,7 +20,7 @@ def post(*args, **kwargs):
     response = requests.post(*args, **kwargs)
     if "/logIn" not in args[0]:
         print("sleeping.")
-        wait_for_writes_to_sync()
+        sleep(ELASTICSEARCH_REFRESH_INTERVAL_SECONDS)
     return response
 
 

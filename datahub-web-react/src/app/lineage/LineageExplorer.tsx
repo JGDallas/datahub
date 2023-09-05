@@ -58,7 +58,6 @@ export default function LineageExplorer({ urn, type }: Props) {
     const previousUrn = usePrevious(urn);
     const history = useHistory();
     const [fineGrainedMap] = useState<any>({ forward: {}, reverse: {} });
-    const [fineGrainedMapForSiblings] = useState<any>({});
 
     const entityRegistry = useEntityRegistry();
     const isHideSiblingMode = useIsSeparateSiblingsMode();
@@ -101,7 +100,6 @@ export default function LineageExplorer({ urn, type }: Props) {
                 // record that we have added this entity
                 let newAsyncEntities = extendAsyncEntities(
                     fineGrainedMap,
-                    fineGrainedMapForSiblings,
                     asyncEntities,
                     entityRegistry,
                     entityAndType,
@@ -112,7 +110,6 @@ export default function LineageExplorer({ urn, type }: Props) {
                 config?.downstreamChildren?.forEach((downstream) => {
                     newAsyncEntities = extendAsyncEntities(
                         fineGrainedMap,
-                        fineGrainedMapForSiblings,
                         newAsyncEntities,
                         entityRegistry,
                         downstream,
@@ -122,7 +119,6 @@ export default function LineageExplorer({ urn, type }: Props) {
                 config?.upstreamChildren?.forEach((downstream) => {
                     newAsyncEntities = extendAsyncEntities(
                         fineGrainedMap,
-                        fineGrainedMapForSiblings,
                         newAsyncEntities,
                         entityRegistry,
                         downstream,
@@ -132,7 +128,7 @@ export default function LineageExplorer({ urn, type }: Props) {
                 setAsyncEntities(newAsyncEntities);
             }
         },
-        [asyncEntities, setAsyncEntities, entityRegistry, fineGrainedMap, fineGrainedMapForSiblings],
+        [asyncEntities, setAsyncEntities, entityRegistry, fineGrainedMap],
     );
 
     // set asyncEntity to have fullyFetched: false so we can update it in maybeAddAsyncLoadedEntity

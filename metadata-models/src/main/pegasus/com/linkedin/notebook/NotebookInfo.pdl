@@ -18,10 +18,9 @@ record NotebookInfo includes CustomProperties, ExternalReference {
    * Title of the Notebook
    */
   @Searchable = {
-    "fieldType": "WORD_GRAM",
+    "fieldType": "TEXT_PARTIAL",
     "enableAutocomplete": true,
-    "boostScore": 10.0,
-    "fieldNameAliases": [ "_entityName" ]
+    "boostScore": 10.0
   }
   title: string
 

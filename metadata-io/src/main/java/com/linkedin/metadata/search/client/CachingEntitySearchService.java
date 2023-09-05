@@ -30,7 +30,7 @@ public class CachingEntitySearchService {
   private static final String ENTITY_SEARCH_SERVICE_SEARCH_CACHE_NAME = "entitySearchServiceSearch";
   private static final String ENTITY_SEARCH_SERVICE_AUTOCOMPLETE_CACHE_NAME = "entitySearchServiceAutoComplete";
   private static final String ENTITY_SEARCH_SERVICE_BROWSE_CACHE_NAME = "entitySearchServiceBrowse";
-  public static final String ENTITY_SEARCH_SERVICE_SCROLL_CACHE_NAME = "entitySearchServiceScroll";
+  private static final String ENTITY_SEARCH_SERVICE_SCROLL_CACHE_NAME = "entitySearchServiceScroll";
 
   private final CacheManager cacheManager;
   private final EntitySearchService entitySearchService; // This is a shared component, also used in search aggregation
@@ -48,20 +48,18 @@ public class CachingEntitySearchService {
    * @param from the start offset
    * @param size the count
    * @param flags additional search flags
-   * @param facets list of facets we want aggregations for
    *
    * @return a {@link SearchResult} containing the requested batch of search results
    */
   public SearchResult search(
-      @Nonnull List<String> entityNames,
+      @Nonnull String entityName,
       @Nonnull String query,
       @Nullable Filter filters,
       @Nullable SortCriterion sortCriterion,
       int from,
       int size,
-      @Nullable SearchFlags flags,
-      @Nullable List<String> facets) {
-    return getCachedSearchResults(entityNames, query, filters, sortCriterion, from, size, flags, facets);
+      @Nullable SearchFlags flags) {
+    return getCachedSearchResults(entityName, query, filters, sortCriterion, from, size, flags);
   }
 
   /**
@@ -141,21 +139,20 @@ public class CachingEntitySearchService {
    * This lets us have batches that return a variable number of results (we have no idea which batch the "from" "size" page corresponds to)
    */
   public SearchResult getCachedSearchResults(
-      @Nonnull List<String> entityNames,
+      @Nonnull String entityName,
       @Nonnull String query,
       @Nullable Filter filters,
       @Nullable SortCriterion sortCriterion,
       int from,
       int size,
-      @Nullable SearchFlags flags,
-      @Nullable List<String> facets) {
+      @Nullable SearchFlags flags) {
     return new CacheableSearcher<>(
         cacheManager.getCache(ENTITY_SEARCH_SERVICE_SEARCH_CACHE_NAME),
         batchSize,
-        querySize -> getRawSearchResults(entityNames, query, filters, sortCriterion, querySize.getFrom(),
-                querySize.getSize(), flags, facets),
-        querySize -> Sextet.with(entityNames, query, filters != null ? toJsonString(filters) : null,
-            sortCriterion != null ? toJsonString(sortCriterion) : null, facets, querySize), flags, enableCache).getSearchResults(from, size);
+        querySize -> getRawSearchResults(entityName, query, filters, sortCriterion, querySize.getFrom(),
+                querySize.getSize(), flags),
+        querySize -> Quintet.with(entityName, query, filters != null ? toJsonString(filters) : null,
+            sortCriterion != null ? toJsonString(sortCriterion) : null, querySize), flags, enableCache).getSearchResults(from, size);
   }
 
 
@@ -247,17 +244,13 @@ public class CachingEntitySearchService {
       ScrollResult result;
       if (enableCache(flags)) {
         Timer.Context cacheAccess = MetricUtils.timer(this.getClass(), "scroll_cache_access").time();
-        Object cacheKey = Sextet.with(entities, query,
-            filters != null ? toJsonString(filters) : null,
-            sortCriterion != null ? toJsonString(sortCriterion) : null,
-            scrollId, size);
-        String json = cache.get(cacheKey, String.class);
-        result = json != null ? toRecordTemplate(ScrollResult.class, json) : null;
+        Object cacheKey = Sextet.with(entities, query, filters, sortCriterion, scrollId, size);
+        result = cache.get(cacheKey, ScrollResult.class);
         cacheAccess.stop();
         if (result == null) {
           Timer.Context cacheMiss = MetricUtils.timer(this.getClass(), "scroll_cache_miss").time();
           result = getRawScrollResults(entities, query, filters, sortCriterion, scrollId, keepAlive, size, isFullText);
-          cache.put(cacheKey, toJsonString(result));
+          cache.put(cacheKey, result);
           cacheMiss.stop();
           MetricUtils.counter(this.getClass(), "scroll_cache_miss_count").inc();
         }
@@ -272,15 +265,14 @@ public class CachingEntitySearchService {
    * Executes the expensive search query using the {@link EntitySearchService}
    */
   private SearchResult getRawSearchResults(
-      final List<String> entityNames,
+      final String entityName,
       final String input,
       final Filter filters,
       final SortCriterion sortCriterion,
       final int start,
       final int count,
-      @Nullable final SearchFlags searchFlags,
-      @Nullable final List<String> facets) {
-    return entitySearchService.search(entityNames, input, filters, sortCriterion, start, count, searchFlags, facets);
+      @Nullable final SearchFlags searchFlags) {
+    return entitySearchService.search(entityName, input, filters, sortCriterion, start, count, searchFlags);
   }
 
   /**

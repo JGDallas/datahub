@@ -29,6 +29,3 @@ class DataPlatformUrn(Urn):
             raise InvalidUrnError(
                 f"Entity type should be {DataPlatformUrn.ENTITY_TYPE} but found {entity_type}"
             )
-
-    def get_platform_name(self) -> str:
-        return self.get_entity_id()[0]

@@ -19,20 +19,18 @@ const ContentWrapper = styled.div`
 
 interface Props {
     description: string;
-    isExpandable?: boolean;
-    limit?: number;
 }
 
-export default function DescriptionSection({ description, isExpandable, limit }: Props) {
+export default function DescriptionSection({ description }: Props) {
     const isOverLimit = description && removeMarkdown(description).length > ABBREVIATED_LIMIT;
     const [isExpanded, setIsExpanded] = useState(!isOverLimit);
     const routeToTab = useRouteToTab();
     const isCompact = React.useContext(CompactContext);
-    const shouldShowReadMore = !useIsOnTab('Documentation') || isExpandable;
+    const shouldShowReadMore = !useIsOnTab('Documentation');
 
     // if we're not in compact mode, route them to the Docs tab for the best documentation viewing experience
     function readMore() {
-        if (isCompact || isExpandable) {
+        if (isCompact) {
             setIsExpanded(true);
         } else {
             routeToTab({ tabName: 'Documentation' });
@@ -49,7 +47,7 @@ export default function DescriptionSection({ description, isExpandable, limit }:
             )}
             {!isExpanded && (
                 <NoMarkdownViewer
-                    limit={limit || ABBREVIATED_LIMIT}
+                    limit={ABBREVIATED_LIMIT}
                     readMore={
                         shouldShowReadMore ? <Typography.Link onClick={readMore}>Read More</Typography.Link> : undefined
                     }

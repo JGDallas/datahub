@@ -40,7 +40,7 @@ function EntityName(props: Props) {
 
     const [updateName] = useUpdateNameMutation();
 
-    const handleSaveName = (name: string) => {
+    const handleSaveName = async (name: string) => {
         setUpdatedName(name);
         updateName({ variables: { input: { name, urn } } })
             .then(() => {

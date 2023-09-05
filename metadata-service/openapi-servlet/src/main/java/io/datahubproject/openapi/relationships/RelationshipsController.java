@@ -18,11 +18,8 @@ import com.linkedin.metadata.graph.RelatedEntitiesResult;
 import com.linkedin.metadata.search.utils.QueryUtils;
 import com.linkedin.metadata.utils.metrics.MetricUtils;
 import io.datahubproject.openapi.exception.UnauthorizedException;
-import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
@@ -97,8 +94,7 @@ public class RelationshipsController {
   }
 
   @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-  @Operation(responses = { @ApiResponse(responseCode = "0", description = "",
-          content = @Content(schema = @Schema(implementation = RelatedEntitiesResult.class)))})
+  @ApiOperation(code = 0, response = RelatedEntitiesResult.class, value = "")
   public ResponseEntity<RelatedEntitiesResult> getRelationships(
       @Parameter(name = "urn", required = true,
           description = "The urn for the entity whose relationships are being queried")

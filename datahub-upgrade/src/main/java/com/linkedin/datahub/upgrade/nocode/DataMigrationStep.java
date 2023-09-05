@@ -9,20 +9,18 @@ import com.linkedin.datahub.upgrade.UpgradeContext;
 import com.linkedin.datahub.upgrade.UpgradeStep;
 import com.linkedin.datahub.upgrade.UpgradeStepResult;
 import com.linkedin.metadata.Constants;
-import com.linkedin.metadata.entity.EntityService;
 import com.linkedin.metadata.models.AspectSpec;
 import com.linkedin.metadata.models.registry.EntityRegistry;
 import com.linkedin.metadata.utils.PegasusUtils;
 import com.datahub.util.RecordUtils;
+import com.linkedin.metadata.entity.EntityService;
 import com.linkedin.metadata.entity.ebean.EbeanAspectV1;
 import com.linkedin.metadata.entity.ebean.EbeanAspectV2;
 import com.linkedin.metadata.models.EntitySpec;
-import com.linkedin.util.Pair;
-import io.ebean.Database;
+import io.ebean.EbeanServer;
 import io.ebean.PagedList;
 import java.net.URISyntaxException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -37,13 +35,13 @@ public class DataMigrationStep implements UpgradeStep {
 
   private static final String BROWSE_PATHS_ASPECT_NAME = PegasusUtils.getAspectNameFromSchema(new BrowsePaths().schema());
 
-  private final Database _server;
+  private final EbeanServer _server;
   private final EntityService _entityService;
   private final EntityRegistry _entityRegistry;
   private final Set<Urn> urnsWithBrowsePath = new HashSet<>();
 
   public DataMigrationStep(
-      final Database server,
+      final EbeanServer server,
       final EntityService entityService,
       final EntityRegistry entityRegistry) {
     _server = server;
@@ -88,7 +86,7 @@ public class DataMigrationStep implements UpgradeStep {
                 Class.forName(oldAspectName).asSubclass(RecordTemplate.class),
                 oldAspect.getMetadata());
           } catch (Exception e) {
-            context.report().addLine(String.format("Failed to convert aspect with name %s into a RecordTemplate class", oldAspectName), e);
+            context.report().addLine(String.format("Failed to convert aspect with name %s into a RecordTemplate class: %s", oldAspectName, e.getMessage()));
             return new DefaultUpgradeStepResult(id(), UpgradeStepResult.Result.FAILED);
           }
 
@@ -97,7 +95,7 @@ public class DataMigrationStep implements UpgradeStep {
           try {
             urn = Urn.createFromString(oldAspect.getKey().getUrn());
           } catch (Exception e) {
-            throw new RuntimeException(String.format("Failed to bind Urn with value %s into Urn object", oldAspect.getKey().getUrn()), e);
+            throw new RuntimeException(String.format("Failed to bind Urn with value %s into Urn object: %s", oldAspect.getKey().getUrn(), e));
           }
 
           // 3. Verify that the entity associated with the aspect is found in the registry.
@@ -106,7 +104,7 @@ public class DataMigrationStep implements UpgradeStep {
           try {
             entitySpec = _entityRegistry.getEntitySpec(entityName);
           } catch (Exception e) {
-            context.report().addLine(String.format("Failed to find Entity with name %s in Entity Registry", entityName), e);
+            context.report().addLine(String.format("Failed to find Entity with name %s in Entity Registry: %s", entityName, e));
             return new DefaultUpgradeStepResult(id(), UpgradeStepResult.Result.FAILED);
           }
 
@@ -115,9 +113,10 @@ public class DataMigrationStep implements UpgradeStep {
           try {
             newAspectName = PegasusUtils.getAspectNameFromSchema(aspectRecord.schema());
           } catch (Exception e) {
-            context.report().addLine(String.format("Failed to retrieve @Aspect name from schema %s, urn %s",
+            context.report().addLine(String.format("Failed to retrieve @Aspect name from schema %s, urn %s: %s",
                 aspectRecord.schema().getFullName(),
-                entityName), e);
+                entityName,
+                    e));
             return new DefaultUpgradeStepResult(id(), UpgradeStepResult.Result.FAILED);
           }
 
@@ -126,19 +125,24 @@ public class DataMigrationStep implements UpgradeStep {
           try {
             aspectSpec = entitySpec.getAspectSpec(newAspectName);
           } catch (Exception e) {
-            context.report().addLine(String.format("Failed to find aspect spec with name %s associated with entity named %s",
+            context.report().addLine(String.format("Failed to find aspect spec with name %s associated with entity named %s: %s",
                 newAspectName,
-                entityName), e);
+                entityName,
+                    e));
             return new DefaultUpgradeStepResult(id(), UpgradeStepResult.Result.FAILED);
           }
 
           // 6. Write the row back using the EntityService
           boolean emitMae = oldAspect.getKey().getVersion() == 0L;
-          _entityService.ingestAspects(
+          _entityService.updateAspect(
               urn,
-              List.of(Pair.of(newAspectName, aspectRecord)),
+              entityName,
+              newAspectName,
+              aspectSpec,
+              aspectRecord,
               toAuditStamp(oldAspect),
-              null
+              oldAspect.getKey().getVersion(),
+              emitMae
           );
 
           // 7. If necessary, emit a browse path aspect.
@@ -152,7 +156,7 @@ public class DataMigrationStep implements UpgradeStep {
               browsePathsStamp.setActor(Urn.createFromString(Constants.SYSTEM_ACTOR));
               browsePathsStamp.setTime(System.currentTimeMillis());
 
-              _entityService.ingestAspects(urn, List.of(Pair.of(BROWSE_PATHS_ASPECT_NAME, browsePaths)), browsePathsStamp, null);
+              _entityService.ingestAspect(urn, BROWSE_PATHS_ASPECT_NAME, browsePaths, browsePathsStamp, null);
               urnsWithBrowsePath.add(urn);
 
             } catch (URISyntaxException e) {

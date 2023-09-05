@@ -12,9 +12,4 @@ record SearchResultMetadata {
    */
   aggregations: array[AggregationMetadata] = []
 
-  /**
-   * A list of search query suggestions based on the given query
-   */
-  suggestions: array[SearchSuggestion] = []
-
 }

@@ -9,13 +9,13 @@ import com.linkedin.common.urn.CorpuserUrn;
 import com.linkedin.common.urn.Urn;
 import com.linkedin.datahub.graphql.QueryContext;
 import com.linkedin.datahub.graphql.generated.UpdateEmbedInput;
-import com.linkedin.datahub.graphql.resolvers.mutate.MutationUtils;
 import com.linkedin.entity.EntityResponse;
 import com.linkedin.entity.EnvelopedAspectMap;
 import com.linkedin.entity.client.EntityClient;
+import com.linkedin.events.metadata.ChangeType;
 import com.linkedin.metadata.Constants;
 import com.linkedin.metadata.entity.EntityService;
-import com.linkedin.metadata.entity.ebean.transactions.AspectsBatchImpl;
+import com.linkedin.metadata.utils.GenericRecordUtils;
 import com.linkedin.mxe.MetadataChangeProposal;
 import com.linkedin.r2.RemoteInvocationException;
 import graphql.schema.DataFetchingEnvironment;
@@ -26,7 +26,6 @@ import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
 import static com.linkedin.datahub.graphql.TestUtils.*;
-import static com.linkedin.metadata.Constants.*;
 import static org.testng.Assert.*;
 
 
@@ -42,11 +41,11 @@ public class UpdateEmbedResolverTest {
 
   @Test
   public void testGetSuccessNoExistingEmbed() throws Exception {
-    EntityService mockService = getMockEntityService();
+    EntityService mockService = Mockito.mock(EntityService.class);
 
     Mockito.when(mockService.getAspect(
         Mockito.eq(Urn.createFromString(TEST_ENTITY_URN)),
-        Mockito.eq(EMBED_ASPECT_NAME),
+        Mockito.eq(Constants.EMBED_ASPECT_NAME),
         Mockito.eq(0L))).thenReturn(null);
 
     Mockito.when(mockService.exists(Urn.createFromString(TEST_ENTITY_URN))).thenReturn(true);
@@ -62,10 +61,18 @@ public class UpdateEmbedResolverTest {
     resolver.get(mockEnv).get();
 
     final Embed newEmbed = new Embed().setRenderUrl(TEST_RENDER_URL);
-    final MetadataChangeProposal proposal = MutationUtils.buildMetadataChangeProposalWithUrn(Urn.createFromString(TEST_ENTITY_URN),
-        EMBED_ASPECT_NAME, newEmbed);
+    final MetadataChangeProposal proposal = new MetadataChangeProposal();
+    proposal.setEntityUrn(Urn.createFromString(TEST_ENTITY_URN));
+    proposal.setEntityType(Constants.DASHBOARD_ENTITY_NAME);
+    proposal.setAspectName(Constants.EMBED_ASPECT_NAME);
+    proposal.setAspect(GenericRecordUtils.serializeAspect(newEmbed));
+    proposal.setChangeType(ChangeType.UPSERT);
 
-    verifySingleIngestProposal(mockService, 1, proposal);;
+    Mockito.verify(mockService, Mockito.times(1)).ingestProposal(
+        Mockito.eq(proposal),
+        Mockito.any(AuditStamp.class),
+        Mockito.eq(false)
+    );
 
     Mockito.verify(mockService, Mockito.times(1)).exists(
         Mockito.eq(Urn.createFromString(TEST_ENTITY_URN))
@@ -77,11 +84,11 @@ public class UpdateEmbedResolverTest {
     Embed originalEmbed = new Embed().setRenderUrl("https://otherurl.com");
 
     // Create resolver
-    EntityService mockService = getMockEntityService();
+    EntityService mockService = Mockito.mock(EntityService.class);
 
     Mockito.when(mockService.getAspect(
         Mockito.eq(Urn.createFromString(TEST_ENTITY_URN)),
-        Mockito.eq(EMBED_ASPECT_NAME),
+        Mockito.eq(Constants.EMBED_ASPECT_NAME),
         Mockito.eq(0L))).thenReturn(originalEmbed);
 
     Mockito.when(mockService.exists(Urn.createFromString(TEST_ENTITY_URN))).thenReturn(true);
@@ -97,10 +104,18 @@ public class UpdateEmbedResolverTest {
     resolver.get(mockEnv).get();
 
     final Embed newEmbed = new Embed().setRenderUrl(TEST_RENDER_URL);
-    final MetadataChangeProposal proposal = MutationUtils.buildMetadataChangeProposalWithUrn(Urn.createFromString(TEST_ENTITY_URN),
-        EMBED_ASPECT_NAME, newEmbed);
+    final MetadataChangeProposal proposal = new MetadataChangeProposal();
+    proposal.setEntityUrn(Urn.createFromString(TEST_ENTITY_URN));
+    proposal.setEntityType(Constants.DASHBOARD_ENTITY_NAME);
+    proposal.setAspectName(Constants.EMBED_ASPECT_NAME);
+    proposal.setAspect(GenericRecordUtils.serializeAspect(newEmbed));
+    proposal.setChangeType(ChangeType.UPSERT);
 
-    verifySingleIngestProposal(mockService, 1, proposal);
+    Mockito.verify(mockService, Mockito.times(1)).ingestProposal(
+        Mockito.eq(proposal),
+        Mockito.any(AuditStamp.class),
+        Mockito.eq(false)
+    );
 
     Mockito.verify(mockService, Mockito.times(1)).exists(
         Mockito.eq(Urn.createFromString(TEST_ENTITY_URN))
@@ -115,7 +130,7 @@ public class UpdateEmbedResolverTest {
     Mockito.when(mockClient.batchGetV2(
         Mockito.eq(Constants.DASHBOARD_ENTITY_NAME),
         Mockito.eq(new HashSet<>(ImmutableSet.of(Urn.createFromString(TEST_ENTITY_URN)))),
-        Mockito.eq(ImmutableSet.of(EMBED_ASPECT_NAME)),
+        Mockito.eq(ImmutableSet.of(Constants.EMBED_ASPECT_NAME)),
         Mockito.any(Authentication.class)))
         .thenReturn(ImmutableMap.of(Urn.createFromString(TEST_ENTITY_URN),
             new EntityResponse()
@@ -123,7 +138,7 @@ public class UpdateEmbedResolverTest {
                 .setUrn(Urn.createFromString(TEST_ENTITY_URN))
                 .setAspects(new EnvelopedAspectMap(Collections.emptyMap()))));
 
-    EntityService mockService = getMockEntityService();
+    EntityService mockService = Mockito.mock(EntityService.class);
     Mockito.when(mockService.exists(Urn.createFromString(TEST_ENTITY_URN))).thenReturn(false);
 
     UpdateEmbedResolver resolver = new UpdateEmbedResolver(mockService);
@@ -137,7 +152,7 @@ public class UpdateEmbedResolverTest {
 
     assertThrows(CompletionException.class, () -> resolver.get(mockEnv).join());
     Mockito.verify(mockService, Mockito.times(0)).ingestProposal(
-        Mockito.any(AspectsBatchImpl.class),
+        Mockito.any(),
         Mockito.any(AuditStamp.class),
         Mockito.eq(false)
     );;
@@ -146,7 +161,7 @@ public class UpdateEmbedResolverTest {
   @Test
   public void testGetUnauthorized() throws Exception {
     // Create resolver
-    EntityService mockService = getMockEntityService();
+    EntityService mockService = Mockito.mock(EntityService.class);
     UpdateEmbedResolver resolver = new UpdateEmbedResolver(mockService);
 
     // Execute resolver
@@ -157,7 +172,7 @@ public class UpdateEmbedResolverTest {
 
     assertThrows(CompletionException.class, () -> resolver.get(mockEnv).join());
     Mockito.verify(mockService, Mockito.times(0)).ingestProposal(
-        Mockito.any(AspectsBatchImpl.class),
+        Mockito.any(),
         Mockito.any(AuditStamp.class),
         Mockito.eq(false)
     );
@@ -166,7 +181,7 @@ public class UpdateEmbedResolverTest {
   @Test
   public void testGetEntityClientException() throws Exception {
     EntityClient mockClient = Mockito.mock(EntityClient.class);
-    EntityService mockService = getMockEntityService();
+    EntityService mockService = Mockito.mock(EntityService.class);
     Mockito.doThrow(RemoteInvocationException.class).when(mockClient).ingestProposal(
         Mockito.any(),
         Mockito.any(Authentication.class));

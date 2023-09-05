@@ -23,6 +23,11 @@
                             "actor": "urn:li:corpuser:unknown"
                         }
                     }
+                },
+                {
+                    "com.linkedin.pegasus2avro.common.Status": {
+                        "removed": false
+                    }
                 }
             ]
         }
@@ -38,19 +43,8 @@
     "changeType": "UPSERT",
     "aspectName": "institutionalMemory",
     "aspect": {
-        "json": {
-            "elements": [
-                {
-                    "url": "https://en.wikipedia.org/wiki/Classification",
-                    "description": "Wiki link for classification",
-                    "createStamp": {
-                        "time": 1586847600000,
-                        "actor": "urn:li:corpuser:datahub",
-                        "message": "ingestion bot"
-                    }
-                }
-            ]
-        }
+        "value": "{\"elements\": [{\"url\": \"https://en.wikipedia.org/wiki/Classification\", \"description\": \"Wiki link for classification\", \"createStamp\": {\"time\": 1586847600000, \"actor\": \"urn:li:corpuser:datahub\", \"message\": \"ingestion bot\"}}]}",
+        "contentType": "application/json"
     },
     "systemMetadata": {
         "lastObserved": 1586847600000,
@@ -103,19 +97,8 @@
     "changeType": "UPSERT",
     "aspectName": "institutionalMemory",
     "aspect": {
-        "json": {
-            "elements": [
-                {
-                    "url": "https://www.google.com",
-                    "description": "Google Link",
-                    "createStamp": {
-                        "time": 1586847600000,
-                        "actor": "urn:li:corpuser:datahub",
-                        "message": "ingestion bot"
-                    }
-                }
-            ]
-        }
+        "value": "{\"elements\": [{\"url\": \"https://www.google.com\", \"description\": \"Google Link\", \"createStamp\": {\"time\": 1586847600000, \"actor\": \"urn:li:corpuser:datahub\", \"message\": \"ingestion bot\"}}]}",
+        "contentType": "application/json"
     },
     "systemMetadata": {
         "lastObserved": 1586847600000,
@@ -168,11 +151,8 @@
     "changeType": "UPSERT",
     "aspectName": "domains",
     "aspect": {
-        "json": {
-            "domains": [
-                "urn:li:domain:Marketing"
-            ]
-        }
+        "value": "{\"domains\": [\"urn:li:domain:Marketing\"]}",
+        "contentType": "application/json"
     },
     "systemMetadata": {
         "lastObserved": 1586847600000,
@@ -242,6 +222,11 @@
                             "time": 0,
                             "actor": "urn:li:corpuser:unknown"
                         }
+                    }
+                },
+                {
+                    "com.linkedin.pegasus2avro.common.Status": {
+                        "removed": false
                     }
                 }
             ]
@@ -404,6 +389,11 @@
                             "actor": "urn:li:corpuser:unknown"
                         }
                     }
+                },
+                {
+                    "com.linkedin.pegasus2avro.common.Status": {
+                        "removed": false
+                    }
                 }
             ]
         }
@@ -523,6 +513,11 @@
                             "actor": "urn:li:corpuser:unknown"
                         }
                     }
+                },
+                {
+                    "com.linkedin.pegasus2avro.common.Status": {
+                        "removed": false
+                    }
                 }
             ]
         }
@@ -563,201 +558,6 @@
                     }
                 }
             ]
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1586847600000,
-        "runId": "datahub-business-glossary-2020_04_14-07_00_00"
-    }
-},
-{
-    "entityType": "glossaryNode",
-    "entityUrn": "urn:li:glossaryNode:Classification",
-    "changeType": "UPSERT",
-    "aspectName": "status",
-    "aspect": {
-        "json": {
-            "removed": false
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1586847600000,
-        "runId": "datahub-business-glossary-2020_04_14-07_00_00"
-    }
-},
-{
-    "entityType": "glossaryNode",
-    "entityUrn": "urn:li:glossaryNode:Clients And Accounts",
-    "changeType": "UPSERT",
-    "aspectName": "status",
-    "aspect": {
-        "json": {
-            "removed": false
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1586847600000,
-        "runId": "datahub-business-glossary-2020_04_14-07_00_00"
-    }
-},
-{
-    "entityType": "glossaryNode",
-    "entityUrn": "urn:li:glossaryNode:KPIs",
-    "changeType": "UPSERT",
-    "aspectName": "status",
-    "aspect": {
-        "json": {
-            "removed": false
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1586847600000,
-        "runId": "datahub-business-glossary-2020_04_14-07_00_00"
-    }
-},
-{
-    "entityType": "glossaryNode",
-    "entityUrn": "urn:li:glossaryNode:Personal Information",
-    "changeType": "UPSERT",
-    "aspectName": "status",
-    "aspect": {
-        "json": {
-            "removed": false
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1586847600000,
-        "runId": "datahub-business-glossary-2020_04_14-07_00_00"
-    }
-},
-{
-    "entityType": "glossaryTerm",
-    "entityUrn": "urn:li:glossaryTerm:4faf1eed790370f65942f2998a7993d6",
-    "changeType": "UPSERT",
-    "aspectName": "status",
-    "aspect": {
-        "json": {
-            "removed": false
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1586847600000,
-        "runId": "datahub-business-glossary-2020_04_14-07_00_00"
-    }
-},
-{
-    "entityType": "glossaryTerm",
-    "entityUrn": "urn:li:glossaryTerm:Classification.Confidential",
-    "changeType": "UPSERT",
-    "aspectName": "status",
-    "aspect": {
-        "json": {
-            "removed": false
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1586847600000,
-        "runId": "datahub-business-glossary-2020_04_14-07_00_00"
-    }
-},
-{
-    "entityType": "glossaryTerm",
-    "entityUrn": "urn:li:glossaryTerm:Classification.Highly Confidential",
-    "changeType": "UPSERT",
-    "aspectName": "status",
-    "aspect": {
-        "json": {
-            "removed": false
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1586847600000,
-        "runId": "datahub-business-glossary-2020_04_14-07_00_00"
-    }
-},
-{
-    "entityType": "glossaryTerm",
-    "entityUrn": "urn:li:glossaryTerm:Classification.Sensitive",
-    "changeType": "UPSERT",
-    "aspectName": "status",
-    "aspect": {
-        "json": {
-            "removed": false
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1586847600000,
-        "runId": "datahub-business-glossary-2020_04_14-07_00_00"
-    }
-},
-{
-    "entityType": "glossaryTerm",
-    "entityUrn": "urn:li:glossaryTerm:Clients And Accounts.Account",
-    "changeType": "UPSERT",
-    "aspectName": "status",
-    "aspect": {
-        "json": {
-            "removed": false
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1586847600000,
-        "runId": "datahub-business-glossary-2020_04_14-07_00_00"
-    }
-},
-{
-    "entityType": "glossaryTerm",
-    "entityUrn": "urn:li:glossaryTerm:Clients And Accounts.Balance",
-    "changeType": "UPSERT",
-    "aspectName": "status",
-    "aspect": {
-        "json": {
-            "removed": false
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1586847600000,
-        "runId": "datahub-business-glossary-2020_04_14-07_00_00"
-    }
-},
-{
-    "entityType": "glossaryTerm",
-    "entityUrn": "urn:li:glossaryTerm:Personal Information.Address",
-    "changeType": "UPSERT",
-    "aspectName": "status",
-    "aspect": {
-        "json": {
-            "removed": false
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1586847600000,
-        "runId": "datahub-business-glossary-2020_04_14-07_00_00"
-    }
-},
-{
-    "entityType": "glossaryTerm",
-    "entityUrn": "urn:li:glossaryTerm:Personal Information.Email",
-    "changeType": "UPSERT",
-    "aspectName": "status",
-    "aspect": {
-        "json": {
-            "removed": false
-        }
-    },
-    "systemMetadata": {
-        "lastObserved": 1586847600000,
-        "runId": "datahub-business-glossary-2020_04_14-07_00_00"
-    }
-},
-{
-    "entityType": "glossaryTerm",
-    "entityUrn": "urn:li:glossaryTerm:Personal Information.Gender",
-    "changeType": "UPSERT",
-    "aspectName": "status",
-    "aspect": {
-        "json": {
-            "removed": false
         }
     },
     "systemMetadata": {

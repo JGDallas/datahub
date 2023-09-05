@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -32,7 +31,6 @@ import javax.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.tasks.GetTaskResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.bucket.filter.ParsedFilter;
@@ -92,11 +90,6 @@ public class ElasticSearchSystemMetadataService implements SystemMetadataService
   @Override
   public void deleteAspect(String urn, String aspect) {
     _esDAO.deleteByUrnAspect(urn, aspect);
-  }
-
-  @Override
-  public Optional<GetTaskResponse> getTaskStatus(@Nonnull String nodeId, long taskId) {
-    return _esDAO.getTaskStatus(nodeId, taskId);
   }
 
   @Override

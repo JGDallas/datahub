@@ -9,8 +9,10 @@ import com.linkedin.datahub.graphql.QueryContext;
 import com.linkedin.datahub.graphql.exception.AuthorizationException;
 import com.linkedin.datahub.graphql.generated.UpdateEmbedInput;
 import com.linkedin.datahub.graphql.resolvers.mutate.util.EmbedUtils;
+import com.linkedin.events.metadata.ChangeType;
+import com.linkedin.metadata.Constants;
 import com.linkedin.metadata.entity.EntityService;
-import com.linkedin.metadata.entity.EntityUtils;
+import com.linkedin.metadata.utils.GenericRecordUtils;
 import com.linkedin.mxe.MetadataChangeProposal;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
@@ -21,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import static com.linkedin.datahub.graphql.resolvers.ResolverUtils.*;
 import static com.linkedin.datahub.graphql.resolvers.mutate.MutationUtils.*;
-import static com.linkedin.metadata.Constants.*;
 
 
 /**
@@ -50,15 +51,20 @@ public class UpdateEmbedResolver implements DataFetcher<CompletableFuture<Boolea
           _entityService
       );
       try {
-        final Embed embed = (Embed) EntityUtils.getAspectFromEntity(
+        final Embed embed = (Embed) getAspectFromEntity(
             entityUrn.toString(),
-            EMBED_ASPECT_NAME,
+            Constants.EMBED_ASPECT_NAME,
             _entityService,
             new Embed());
 
         updateEmbed(embed, input);
 
-        final MetadataChangeProposal proposal = buildMetadataChangeProposalWithUrn(entityUrn, EMBED_ASPECT_NAME, embed);
+        final MetadataChangeProposal proposal = new MetadataChangeProposal();
+        proposal.setEntityUrn(entityUrn);
+        proposal.setEntityType(entityUrn.getEntityType());
+        proposal.setAspectName(Constants.EMBED_ASPECT_NAME);
+        proposal.setAspect(GenericRecordUtils.serializeAspect(embed));
+        proposal.setChangeType(ChangeType.UPSERT);
         _entityService.ingestProposal(
             proposal,
             new AuditStamp().setActor(UrnUtils.getUrn(context.getActorUrn())).setTime(System.currentTimeMillis()),

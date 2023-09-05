@@ -10,7 +10,6 @@
               {
                 "owner": "urn:li:corpuser:foobar",
                 "type": "DEVELOPER",
-                "typeUrn": null,
                 "source": null
               }
             ],

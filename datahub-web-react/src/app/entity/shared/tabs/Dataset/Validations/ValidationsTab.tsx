@@ -1,99 +1,112 @@
-import React, { useEffect } from 'react';
-import { Button } from 'antd';
-import { useHistory, useLocation } from 'react-router';
-import styled from 'styled-components';
 import { FileDoneOutlined, FileProtectOutlined } from '@ant-design/icons';
-import { useEntityData } from '../../../EntityContext';
-import { TestResults } from './TestResults';
-import { Assertions } from './Assertions';
+import { Button } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { useGetDatasetAssertionsQuery } from '../../../../../../graphql/dataset.generated';
+import { Assertion, AssertionResultType } from '../../../../../../types.generated';
 import TabToolbar from '../../../components/styled/TabToolbar';
-import { useGetValidationsTab } from './useGetValidationsTab';
-import { ANTD_GRAY } from '../../../constants';
-
-const TabTitle = styled.span`
-    margin-left: 4px;
-`;
-
-const TabButton = styled(Button)<{ selected: boolean }>`
-    background-color: ${(props) => (props.selected && ANTD_GRAY[3]) || 'none'};
-    margin-left: 4px;
-`;
-
-enum TabPaths {
-    ASSERTIONS = 'Assertions',
-    TESTS = 'Tests',
-}
-
-const DEFAULT_TAB = TabPaths.ASSERTIONS;
+import { useEntityData } from '../../../EntityContext';
+import { DatasetAssertionsList } from './DatasetAssertionsList';
+import { DatasetAssertionsSummary } from './DatasetAssertionsSummary';
+import { sortAssertions } from './assertionUtils';
+import { TestResults } from './TestResults';
+import { combineEntityDataWithSiblings, useIsSeparateSiblingsMode } from '../../../siblingUtils';
 
 /**
- * Component used for rendering the Entity Validations Tab.
+ * Returns a status summary for the assertions associated with a Dataset.
+ */
+const getAssertionsStatusSummary = (assertions: Array<Assertion>) => {
+    const summary = {
+        failedRuns: 0,
+        succeededRuns: 0,
+        totalRuns: 0,
+        totalAssertions: assertions.length,
+    };
+    assertions.forEach((assertion) => {
+        if ((assertion.runEvents?.runEvents?.length || 0) > 0) {
+            const mostRecentRun = assertion.runEvents?.runEvents?.[0];
+            const resultType = mostRecentRun?.result?.type;
+            if (AssertionResultType.Success === resultType) {
+                summary.succeededRuns++;
+            }
+            if (AssertionResultType.Failure === resultType) {
+                summary.failedRuns++;
+            }
+            summary.totalRuns++; // only count assertions for which there is one completed run event!
+        }
+    });
+    return summary;
+};
+
+enum ViewType {
+    ASSERTIONS,
+    TESTS,
+}
+
+/**
+ * Component used for rendering the Validations Tab on the Dataset Page.
  */
 export const ValidationsTab = () => {
-    const { entityData } = useEntityData();
-    const history = useHistory();
-    const { pathname } = useLocation();
+    const { urn, entityData } = useEntityData();
+    const { data, refetch } = useGetDatasetAssertionsQuery({ variables: { urn }, fetchPolicy: 'cache-first' });
+    const isHideSiblingMode = useIsSeparateSiblingsMode();
 
-    const totalAssertions = (entityData as any)?.assertions?.total;
+    const combinedData = isHideSiblingMode ? data : combineEntityDataWithSiblings(data);
+    const [removedUrns, setRemovedUrns] = useState<string[]>([]);
+    /**
+     * Determines which view should be visible: assertions or tests.
+     */
+    const [view, setView] = useState(ViewType.ASSERTIONS);
+
+    const assertions =
+        (combinedData && combinedData.dataset?.assertions?.assertions?.map((assertion) => assertion as Assertion)) ||
+        [];
+    const filteredAssertions = assertions.filter((assertion) => !removedUrns.includes(assertion.urn));
+    const numAssertions = filteredAssertions.length;
+
     const passingTests = (entityData as any)?.testResults?.passing || [];
     const maybeFailingTests = (entityData as any)?.testResults?.failing || [];
     const totalTests = maybeFailingTests.length + passingTests.length;
 
-    const { selectedTab, basePath } = useGetValidationsTab(pathname, Object.values(TabPaths));
-
-    // If no tab was selected, select a default tab.
     useEffect(() => {
-        if (!selectedTab) {
-            // Route to the default tab.
-            history.replace(`${basePath}/${DEFAULT_TAB}`);
+        if (totalTests > 0 && numAssertions === 0) {
+            setView(ViewType.TESTS);
+        } else {
+            setView(ViewType.ASSERTIONS);
         }
-    }, [selectedTab, basePath, history]);
+    }, [totalTests, numAssertions]);
 
-    /**
-     * The top-level Toolbar tabs to display.
-     */
-    const tabs = [
-        {
-            title: (
-                <>
-                    <FileProtectOutlined />
-                    <TabTitle>Assertions ({totalAssertions})</TabTitle>
-                </>
-            ),
-            path: TabPaths.ASSERTIONS,
-            disabled: totalAssertions === 0,
-            content: <Assertions />,
-        },
-        {
-            title: (
-                <>
-                    <FileDoneOutlined />
-                    <TabTitle>Tests ({totalTests})</TabTitle>
-                </>
-            ),
-            path: TabPaths.TESTS,
-            disabled: totalTests === 0,
-            content: <TestResults passing={passingTests} failing={maybeFailingTests} />,
-        },
-    ];
+    // Pre-sort the list of assertions based on which has been most recently executed.
+    assertions.sort(sortAssertions);
 
     return (
         <>
             <TabToolbar>
                 <div>
-                    {tabs.map((tab) => (
-                        <TabButton
-                            type="text"
-                            disabled={tab.disabled}
-                            selected={selectedTab === tab.path}
-                            onClick={() => history.replace(`${basePath}/${tab.path}`)}
-                        >
-                            {tab.title}
-                        </TabButton>
-                    ))}
+                    <Button type="text" disabled={numAssertions === 0} onClick={() => setView(ViewType.ASSERTIONS)}>
+                        <FileProtectOutlined />
+                        Assertions ({numAssertions})
+                    </Button>
+                    <Button type="text" disabled={totalTests === 0} onClick={() => setView(ViewType.TESTS)}>
+                        <FileDoneOutlined />
+                        Tests ({totalTests})
+                    </Button>
                 </div>
             </TabToolbar>
-            {tabs.filter((tab) => tab.path === selectedTab).map((tab) => tab.content)}
+            {(view === ViewType.ASSERTIONS && (
+                <>
+                    <DatasetAssertionsSummary summary={getAssertionsStatusSummary(filteredAssertions)} />
+                    {entityData && (
+                        <DatasetAssertionsList
+                            assertions={filteredAssertions}
+                            onDelete={(assertionUrn) => {
+                                // Hack to deal with eventual consistency.
+                                setRemovedUrns([...removedUrns, assertionUrn]);
+                                setTimeout(() => refetch(), 3000);
+                            }}
+                        />
+                    )}
+                </>
+            )) || <TestResults passing={passingTests} failing={maybeFailingTests} />}
         </>
     );
 };

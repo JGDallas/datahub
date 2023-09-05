@@ -255,7 +255,7 @@ public class SiblingAssociationHookTest {
 
     Mockito.when(
         _mockSearchService.search(
-            any(), anyString(), any(), any(), anyInt(), anyInt(), eq(new SearchFlags().setFulltext(false)
+            anyString(), anyString(), any(), any(), anyInt(), anyInt(), eq(new SearchFlags().setFulltext(false)
                         .setSkipAggregates(true).setSkipHighlighting(true))
         )).thenReturn(returnSearchResult);
 

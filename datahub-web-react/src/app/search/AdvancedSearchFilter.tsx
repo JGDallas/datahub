@@ -1,3 +1,4 @@
+import { CloseOutlined } from '@ant-design/icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -5,11 +6,8 @@ import { FacetFilterInput, FacetMetadata } from '../../types.generated';
 import { ANTD_GRAY } from '../entity/shared/constants';
 import { AdvancedSearchFilterConditionSelect } from './AdvancedSearchFilterConditionSelect';
 import { AdvancedFilterSelectValueModal } from './AdvancedFilterSelectValueModal';
-import { ENTITY_SUB_TYPE_FILTER_NAME, FIELD_TO_LABEL } from './utils/constants';
+import { FIELD_TO_LABEL } from './utils/constants';
 import { AdvancedSearchFilterValuesSection } from './AdvancedSearchFilterValuesSection';
-import AdvancedFilterCloseButton from './advanced/AdvancedFilterCloseButton';
-import { FilterContainer } from './advanced/styles';
-import EntitySubTypeAdvancedFilterLabel from './advanced/EntitySubTypeAdvancedFilterLabel';
 
 type Props = {
     facet: FacetMetadata;
@@ -17,74 +15,73 @@ type Props = {
     onClose: () => void;
     onUpdate: (newValue: FacetFilterInput) => void;
     loading: boolean;
-    isCompact?: boolean;
     disabled?: boolean;
 };
 
-const FieldFilterSection = styled.span<{ isCompact: boolean }>`
-    color: ${ANTD_GRAY[9]};
-    padding: ${(props) => (props.isCompact ? '2px 4px' : '4px')};
-    display: flex;
-    justify-content: space-between;
-
-    ${(props) =>
-        props.isCompact &&
-        `
-        display: flex;
-        align-items: center;
-    `}
+const FilterContainer = styled.div`
+    box-shadow: 0px 0px 4px 0px #00000010;
+    border-radius: 10px;
+    border: 1px solid ${ANTD_GRAY[4]};
+    padding: 4px;
+    margin: 4px;
+    :hover {
+        cursor: pointer;
+        background: ${ANTD_GRAY[2]};
+    }
 `;
 
-const FieldFilterSelect = styled.span<{ isCompact: boolean }>`
-    padding-right: ${(props) => (props.isCompact ? '0' : '8px;')};
+const FieldFilterSection = styled.span`
+    color: ${ANTD_GRAY[9]};
+    padding: 4px;
+    display: flex;
+    justify-content: space-between;
+`;
+
+const FieldFilterSelect = styled.span`
+    padding-right: 8px;
+`;
+
+const CloseSpan = styled.span`
+    :hover {
+        color: black;
+    }
 `;
 
 const FilterFieldLabel = styled.span`
     font-weight: 600;
-    margin-right: 4px;
+    margin-right: 2px;
 `;
 
-export const AdvancedSearchFilter = ({
-    facet,
-    filter,
-    onClose,
-    onUpdate,
-    loading,
-    isCompact = false,
-    disabled = false,
-}: Props) => {
+export const AdvancedSearchFilter = ({ facet, filter, onClose, onUpdate, loading, disabled = false }: Props) => {
     const [isEditing, setIsEditing] = useState(false);
-
-    if (filter.field === ENTITY_SUB_TYPE_FILTER_NAME) {
-        return (
-            <EntitySubTypeAdvancedFilterLabel
-                filter={filter}
-                disabled={disabled}
-                isCompact={isCompact}
-                onClose={onClose}
-            />
-        );
-    }
-
     return (
         <>
             <FilterContainer
                 onClick={() => {
                     setIsEditing(!isEditing);
                 }}
-                isCompact={isCompact}
             >
-                <FieldFilterSection isCompact={isCompact}>
-                    <FieldFilterSelect isCompact={isCompact}>
+                <FieldFilterSection>
+                    <FieldFilterSelect>
                         <FilterFieldLabel>{FIELD_TO_LABEL[filter.field]} </FilterFieldLabel>
                         <AdvancedSearchFilterConditionSelect filter={filter} onUpdate={onUpdate} />
                     </FieldFilterSelect>
-                    {!loading && isCompact && (
-                        <AdvancedSearchFilterValuesSection filter={filter} facet={facet} isCompact />
+                    {!disabled && (
+                        <CloseSpan
+                            role="button"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                onClose();
+                            }}
+                            tabIndex={0}
+                            onKeyPress={onClose}
+                        >
+                            <CloseOutlined />
+                        </CloseSpan>
                     )}
-                    {!disabled && <AdvancedFilterCloseButton onClose={onClose} />}
                 </FieldFilterSection>
-                {!loading && !isCompact && <AdvancedSearchFilterValuesSection filter={filter} facet={facet} />}
+                {!loading && <AdvancedSearchFilterValuesSection filter={filter} facet={facet} />}
             </FilterContainer>
             {!disabled && isEditing && (
                 <AdvancedFilterSelectValueModal

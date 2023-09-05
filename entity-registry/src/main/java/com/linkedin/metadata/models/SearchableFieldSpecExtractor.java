@@ -143,20 +143,10 @@ public class SearchableFieldSpecExtractor implements SchemaVisitor {
         throw new ModelValidationException(
             String.format("Entity has multiple searchable fields with the same field name %s, path: %s", annotation.getFieldName(), fullPath.orElse(path)));
       } else {
-        annotation = new SearchableAnnotation(
-            pathName,
-            annotation.getFieldType(),
-            annotation.isQueryByDefault(),
-            annotation.isEnableAutocomplete(),
-            annotation.isAddToFilters(),
-            annotation.isAddHasValuesToFilters(),
-            annotation.getFilterNameOverride(),
-            annotation.getHasValuesFilterNameOverride(),
-            annotation.getBoostScore(),
-            annotation.getHasValuesFieldName(),
-            annotation.getNumValuesFieldName(),
-            annotation.getWeightsPerFieldValue(),
-            annotation.getFieldNameAliases());
+        annotation = new SearchableAnnotation(pathName, annotation.getFieldType(), annotation.isQueryByDefault(),
+            annotation.isEnableAutocomplete(), annotation.isAddToFilters(), annotation.getFilterNameOverride(),
+            annotation.getBoostScore(), annotation.getHasValuesFieldName(), annotation.getNumValuesFieldName(),
+            annotation.getWeightsPerFieldValue());
       }
     }
     log.debug("Searchable annotation for field: {} : {}", schemaPathSpec, annotation);

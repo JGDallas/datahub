@@ -204,10 +204,11 @@ export const HomePageRecommendations = ({ user }: Props) => {
                 recommendationModules
                     .filter((module) => module.renderType !== RecommendationRenderType.DomainSearchList)
                     .map((module) => (
-                        <RecommendationContainer id={getStepId(module.moduleId)} key={module.moduleId}>
+                        <RecommendationContainer id={getStepId(module.moduleId)}>
                             <RecommendationTitle level={4}>{module.title}</RecommendationTitle>
                             <ThinDivider />
                             <RecommendationModule
+                                key={module.moduleId}
                                 module={module as RecommendationModuleType}
                                 scenarioType={scenario}
                                 showTitle={false}
