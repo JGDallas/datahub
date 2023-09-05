@@ -9,7 +9,7 @@ import { useGetMlFeatureTableQuery } from '../../../graphql/mlFeatureTable.gener
 import { EntityProfile } from '../shared/containers/profile/EntityProfile';
 import { SidebarDomainSection } from '../shared/containers/profile/sidebar/Domain/SidebarDomainSection';
 import { SidebarAccessRequestSection } from '../shared/containers/profile/sidebar/AccessRequest/SidebarAccessRequestSection';
-import { SidebarOwnerSection } from '../shared/containers/profile/sidebar/Ownership/sidebar/SidebarOwnerSection';
+import { SidebarOwnerSection } from '../shared/containers/profile/sidebar/Ownership/SidebarOwnerSection';\
 import { SidebarAboutSection } from '../shared/containers/profile/sidebar/AboutSection/SidebarAboutSection';
 import { SidebarTagsSection } from '../shared/containers/profile/sidebar/SidebarTagsSection';
 import MlFeatureTableFeatures from './profile/features/MlFeatureTableFeatures';
@@ -111,10 +111,11 @@ export class MLFeatureTableEntity implements Entity<MlFeatureTable> {
                     component: SidebarDomainSection,
                 },
                 {
+<<<<<<< HEAD
                     component: SidebarAccessRequestSection,
-                },
-                {
+=======
                     component: DataProductSection,
+>>>>>>> upstream/master
                 },
             ]}
         />
